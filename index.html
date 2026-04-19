@@ -371,7 +371,7 @@ body {
 .bench-member:hover { border-color: var(--border2); }
 .bench-member.dragging { opacity: 0.4; }
 .bench-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.bench-name { font-size: 12px; font-weight: 600; flex: 1; }
+.bench-name { font-size: 12px; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bench-cls { font-size: 10px; color: var(--text3); }
 
 /* Groups grid */
@@ -1809,13 +1809,19 @@ function applyRaidSignups() {
   _raidSignupTitle = _importedSignups.eventTitle;
   _raidSignupDate  = _importedSignups.eventDate;
 
+  // Auto-bench everyone NOT in the confirmed list (and not already assigned to groups)
+  const assigned = assignedIds();
+  benchedIds = members
+    .filter(m => !_raidSignupIds.has(m.id) && !assigned.has(m.id))
+    .map(m => m.id);
+
   closeImportRaidModal();
   renderBench();
 
   // Toast
   const toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a24;border:1px solid var(--gold);border-radius:6px;padding:10px 20px;font-size:12px;color:#fff;z-index:9999;pointer-events:none';
-  toast.textContent = `✓ ${confirmed.length} signups highlighted for "${_importedSignups.eventTitle}" (${_importedSignups.eventDate})`;
+  toast.textContent = `✓ ${confirmed.length} signups ready for "${_importedSignups.eventTitle}" (${_importedSignups.eventDate})`;
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 3500);
 }
