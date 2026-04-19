@@ -857,6 +857,7 @@ body {
         <button class="loot-view-btn active" onclick="setLootView('overview',this)">Overview</button>
         <button class="loot-view-btn" onclick="setLootView('history',this)">Full History</button>
         <button class="loot-view-btn" onclick="setLootView('perplayer',this)">Per Player</button>
+        <button class="loot-view-btn" onclick="setLootView('stats',this)">📊 Stats</button>
         <button class="loot-view-btn" onclick="setLootView('manage',this)">⚙ Manage</button>
       </div>
 
@@ -864,6 +865,7 @@ body {
       <div id="loot-view-overview"></div>
       <div id="loot-view-history" style="display:none"></div>
       <div id="loot-view-perplayer" style="display:none"></div>
+      <div id="loot-view-stats" style="display:none"></div>
       <div id="loot-view-manage" style="display:none"></div>
 
       <!-- Loot Import Modal -->
@@ -3889,7 +3891,7 @@ function setLootView(view, btn) {
   _lootView = view;
   document.querySelectorAll('.loot-view-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  ['overview','history','perplayer','manage'].forEach(v => {
+  ['overview','history','perplayer','stats','manage'].forEach(v => {
     document.getElementById('loot-view-' + v).style.display = v === view ? 'block' : 'none';
   });
   renderCurrentLootView();
@@ -3899,6 +3901,7 @@ function renderCurrentLootView() {
   if (_lootView === 'overview')  renderLootOverview();
   if (_lootView === 'history')   renderLootHistory();
   if (_lootView === 'perplayer') renderLootPerPlayer();
+  if (_lootView === 'stats')     renderLootStats();
   if (_lootView === 'manage')    renderLootManage();
 }
 
@@ -4082,6 +4085,207 @@ function renderLootPerPlayer() {
   }).join('');
 
   el.innerHTML = html || '<div style="color:var(--text3);font-size:12px;padding:16px">No data.</div>';
+}
+
+// ── Stats view ─────────────────────────────────────────────────────────────
+
+function renderLootStats() {
+  const el = document.getElementById('loot-view-stats');
+  const real = _lootData.filter(e => e.character !== '_disenchanted');
+  if (!real.length) { el.innerHTML = '<div style="color:var(--text3);padding:16px">No data yet.</div>'; return; }
+
+  // ── Compute all stats ──────────────────────────────────────────────────
+  const sessions = [...new Set(_lootData.map(e => e.dateTime))].sort();
+  const msItems  = real.filter(e => !e.offspec);
+  const osItems  = real.filter(e =>  e.offspec);
+  const deItems  = _lootData.filter(e => e.character === '_disenchanted');
+
+  // Loot per player (MS + OS)
+  const playerMS = {}, playerOS = {};
+  real.forEach(e => {
+    if (!e.offspec) playerMS[e.character] = (playerMS[e.character] || 0) + 1;
+    else            playerOS[e.character] = (playerOS[e.character] || 0) + 1;
+  });
+  const allPlayers = [...new Set(real.map(e => e.character))].sort((a,b) =>
+    ((playerMS[b]||0)+(playerOS[b]||0)) - ((playerMS[a]||0)+(playerOS[a]||0))
+  );
+
+  // Loot per session
+  const sessionCounts = {};
+  sessions.forEach(s => {
+    const sReal = real.filter(e => e.dateTime === s);
+    sessionCounts[s] = { ms: sReal.filter(e=>!e.offspec).length, os: sReal.filter(e=>e.offspec).length };
+  });
+
+  // Top items (most awarded)
+  const itemCount = {};
+  real.forEach(e => { itemCount[e.itemID] = (itemCount[e.itemID]||0) + 1; });
+  const topItems = Object.entries(itemCount).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  // Quality breakdown
+  const qualCount = {1:0,2:0,3:0,4:0,5:0};
+  real.forEach(e => {
+    const q = (_itemCache[e.itemID]||{}).quality || 1;
+    qualCount[q] = (qualCount[q]||0) + 1;
+  });
+
+  // Fun records
+  const topLooter   = allPlayers[0];
+  const topLooterN  = (playerMS[topLooter]||0) + (playerOS[topLooter]||0);
+  const bigSession  = sessions.reduce((best, s) => {
+    const n = sessionCounts[s].ms + sessionCounts[s].os;
+    return n > (sessionCounts[best]?.ms+sessionCounts[best]?.os||0) ? s : best;
+  }, sessions[0]);
+  const avgPerSession = sessions.length ? (real.length / sessions.length).toFixed(1) : 0;
+
+  // ── Build SVG helpers ──────────────────────────────────────────────────
+  const SVG = (w, h, content) =>
+    `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${h}px;overflow:visible">${content}</svg>`;
+
+  // Horizontal bar chart: loot per player
+  const BAR_H = 28, BAR_GAP = 6, BAR_LABEL = 120, BAR_W = 340;
+  const maxPlayerTotal = Math.max(...allPlayers.map(p => (playerMS[p]||0)+(playerOS[p]||0)));
+  const playerBars = allPlayers.map((p, i) => {
+    const ms = playerMS[p]||0, os = playerOS[p]||0, total = ms+os;
+    const member = members.find(m => m.name.toLowerCase()===p.toLowerCase());
+    const color = member ? (CM[member.cls]?.color||'#888') : '#888';
+    const msW = Math.round((ms/maxPlayerTotal)*BAR_W);
+    const osW = Math.round((os/maxPlayerTotal)*BAR_W);
+    const y = i*(BAR_H+BAR_GAP);
+    return `
+      <text x="${BAR_LABEL-8}" y="${y+BAR_H/2+5}" text-anchor="end" fill="${color}" font-size="12" font-family="Exo 2,sans-serif" font-weight="600">${p}</text>
+      <rect x="${BAR_LABEL}" y="${y}" width="${msW}" height="${BAR_H}" fill="${color}" opacity="0.85" rx="3"/>
+      ${os > 0 ? `<rect x="${BAR_LABEL+msW}" y="${y}" width="${osW}" height="${BAR_H}" fill="${color}" opacity="0.35" rx="3"/>` : ''}
+      <text x="${BAR_LABEL+msW+osW+6}" y="${y+BAR_H/2+5}" fill="#9896a4" font-size="11" font-family="Exo 2,sans-serif">${total} (${ms}MS${os?` · ${os}OS`:''})</text>`;
+  }).join('');
+  const playerChartH = allPlayers.length*(BAR_H+BAR_GAP);
+  const playerChart = SVG(BAR_LABEL+BAR_W+100, playerChartH, playerBars);
+
+  // Grouped bar chart: items per session
+  const SB_W = 36, SB_GAP = 14, SB_MAX_H = 100;
+  const maxSession = Math.max(...sessions.map(s => sessionCounts[s].ms + sessionCounts[s].os), 1);
+  const sessionBars = sessions.map((s, i) => {
+    const { ms, os } = sessionCounts[s];
+    const total = ms + os;
+    const msH = Math.round((ms/maxSession)*SB_MAX_H);
+    const osH = Math.round((os/maxSession)*SB_MAX_H);
+    const x = i*(SB_W+SB_GAP);
+    const label = s.slice(5); // MM-DD
+    return `
+      <rect x="${x}" y="${SB_MAX_H-msH}" width="${SB_W*0.6}" height="${msH}" fill="#80d080" opacity="0.85" rx="2"/>
+      ${os > 0 ? `<rect x="${x+SB_W*0.6+2}" y="${SB_MAX_H-osH}" width="${SB_W*0.35}" height="${osH}" fill="#9896a4" opacity="0.85" rx="2"/>` : ''}
+      <text x="${x+SB_W/2}" y="${SB_MAX_H+14}" text-anchor="middle" fill="#9896a4" font-size="9" font-family="Exo 2,sans-serif">${label}</text>
+      <text x="${x+SB_W/2}" y="${SB_MAX_H-msH-4}" text-anchor="middle" fill="#ccc" font-size="10" font-family="Exo 2,sans-serif">${total}</text>`;
+  }).join('');
+  const sessionChartW = sessions.length*(SB_W+SB_GAP);
+  const sessionChart = SVG(Math.max(sessionChartW, 300), SB_MAX_H+30,
+    `<g transform="translate(0,0)">${sessionBars}</g>`);
+
+  // Donut chart: MS vs OS vs DE
+  const total = real.length + deItems.length;
+  const msAngle  = (msItems.length/total)*Math.PI*2;
+  const osAngle  = (osItems.length/total)*Math.PI*2;
+  const deAngle  = (deItems.length/total)*Math.PI*2;
+  function polarToCartesian(cx, cy, r, angle) {
+    return [cx + r*Math.sin(angle), cy - r*Math.cos(angle)];
+  }
+  function donutSlice(cx, cy, r, ir, startA, endA, color) {
+    if (Math.abs(endA-startA) < 0.001) return '';
+    const [x1,y1] = polarToCartesian(cx,cy,r,startA);
+    const [x2,y2] = polarToCartesian(cx,cy,r,endA);
+    const [ix1,iy1] = polarToCartesian(cx,cy,ir,startA);
+    const [ix2,iy2] = polarToCartesian(cx,cy,ir,endA);
+    const large = (endA-startA) > Math.PI ? 1 : 0;
+    return `<path d="M${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} L${ix2},${iy2} A${ir},${ir} 0 ${large},0 ${ix1},${iy1} Z" fill="${color}" opacity="0.9"/>`;
+  }
+  const cx=80,cy=80,R=70,IR=42;
+  let a=0;
+  const msSlice = donutSlice(cx,cy,R,IR,a, a+(msSlice_a=msAngle), '#80d080'); a+=msAngle;
+  const osSlice = donutSlice(cx,cy,R,IR,a, a+osAngle, '#9896a4'); a+=osAngle;
+  const deSlice = donutSlice(cx,cy,R,IR,a, a+deAngle, '#e0a040');
+  const donutChart = SVG(200, 170, `
+    ${msSlice}${osSlice}${deSlice}
+    <text x="${cx}" y="${cy-8}" text-anchor="middle" fill="#fff" font-size="18" font-family="Exo 2,sans-serif" font-weight="700">${total}</text>
+    <text x="${cx}" y="${cy+10}" text-anchor="middle" fill="#9896a4" font-size="10" font-family="Exo 2,sans-serif">items</text>
+    <circle cx="140" cy="20" r="6" fill="#80d080"/>
+    <text x="150" y="24" fill="#ccc" font-size="11" font-family="Exo 2,sans-serif">MS (${msItems.length})</text>
+    <circle cx="140" cy="40" r="6" fill="#9896a4"/>
+    <text x="150" y="44" fill="#ccc" font-size="11" font-family="Exo 2,sans-serif">OS (${osItems.length})</text>
+    <circle cx="140" cy="60" r="6" fill="#e0a040"/>
+    <text x="150" y="64" fill="#ccc" font-size="11" font-family="Exo 2,sans-serif">DE (${deItems.length})</text>
+  `);
+
+  // ── Top items list ────────────────────────────────────────────────────
+  const topItemsHtml = topItems.map(([id, count]) => {
+    const item = _itemCache[id] || {};
+    const qc = QUALITY_CLASS[item.quality??1];
+    const icon = item.icon ? `${WOWHEAD_ICON}${item.icon}.jpg` : '';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+      ${icon ? `<img src="${icon}" style="width:24px;height:24px;border-radius:3px;flex-shrink:0">` : ''}
+      <a href="${WOWHEAD_ITEM}${id}" target="_blank" data-wowhead="item=${id}&domain=tbc" class="${qc}" style="text-decoration:none;font-size:12px;font-weight:500;flex:1">${item.name||'Item #'+id}</a>
+      <span style="font-size:12px;font-weight:700;color:var(--gold);flex-shrink:0">${count}×</span>
+    </div>`;
+  }).join('');
+
+  // ── Fun records ──────────────────────────────────────────────────────
+  const recordCards = [
+    { icon:'🏆', label:'Top Looter', value: topLooter, sub: `${topLooterN} items total` },
+    { icon:'⚔', label:'Biggest Session', value: bigSession, sub: `${sessionCounts[bigSession]?.ms+sessionCounts[bigSession]?.os} items` },
+    { icon:'📦', label:'Avg per Raid', value: avgPerSession, sub: 'items awarded' },
+    { icon:'🎯', label:'MS Rate', value: Math.round((msItems.length/real.length)*100)+'%', sub: `${msItems.length} of ${real.length}` },
+    { icon:'✨', label:'Disenchanted', value: deItems.length, sub: `${Math.round((deItems.length/total)*100)}% of drops` },
+    { icon:'🎲', label:'Unique Items', value: Object.keys(itemCount).length, sub: 'different items' },
+  ].map(c => `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;min-width:130px;flex:1">
+      <div style="font-size:22px;margin-bottom:6px">${c.icon}</div>
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">${c.label}</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);font-family:'Cinzel',serif">${c.value}</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">${c.sub}</div>
+    </div>`).join('');
+
+  // ── Assemble ─────────────────────────────────────────────────────────
+  el.innerHTML = `
+    <!-- Records row -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">${recordCards}</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;margin-bottom:24px">
+
+      <!-- Loot per player bar chart -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px">
+        <div style="font-family:'Cinzel',serif;font-size:12px;color:var(--gold);margin-bottom:16px;letter-spacing:0.05em">LOOT PER PLAYER</div>
+        <div style="display:flex;gap:12px;font-size:10px;color:var(--text3);margin-bottom:10px">
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#80d080;border-radius:2px;display:inline-block"></span>Main Spec</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(128,208,128,0.35);border-radius:2px;display:inline-block"></span>Off Spec</span>
+        </div>
+        ${playerChart}
+      </div>
+
+      <!-- Right column: donut + top items -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- Donut -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px">
+          <div style="font-family:'Cinzel',serif;font-size:12px;color:var(--gold);margin-bottom:12px;letter-spacing:0.05em">LOOT BREAKDOWN</div>
+          ${donutChart}
+        </div>
+
+        <!-- Top items -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px">
+          <div style="font-family:'Cinzel',serif;font-size:12px;color:var(--gold);margin-bottom:12px;letter-spacing:0.05em">MOST AWARDED ITEMS</div>
+          ${topItemsHtml || '<div style="color:var(--text3);font-size:12px">No repeat drops yet.</div>'}
+        </div>
+      </div>
+    </div>
+
+    <!-- Sessions bar chart -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px;margin-bottom:24px">
+      <div style="font-family:'Cinzel',serif;font-size:12px;color:var(--gold);margin-bottom:6px;letter-spacing:0.05em">ITEMS PER RAID SESSION</div>
+      <div style="display:flex;gap:12px;font-size:10px;color:var(--text3);margin-bottom:14px">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#80d080;border-radius:2px;display:inline-block"></span>Main Spec</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#9896a4;border-radius:2px;display:inline-block"></span>Off Spec</span>
+      </div>
+      <div style="overflow-x:auto;padding-bottom:4px">${sessionChart}</div>
+    </div>`;
 }
 
 // ── Manage view ───────────────────────────────────────────────────────────────
