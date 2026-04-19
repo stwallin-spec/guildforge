@@ -1107,6 +1107,7 @@ function showPage(name, btn) {
   if (name === 'assign') initAssign();
   if (name === 'prof') initProfessions();
   closeMobileNav();
+  localStorage.setItem('gm_activetab', name);
 }
 
 // ── ROSTER ────────────────────────────────────────────────────────────────────
