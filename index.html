@@ -413,6 +413,71 @@ body {
   display: flex; align-items: center; justify-content: space-between;
   border-bottom: 1px solid var(--border);
 }
+/* LOOT TRACKER */
+.loot-view-btn {
+  padding: 6px 16px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text2);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.loot-view-btn:hover { color: var(--text); border-color: var(--gold); }
+.loot-view-btn.active { background: rgba(212,175,55,0.15); border-color: var(--gold); color: var(--gold); }
+
+.loot-row {
+  display: grid;
+  grid-template-columns: 90px 32px 1fr 100px 80px 70px;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition: border-color .15s, background .15s;
+  font-size: 12px;
+}
+.loot-row:hover { background: var(--bg3); border-color: var(--border); }
+.loot-row.offspec { opacity: 0.65; }
+.loot-header {
+  display: grid;
+  grid-template-columns: 90px 32px 1fr 100px 80px 70px;
+  gap: 10px;
+  padding: 4px 12px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.loot-player-bar {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.loot-player-bar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  user-select: none;
+}
+.loot-player-bar-header:hover { background: var(--bg3); }
+
+/* Quality colours */
+.q1 { color: #9d9d9d; } /* grey/common */
+.q2 { color: #1eff00; } /* green/uncommon */
+.q3 { color: #0070dd; } /* blue/rare */
+.q4 { color: #a335ee; } /* purple/epic */
+.q5 { color: #ff8000; } /* orange/legendary */
+
 /* RAID ARCHIVE */
 .archive-entry:hover { border-color: var(--gold) !important; transition: border-color 0.15s; }
 
@@ -665,6 +730,7 @@ body {
     <button class="nav-btn" onclick="showPage('recruit',this)">Recruitment</button>
     <button class="nav-btn" onclick="showPage('raid',this)">Raid Planner</button>
     <button class="nav-btn" onclick="showPage('assign',this)">Assignments</button>
+    <button class="nav-btn" onclick="showPage('loot',this)">Loot Tracker</button>
   </nav>
   <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
     <span id="sync-status" style="font-size:11px;color:#9896a4">⟳ Connecting...</span>
@@ -772,6 +838,66 @@ body {
 
 </div>
 
+  <!-- LOOT TRACKER -->
+  <div class="page" id="page-loot">
+    <div class="main">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+        <h2 style="font-family:'Cinzel',serif;color:var(--gold);margin:0">Loot Tracker</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-gold" onclick="showLootPasteModal()">⬆ Import Loot</button>
+          <button class="btn" onclick="clearLootData()" style="color:#e07070;border-color:#e07070">🗑 Clear All</button>
+        </div>
+      </div>
+
+      <!-- Summary cards -->
+      <div id="loot-summary-cards" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px"></div>
+
+      <!-- View toggle -->
+      <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px">
+        <button class="loot-view-btn active" onclick="setLootView('overview',this)">Overview</button>
+        <button class="loot-view-btn" onclick="setLootView('history',this)">Full History</button>
+        <button class="loot-view-btn" onclick="setLootView('perplayer',this)">Per Player</button>
+        <button class="loot-view-btn" onclick="setLootView('manage',this)">⚙ Manage</button>
+      </div>
+
+      <!-- Views -->
+      <div id="loot-view-overview"></div>
+      <div id="loot-view-history" style="display:none"></div>
+      <div id="loot-view-perplayer" style="display:none"></div>
+      <div id="loot-view-manage" style="display:none"></div>
+
+      <!-- Loot Import Modal -->
+      <div id="loot-paste-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--gold);border-radius:var(--radius2);padding:24px;width:520px;max-width:95vw">
+          <h3 style="font-family:'Cinzel',serif;color:var(--gold);margin:0 0 6px">⬆ Import Loot Data</h3>
+          <p style="font-size:11px;color:var(--text3);margin:0 0 14px">Paste your Gargul export below, or upload the file directly.</p>
+          <textarea id="loot-paste-input" placeholder="Paste Gargul export here...&#10;&#10;dateTime,character,itemID,offspec,id&#10;2026-04-13,Hemoroidz,28522,0,..." style="width:100%;height:160px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:11px;padding:8px;resize:vertical;box-sizing:border-box;margin-bottom:10px"></textarea>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+            <div style="flex:1;height:1px;background:var(--border)"></div>
+            <span style="font-size:11px;color:var(--text3)">or</span>
+            <div style="flex:1;height:1px;background:var(--border)"></div>
+          </div>
+          <div style="margin-bottom:16px">
+            <button class="btn" style="width:100%" onclick="document.getElementById('loot-file-input').click()">📁 Upload File (.csv / .txt)</button>
+            <input id="loot-file-input" type="file" accept=".csv,.txt" style="display:none" onchange="handleLootFile(event)">
+          </div>
+          <div id="loot-paste-status" style="font-size:12px;min-height:18px;margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn" onclick="closeLootPasteModal()">Cancel</button>
+            <button class="btn btn-gold" onclick="handleLootPaste()">Import</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="loot-empty-state" style="text-align:center;padding:60px 20px;color:var(--text3)">
+        <div style="font-size:48px;margin-bottom:16px">⚔</div>
+        <div style="font-size:16px;font-family:'Cinzel',serif;color:var(--text2);margin-bottom:8px">No loot data yet</div>
+        <div style="font-size:13px">Export from Gargul and click <strong>Import CSV</strong> to get started.</div>
+        <div style="font-size:11px;margin-top:8px;color:var(--text3)">Gargul → Export → Award History → CSV</div>
+      </div>
+    </div>
+  </div>
 
   <!-- ASSIGNMENTS -->
   <div class="page" id="page-assign" style="overflow:hidden">
@@ -1154,6 +1280,7 @@ function showPage(name, btn) {
   if (name === 'raid') renderRaid();
   if (name === 'assign') initAssign();
   if (name === 'prof') initProfessions();
+  if (name === 'loot') initLoot();
   closeMobileNav();
   localStorage.setItem('gm_activetab', name);
 }
@@ -3543,6 +3670,16 @@ initClassSelect();
       localStorage.setItem('gm_raid_archive', JSON.stringify(archiveData));
     }
   } catch(e) {}
+  // Load loot data from Supabase
+  try {
+    const lootData = await sbGet('loot');
+    if (lootData && lootData.entries && lootData.entries.length > 0) {
+      localStorage.setItem('gm_loot', JSON.stringify(lootData.entries));
+    }
+    if (lootData && lootData.itemCache) {
+      localStorage.setItem('gm_loot_cache', JSON.stringify(lootData.itemCache));
+    }
+  } catch(e) {}
   renderRoster();
   renderProfPills();
   // Restore last active tab
@@ -3552,6 +3689,504 @@ initClassSelect();
     if (btn) showPage(savedTab, btn);
   }
 })();
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LOOT TRACKER
+// ══════════════════════════════════════════════════════════════════════════════
+
+const WOWHEAD_TOOLTIP = 'https://nether.wowhead.com/tbc/tooltip/item/';
+const WOWHEAD_ICON    = 'https://wow.zamimg.com/images/wow/icons/medium/';
+const WOWHEAD_ITEM    = 'https://www.wowhead.com/tbc/item=';
+
+// Quality colour classes
+const QUALITY_CLASS = { 0:'q1', 1:'q1', 2:'q2', 3:'q3', 4:'q4', 5:'q5' };
+const QUALITY_NAME  = { 0:'Poor', 1:'Common', 2:'Uncommon', 3:'Rare', 4:'Epic', 5:'Legendary' };
+
+let _lootData    = [];   // all parsed entries
+let _itemCache   = {};   // itemID → { name, quality, icon }
+let _lootView    = 'overview';
+
+// ── Storage ──────────────────────────────────────────────────────────────────
+
+function loadLootData() {
+  try { _lootData = JSON.parse(localStorage.getItem('gm_loot') || '[]'); } 
+  catch(e) { _lootData = []; }
+}
+
+function saveLootData() {
+  localStorage.setItem('gm_loot', JSON.stringify(_lootData));
+  sbSet('loot', { entries: _lootData, itemCache: _itemCache }).catch(() => {});
+}
+
+function loadItemCache() {
+  try { _itemCache = JSON.parse(localStorage.getItem('gm_loot_cache') || '{}'); }
+  catch(e) { _itemCache = {}; }
+}
+
+function saveItemCache() {
+  localStorage.setItem('gm_loot_cache', JSON.stringify(_itemCache));
+}
+
+// ── CSV Import ────────────────────────────────────────────────────────────────
+
+function showLootPasteModal() {
+  document.getElementById('loot-paste-input').value = '';
+  document.getElementById('loot-paste-status').textContent = '';
+  document.getElementById('loot-paste-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('loot-paste-input').focus(), 50);
+}
+
+function closeLootPasteModal() {
+  document.getElementById('loot-paste-modal').style.display = 'none';
+}
+
+async function handleLootPaste() {
+  const text = document.getElementById('loot-paste-input').value.trim();
+  const statusEl = document.getElementById('loot-paste-status');
+  if (!text) { statusEl.style.color = '#e07070'; statusEl.textContent = 'Please paste some data first.'; return; }
+  statusEl.style.color = 'var(--text3)';
+  statusEl.textContent = '⟳ Processing...';
+  await importLootText(text);
+}
+
+function handleLootFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    document.getElementById('loot-paste-input').value = e.target.result;
+    document.getElementById('loot-paste-status').style.color = 'var(--text3)';
+    document.getElementById('loot-paste-status').textContent = `✓ File loaded: ${file.name} — click Import to continue`;
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+async function importLootText(text) {
+  const statusEl = document.getElementById('loot-paste-status');
+  const newEntries = parseLootCSV(text);
+  if (!newEntries.length) {
+    statusEl.style.color = '#e07070';
+    statusEl.textContent = '⚠ No valid loot entries found. Make sure to include the header row.';
+    return;
+  }
+  const existing = new Set(_lootData.map(e => e.id));
+  const added = newEntries.filter(e => !existing.has(e.id));
+  _lootData = [..._lootData, ...added];
+  _lootData.sort((a, b) => b.dateTime.localeCompare(a.dateTime));
+  saveLootData();
+
+  statusEl.style.color = '#80d080';
+  statusEl.textContent = `⟳ Fetching item names... (${added.length} new entries)`;
+
+  await fetchMissingItems(_lootData.map(e => e.itemID));
+  renderLootPage();
+  closeLootPasteModal();
+  showToast(`✓ Imported ${added.length} new entries${newEntries.length - added.length > 0 ? ` (${newEntries.length - added.length} duplicates skipped)` : ''}`);
+}
+
+// Close modal on backdrop click
+document.addEventListener('click', function(e) {
+  const m = document.getElementById('loot-paste-modal');
+  if (m && e.target === m) closeLootPasteModal();
+});
+
+function parseLootCSV(text) {
+  const lines = text.trim().split('\n');
+  const entries = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line || line.startsWith('dateTime') || line.startsWith('#')) continue;
+    const parts = line.split(',');
+    if (parts.length < 5) continue;
+    const [dateTime, character, itemID, offspec, id] = parts;
+    if (!dateTime || !character || !itemID) continue;
+    entries.push({
+      dateTime: dateTime.trim(),
+      character: character.trim(),
+      itemID: parseInt(itemID.trim()),
+      offspec: parseInt(offspec.trim()) === 1,
+      id: id.trim(),
+    });
+  }
+  return entries;
+}
+
+// ── Item data fetching ────────────────────────────────────────────────────────
+
+async function fetchMissingItems(itemIDs) {
+  const unique = [...new Set(itemIDs)].filter(id => !_itemCache[id]);
+  if (!unique.length) return;
+  // Fetch in batches of 5 to avoid hammering the API
+  for (let i = 0; i < unique.length; i += 5) {
+    const batch = unique.slice(i, i + 5);
+    await Promise.all(batch.map(async (id) => {
+      try {
+        const r = await fetch(WOWHEAD_TOOLTIP + id);
+        const d = await r.json();
+        _itemCache[id] = { name: d.name || 'Unknown Item', quality: d.quality ?? 1, icon: d.icon || 'inv_misc_questionmark' };
+      } catch(e) {
+        _itemCache[id] = { name: 'Item #' + id, quality: 1, icon: 'inv_misc_questionmark' };
+      }
+    }));
+    saveItemCache();
+  }
+}
+
+// ── Page render ───────────────────────────────────────────────────────────────
+
+async function initLoot() {
+  loadLootData();
+  loadItemCache();
+  await fetchMissingItems(_lootData.map(e => e.itemID));
+  renderLootPage();
+}
+
+function renderLootPage() {
+  const empty = document.getElementById('loot-empty-state');
+  const cards = document.getElementById('loot-summary-cards');
+
+  if (!_lootData.length) {
+    empty.style.display = 'block';
+    cards.innerHTML = '';
+    document.getElementById('loot-view-overview').innerHTML = '';
+    document.getElementById('loot-view-history').innerHTML = '';
+    document.getElementById('loot-view-perplayer').innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+  renderLootSummaryCards();
+  renderCurrentLootView();
+}
+
+function renderLootSummaryCards() {
+  const real = _lootData.filter(e => e.character !== '_disenchanted');
+  const ms   = real.filter(e => !e.offspec);
+  const os   = real.filter(e => e.offspec);
+  const de   = _lootData.filter(e => e.character === '_disenchanted');
+  const sessions = new Set(_lootData.map(e => e.dateTime)).size;
+  const players  = new Set(real.map(e => e.character)).size;
+
+  const cards = [
+    { label: 'Total Items',    value: real.length,     icon: '⚔' },
+    { label: 'Main Spec',      value: ms.length,       icon: '🏆' },
+    { label: 'Off Spec',       value: os.length,       icon: '📦' },
+    { label: 'Disenchanted',   value: de.length,       icon: '✨' },
+    { label: 'Raid Sessions',  value: sessions,        icon: '📅' },
+    { label: 'Players Looted', value: players,         icon: '👥' },
+  ];
+  document.getElementById('loot-summary-cards').innerHTML = cards.map(c =>
+    `<div class="stat-card" style="min-width:110px">
+      <div class="lbl">${c.icon} ${c.label}</div>
+      <div class="val">${c.value}</div>
+    </div>`
+  ).join('');
+}
+
+function setLootView(view, btn) {
+  _lootView = view;
+  document.querySelectorAll('.loot-view-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['overview','history','perplayer','manage'].forEach(v => {
+    document.getElementById('loot-view-' + v).style.display = v === view ? 'block' : 'none';
+  });
+  renderCurrentLootView();
+}
+
+function renderCurrentLootView() {
+  if (_lootView === 'overview')  renderLootOverview();
+  if (_lootView === 'history')   renderLootHistory();
+  if (_lootView === 'perplayer') renderLootPerPlayer();
+  if (_lootView === 'manage')    renderLootManage();
+}
+
+// ── Overview view ─────────────────────────────────────────────────────────────
+
+function renderLootOverview() {
+  const el = document.getElementById('loot-view-overview');
+  const real = _lootData.filter(e => e.character !== '_disenchanted');
+
+  // Count per player
+  const playerMap = {};
+  real.forEach(e => {
+    if (!playerMap[e.character]) playerMap[e.character] = { ms: 0, os: 0, items: [] };
+    if (e.offspec) playerMap[e.character].os++;
+    else           playerMap[e.character].ms++;
+    playerMap[e.character].items.push(e);
+  });
+
+  const sorted = Object.entries(playerMap).sort((a, b) => (b[1].ms + b[1].os) - (a[1].ms + a[1].os));
+  const maxTotal = sorted[0]?.[1].ms + sorted[0]?.[1].os || 1;
+
+  // Group by session date
+  const sessions = {};
+  _lootData.forEach(e => {
+    if (!sessions[e.dateTime]) sessions[e.dateTime] = [];
+    sessions[e.dateTime].push(e);
+  });
+
+  let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">';
+
+  // Left: loot distribution per player
+  html += '<div>';
+  html += '<div style="font-family:Cinzel,serif;font-size:12px;color:var(--gold);margin-bottom:12px;letter-spacing:0.05em">LOOT DISTRIBUTION</div>';
+  html += sorted.map(([name, data]) => {
+    const total = data.ms + data.os;
+    const pct   = Math.round((total / maxTotal) * 100);
+    const member = members.find(m => m.name.toLowerCase() === name.toLowerCase());
+    const color  = member ? (CM[member.cls]?.color || '#888') : '#888';
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:12px;font-weight:600;color:${color}">${name}</span>
+        <span style="font-size:11px;color:var(--text3)">${data.ms} MS${data.os ? ` · ${data.os} OS` : ''}</span>
+      </div>
+      <div style="background:var(--bg3);border-radius:3px;height:6px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${color};opacity:0.8;border-radius:3px;transition:width .3s"></div>
+      </div>
+    </div>`;
+  }).join('');
+  html += '</div>';
+
+  // Right: sessions
+  html += '<div>';
+  html += '<div style="font-family:Cinzel,serif;font-size:12px;color:var(--gold);margin-bottom:12px;letter-spacing:0.05em">RAID SESSIONS</div>';
+  Object.entries(sessions).sort((a,b) => b[0].localeCompare(a[0])).forEach(([date, entries]) => {
+    const real2 = entries.filter(e => e.character !== '_disenchanted');
+    const de2   = entries.filter(e => e.character === '_disenchanted');
+    html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:10px 14px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-family:'Cinzel',serif;font-size:12px;color:var(--gold)">${date}</span>
+        <span style="font-size:11px;color:var(--text3)">${real2.length} items awarded${de2.length ? ` · ${de2.length} DE'd` : ''}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${real2.map(e => {
+          const item = _itemCache[e.itemID] || {};
+          const qc = QUALITY_CLASS[item.quality ?? 1];
+          return `<a href="${WOWHEAD_ITEM}${e.itemID}" target="_blank" data-wowhead="item=${e.itemID}&domain=tbc"
+            style="font-size:10px;text-decoration:none;padding:2px 7px;border-radius:3px;background:rgba(0,0,0,0.3)"
+            class="${qc}">${item.name || 'Item #' + e.itemID}${e.offspec ? ' <span style="opacity:0.6">(OS)</span>' : ''}</a>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+  html += '</div></div>';
+
+  el.innerHTML = html;
+}
+
+// ── History view ──────────────────────────────────────────────────────────────
+
+function renderLootHistory() {
+  const el = document.getElementById('loot-view-history');
+
+  // Filter controls
+  const players = ['All', ...[...new Set(_lootData.filter(e => e.character !== '_disenchanted').map(e => e.character))].sort()];
+  const dates   = ['All', ...[...new Set(_lootData.map(e => e.dateTime))].sort().reverse()];
+
+  let html = `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+    <select id="loot-filter-player" onchange="renderLootHistory()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);padding:5px 10px;font-family:'Exo 2',sans-serif;font-size:12px">
+      ${players.map(p => `<option>${p}</option>`).join('')}
+    </select>
+    <select id="loot-filter-date" onchange="renderLootHistory()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);padding:5px 10px;font-family:'Exo 2',sans-serif;font-size:12px">
+      ${dates.map(d => `<option>${d}</option>`).join('')}
+    </select>
+    <label style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;cursor:pointer">
+      <input type="checkbox" id="loot-filter-ms" onchange="renderLootHistory()"> Main Spec only
+    </label>
+  </div>`;
+
+  const playerFilter = document.getElementById('loot-filter-player')?.value || 'All';
+  const dateFilter   = document.getElementById('loot-filter-date')?.value || 'All';
+  const msOnly       = document.getElementById('loot-filter-ms')?.checked || false;
+
+  let filtered = _lootData;
+  if (playerFilter !== 'All') filtered = filtered.filter(e => e.character === playerFilter);
+  if (dateFilter   !== 'All') filtered = filtered.filter(e => e.dateTime === dateFilter);
+  if (msOnly)                 filtered = filtered.filter(e => !e.offspec);
+
+  html += `<div class="loot-header">
+    <span>Date</span><span></span><span>Item</span><span>Player</span><span>Spec</span><span>Type</span>
+  </div>`;
+
+  html += filtered.map(e => {
+    const item   = _itemCache[e.itemID] || {};
+    const qc     = QUALITY_CLASS[item.quality ?? 1];
+    const icon   = item.icon ? `${WOWHEAD_ICON}${item.icon}.jpg` : '';
+    const member = members.find(m => m.name.toLowerCase() === e.character.toLowerCase());
+    const color  = member ? (CM[member.cls]?.color || '#888') : (e.character === '_disenchanted' ? '#9896a4' : '#888');
+    const displayName = e.character === '_disenchanted' ? '✨ Disenchanted' : e.character;
+    return `<div class="loot-row ${e.offspec ? 'offspec' : ''}">
+      <span style="color:var(--text3)">${e.dateTime}</span>
+      <span>${icon ? `<img src="${icon}" style="width:24px;height:24px;border-radius:3px;display:block" onerror="this.style.display='none'">` : ''}</span>
+      <span><a href="${WOWHEAD_ITEM}${e.itemID}" target="_blank" data-wowhead="item=${e.itemID}&domain=tbc" class="${qc}" style="text-decoration:none;font-weight:500">${item.name || 'Item #' + e.itemID}</a></span>
+      <span style="font-weight:600;color:${color}">${displayName}</span>
+      <span style="color:var(--text3)">${member?.spec || member?.cls || ''}</span>
+      <span>${e.offspec 
+        ? '<span style="font-size:10px;color:#9896a4;background:rgba(255,255,255,0.07);padding:2px 7px;border-radius:10px">Off Spec</span>'
+        : '<span style="font-size:10px;color:#80d080;background:rgba(128,208,128,0.1);padding:2px 7px;border-radius:10px">Main Spec</span>'
+      }</span>
+    </div>`;
+  }).join('') || '<div style="color:var(--text3);font-size:12px;padding:16px">No entries match the current filters.</div>';
+
+  el.innerHTML = html;
+}
+
+// ── Per Player view ────────────────────────────────────────────────────────────
+
+function renderLootPerPlayer() {
+  const el = document.getElementById('loot-view-perplayer');
+  const real = _lootData.filter(e => e.character !== '_disenchanted');
+  
+  const playerMap = {};
+  real.forEach(e => {
+    if (!playerMap[e.character]) playerMap[e.character] = [];
+    playerMap[e.character].push(e);
+  });
+
+  const sorted = Object.entries(playerMap).sort((a,b) => b[1].length - a[1].length);
+
+  let html = sorted.map(([name, entries]) => {
+    const member = members.find(m => m.name.toLowerCase() === name.toLowerCase());
+    const color  = member ? (CM[member.cls]?.color || '#888') : '#888';
+    const ms = entries.filter(e => !e.offspec);
+    const os = entries.filter(e =>  e.offspec);
+    const icon = member ? specIcon(member.cls, member.spec) : '';
+
+    const itemRows = entries.map(e => {
+      const item = _itemCache[e.itemID] || {};
+      const qc   = QUALITY_CLASS[item.quality ?? 1];
+      const ico  = item.icon ? `${WOWHEAD_ICON}${item.icon}.jpg` : '';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+        ${ico ? `<img src="${ico}" style="width:22px;height:22px;border-radius:3px;flex-shrink:0" onerror="this.style.display='none'">` : ''}
+        <a href="${WOWHEAD_ITEM}${e.itemID}" target="_blank" data-wowhead="item=${e.itemID}&domain=tbc" class="${qc}" style="text-decoration:none;font-size:12px;font-weight:500;flex:1">${item.name || 'Item #' + e.itemID}</a>
+        <span style="font-size:10px;color:var(--text3);flex-shrink:0">${e.dateTime}</span>
+        ${e.offspec ? '<span style="font-size:10px;color:#9896a4;background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:10px;flex-shrink:0">OS</span>' : ''}
+      </div>`;
+    }).join('');
+
+    return `<div class="loot-player-bar">
+      <div class="loot-player-bar-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        ${icon ? `<img src="${icon}" style="width:28px;height:28px;border-radius:50%;flex-shrink:0" onerror="this.style.display='none'">` : ''}
+        <span style="font-size:14px;font-weight:700;color:${color};flex:1">${name}</span>
+        <span style="font-size:11px;color:var(--text3);margin-right:8px">${member?.spec || member?.cls || ''}</span>
+        <span style="font-size:11px;background:rgba(128,208,128,0.1);color:#80d080;padding:2px 8px;border-radius:10px;margin-right:4px">${ms.length} MS</span>
+        ${os.length ? `<span style="font-size:11px;background:rgba(255,255,255,0.07);color:#9896a4;padding:2px 8px;border-radius:10px;margin-right:4px">${os.length} OS</span>` : ''}
+        <span style="font-size:11px;color:var(--text3)">${entries.length} total ▾</span>
+      </div>
+      <div style="display:none;padding:4px 14px 10px">
+        ${itemRows}
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = html || '<div style="color:var(--text3);font-size:12px;padding:16px">No data.</div>';
+}
+
+// ── Manage view ───────────────────────────────────────────────────────────────
+
+function renderLootManage() {
+  const el = document.getElementById('loot-view-manage');
+  if (!_lootData.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:16px">No loot data to manage.</div>';
+    return;
+  }
+
+  // Group by session date
+  const sessions = {};
+  _lootData.forEach(e => {
+    if (!sessions[e.dateTime]) sessions[e.dateTime] = [];
+    sessions[e.dateTime].push(e);
+  });
+
+  let html = `<div style="font-size:12px;color:var(--text3);margin-bottom:16px">
+    ${_lootData.length} total entries across ${Object.keys(sessions).length} session${Object.keys(sessions).length !== 1 ? 's' : ''}.
+    Delete individual rows or entire sessions below.
+  </div>`;
+
+  Object.entries(sessions)
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .forEach(([date, entries]) => {
+      const real = entries.filter(e => e.character !== '_disenchanted');
+      html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);margin-bottom:12px;overflow:hidden">
+        <!-- Session header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--border)">
+          <div>
+            <span style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold)">${date}</span>
+            <span style="font-size:11px;color:var(--text3);margin-left:10px">${entries.length} entries · ${real.length} awarded</span>
+          </div>
+          <button class="btn" style="font-size:11px;padding:3px 12px;color:#e07070;border-color:#e07070"
+            onclick="deleteSession('${date}')">🗑 Delete Session</button>
+        </div>
+        <!-- Entries table -->
+        <div style="padding:6px 0">
+          <div style="display:grid;grid-template-columns:100px 140px 1fr 60px 36px;gap:8px;padding:4px 14px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid rgba(255,255,255,0.05);margin-bottom:2px">
+            <span>Date</span><span>Player</span><span>Item</span><span>Type</span><span></span>
+          </div>
+          ${entries.map(e => {
+            const item = _itemCache[e.itemID] || {};
+            const qc = QUALITY_CLASS[item.quality ?? 1];
+            const member = members.find(m => m.name.toLowerCase() === e.character.toLowerCase());
+            const color = member ? (CM[member.cls]?.color || '#888') : (e.character === '_disenchanted' ? '#9896a4' : '#aaa');
+            return `<div style="display:grid;grid-template-columns:100px 140px 1fr 60px 36px;gap:8px;padding:5px 14px;align-items:center;border-bottom:1px solid rgba(255,255,255,0.03)" id="loot-entry-${e.id}">
+              <span style="font-size:11px;color:var(--text3)">${e.dateTime}</span>
+              <span style="font-size:12px;font-weight:600;color:${color};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.character === '_disenchanted' ? '✨ DE' : e.character}</span>
+              <span><a href="${WOWHEAD_ITEM}${e.itemID}" target="_blank" data-wowhead="item=${e.itemID}&domain=tbc" class="${qc}" style="text-decoration:none;font-size:12px">${item.name || 'Item #' + e.itemID}</a></span>
+              <span>${e.offspec
+                ? '<span style="font-size:10px;color:#9896a4">Off Spec</span>'
+                : '<span style="font-size:10px;color:#80d080">Main Spec</span>'
+              }</span>
+              <span>
+                <button onclick="deleteLootEntry('${e.id}')" title="Delete entry"
+                  style="background:none;border:1px solid rgba(224,112,112,0.3);border-radius:4px;color:#e07070;cursor:pointer;font-size:11px;padding:2px 6px;line-height:1">✕</button>
+              </span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    });
+
+  el.innerHTML = html;
+}
+
+function deleteLootEntry(id) {
+  if (!confirm('Delete this loot entry?')) return;
+  _lootData = _lootData.filter(e => e.id !== id);
+  saveLootData();
+  renderLootPage();
+  showToast('Entry deleted.');
+}
+
+function deleteSession(date) {
+  const count = _lootData.filter(e => e.dateTime === date).length;
+  if (!confirm(`Delete all ${count} entries from ${date}?`)) return;
+  _lootData = _lootData.filter(e => e.dateTime !== date);
+  saveLootData();
+  renderLootPage();
+  showToast(`Session ${date} deleted (${count} entries removed).`);
+}
+
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+
+function clearLootData() {
+  if (!confirm('Clear ALL loot history? This cannot be undone.')) return;
+  _lootData = [];
+  _itemCache = {};
+  localStorage.removeItem('gm_loot');
+  localStorage.removeItem('gm_loot_cache');
+  sbSet('loot', {}).catch(() => {});
+  renderLootPage();
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a24;border:1px solid var(--gold);border-radius:6px;padding:10px 20px;font-size:12px;color:#fff;z-index:9999;pointer-events:none;white-space:nowrap';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
 </script>
 
 <div id="login-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center">
