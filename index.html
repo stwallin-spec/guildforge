@@ -1127,6 +1127,7 @@ function showPage(name, btn) {
   if (name === 'assign') initAssign();
   if (name === 'prof') initProfessions();
   closeMobileNav();
+  localStorage.setItem('gm_activetab', name);
 }
 
 // ── ROSTER ────────────────────────────────────────────────────────────────────
@@ -1654,7 +1655,7 @@ const TBC_BUFFS = {
   },
   'Warrior:Protection': {
     unique: ['imp_demoralizing_shout','last_stand'],
-    shared: ['battle_shout','commanding_shout','demoralizing_shout','thunder_clap','sunder_armor']
+    shared: ['battle_shout','commanding_shout','thunder_clap','sunder_armor']
   },
 };DOCTYPE html>
 <html lang="en">
@@ -3243,7 +3244,7 @@ const BUFF_DEFS = {
   'devotion_aura':           { name:'Devotion Aura',               cat:'Buffs',   color:'#f4d03f', icon:'spell_holy_devotionaura',              spell:10293  },
   'concentration_aura':      { name:'Concentration Aura',          cat:'Buffs',   color:'#f4d03f', icon:'spell_holy_mindsooth',                spell:19746  },
   'retribution_aura':        { name:'Retribution Aura',            cat:'Buffs',   color:'#f4d03f', icon:'spell_holy_auraoflight',              spell:10301  },
-  'sanctity_aura':           { name:'Sanctity Aura',               cat:'Buffs',   color:'#f4d03f', icon:'spell_holy_holyprotection',           spell:20218  },
+  'sanctity_aura':           { name:'Sanctity Aura',               cat:'Buffs',   color:'#f4d03f', icon:'spell_holy_mindvision',               spell:20218  },
   'blessing_of_sanctuary':   { name:'Blessing of Sanctuary',       cat:'Buffs',   color:'#f4d03f', icon:'spell_holy_blessingofprotection',     spell:25899  },
   'judgement_of_wisdom':     { name:'Judgement of Wisdom',         cat:'Buffs',   color:'#f4d03f', icon:'spell_holy_righteousfury',            spell:20355  },
   'judgement_of_light':      { name:'Judgement of Light',          cat:'Buffs',   color:'#f4d03f', icon:'spell_holy_healingaura',              spell:20271  },
@@ -3316,8 +3317,9 @@ function getSpecEntry(m) {
   if (!m) return null;
   const raw = TBC_BUFFS[m.cls + ':' + m.spec];
   if (!raw) return null;
-  // Support both old flat-array format and new {unique, shared} format
-  if (Array.isArray(raw)) return { unique: raw, shared: [] };
+  // Old format was a flat array - treat everything as shared (raid summary only),
+  // nothing as unique (per-group), so groups show nothing until new format is live
+  if (Array.isArray(raw)) return { unique: [], shared: raw };
   return raw;
 }
 
@@ -5043,6 +5045,12 @@ initClassSelect();
   await loadFromCloud();
   renderRoster();
   renderProfPills();
+  // Restore last active tab
+  const savedTab = localStorage.getItem('gm_activetab');
+  if (savedTab && savedTab !== 'roster') {
+    const btn = document.querySelector(`.nav-btn[onclick*="showPage('${savedTab}'"]`);
+    if (btn) showPage(savedTab, btn);
+  }
 })();
 </script>
 
