@@ -3314,7 +3314,11 @@ const BUFF_DEFS = {
 
 function getSpecEntry(m) {
   if (!m) return null;
-  return TBC_BUFFS[m.cls + ':' + m.spec] || null;
+  const raw = TBC_BUFFS[m.cls + ':' + m.spec];
+  if (!raw) return null;
+  // Support both old flat-array format and new {unique, shared} format
+  if (Array.isArray(raw)) return { unique: raw, shared: [] };
+  return raw;
 }
 
 // Per-group: only spec-unique buffs (things only THIS spec brings)
@@ -3341,8 +3345,8 @@ function getRaidBuffs() {
       if (!s) return;
       const m = getMemberById(s.id);
       const entry = getSpecEntry(m);
-      if (!entry || !entry.unique || !entry.shared) return;
-      [...entry.unique, ...entry.shared].forEach(b => {
+      if (!entry) return;
+      [...(entry.unique||[]), ...(entry.shared||[])].forEach(b => {
         buffSet[b] = (buffSet[b] || 0) + 1;
       });
     });
