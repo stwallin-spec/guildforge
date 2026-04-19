@@ -3764,6 +3764,7 @@ function handleLootFile(event) {
 }
 
 async function importLootText(text) {
+  if (!_li) { alert('Please login as officer to import loot data.'); closeLootPasteModal(); return; }
   const statusEl = document.getElementById('loot-paste-status');
   const newEntries = parseLootCSV(text);
   if (!newEntries.length) {
@@ -4150,6 +4151,7 @@ function renderLootManage() {
 }
 
 function deleteLootEntry(id) {
+  if (!_li) { alert('Please login as officer to manage loot data.'); return; }
   if (!confirm('Delete this loot entry?')) return;
   _lootData = _lootData.filter(e => e.id !== id);
   saveLootData();
@@ -4158,6 +4160,7 @@ function deleteLootEntry(id) {
 }
 
 function deleteSession(date) {
+  if (!_li) { alert('Please login as officer to manage loot data.'); return; }
   const count = _lootData.filter(e => e.dateTime === date).length;
   if (!confirm(`Delete all ${count} entries from ${date}?`)) return;
   _lootData = _lootData.filter(e => e.dateTime !== date);
@@ -4170,6 +4173,7 @@ function deleteSession(date) {
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
 function clearLootData() {
+  if (!_li) { alert('Please login as officer to manage loot data.'); return; }
   if (!confirm('Clear ALL loot history? This cannot be undone.')) return;
   _lootData = [];
   _itemCache = {};
