@@ -89,6 +89,25 @@ body {
 .page { display: none; }
 .page.active { display: block; }
 
+/* GROUP BUFF PANEL */
+.group-buffs {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 6px 8px 4px;
+  min-height: 24px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+/* RAID BUFF SUMMARY */
+#raid-buff-summary {
+  display: none;
+  margin-top: 20px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 14px 16px;
+}
+
 /* BUTTONS */
 .btn {
   padding: 7px 16px;
@@ -715,6 +734,7 @@ body {
       </div>
       <div class="groups-sticky">
         <div class="groups-grid" id="groups-grid"></div>
+        <div id="raid-buff-summary"></div>
         <div id="benched-group"></div>
       </div>
     </div>
@@ -1480,6 +1500,205 @@ function clearBenched() {
   renderBench();
 }
 
+// ── TBC CLASSIC BUFF DATABASE ─────────────────────────────────────────────
+// Maps class+spec to buffs/debuffs they provide
+// Format: { name, type ('buff'|'debuff'|'other'), color, icon (emoji fallback) }
+
+const TBC_BUFFS = {
+  // ── DRUID ──────────────────────────────────────────────────────────────
+  'Druid:Balance':      ['gift_of_the_wild','thorns','innervate','faerie_fire','imp_faerie_fire','moonkin_aura','mark_of_the_wild'],
+  'Druid:Feral Combat': ['gift_of_the_wild','thorns','innervate','faerie_fire','leader_of_the_pack','mangle_cat','mark_of_the_wild'],
+  'Druid:Restoration':  ['gift_of_the_wild','thorns','innervate','faerie_fire','mark_of_the_wild','tree_of_life'],
+
+  // ── HUNTER ─────────────────────────────────────────────────────────────
+  'Hunter:Beast Mastery': ['ferocious_inspiration','trueshot_aura','hunters_mark','expose_weakness','scorpid_sting','serpent_sting'],
+  'Hunter:Marksmanship': ['trueshot_aura','hunters_mark','expose_weakness','scorpid_sting','serpent_sting'],
+  'Hunter:Survival':    ['expose_weakness','hunters_mark','scorpid_sting','serpent_sting','wyvern_sting'],
+
+  // ── MAGE ───────────────────────────────────────────────────────────────
+  'Mage:Arcane':        ['arcane_brilliance','amplify_magic','dampen_magic','arcane_empowerment'],
+  'Mage:Fire':          ['arcane_brilliance','amplify_magic','dampen_magic','imp_scorch','winters_chill'],
+  'Mage:Frost':         ['arcane_brilliance','amplify_magic','dampen_magic','winters_chill'],
+
+  // ── PALADIN ────────────────────────────────────────────────────────────
+  'Paladin:Holy':       ['greater_blessing_of_kings','greater_blessing_of_wisdom','greater_blessing_of_light','greater_blessing_of_might','concentration_aura','devotion_aura','divine_spirit_paladin'],
+  'Paladin:Protection': ['greater_blessing_of_kings','greater_blessing_of_wisdom','greater_blessing_of_light','greater_blessing_of_might','devotion_aura','retribution_aura','blessing_of_sanctuary'],
+  'Paladin:Retribution':['greater_blessing_of_kings','greater_blessing_of_wisdom','greater_blessing_of_light','greater_blessing_of_might','sanctity_aura','retribution_aura','judgement_of_wisdom','judgement_of_light'],
+
+  // ── PRIEST ─────────────────────────────────────────────────────────────
+  'Priest:Holy':        ['prayer_of_fortitude','divine_spirit','prayer_of_shadow_protection','power_word_fortitude'],
+  'Priest:Discipline':  ['prayer_of_fortitude','divine_spirit','prayer_of_shadow_protection','power_word_fortitude','improved_divine_spirit'],
+  'Priest:Shadow':      ['prayer_of_fortitude','prayer_of_shadow_protection','power_word_fortitude','vampiric_embrace','shadow_weaving','misery'],
+
+  // ── ROGUE ──────────────────────────────────────────────────────────────
+  'Rogue:Assassination':['expose_armor','hemorrhage','imp_expose_armor'],
+  'Rogue:Combat':       ['expose_armor','hemorrhage','blade_flurry'],
+  'Rogue:Subtlety':     ['expose_armor','hemorrhage','master_of_subtlety'],
+
+  // ── SHAMAN ─────────────────────────────────────────────────────────────
+  'Shaman:Elemental':   ['bloodlust','totem_of_wrath','wrath_of_air','mana_spring','healing_stream','flametongue_totem','windfury_totem'],
+  'Shaman:Enhancement': ['bloodlust','windfury_totem','strength_of_earth','grace_of_air','mana_spring','healing_stream','flametongue_totem','unleashed_rage'],
+  'Shaman:Restoration': ['bloodlust','mana_spring','healing_stream','mana_tide','wrath_of_air','strength_of_earth','flametongue_totem'],
+
+  // ── WARLOCK ────────────────────────────────────────────────────────────
+  'Warlock:Affliction': ['curse_of_elements','curse_of_recklessness','curse_of_weakness','malediction','shadow_embrace','blood_pact','imp_shadow_bolt'],
+  'Warlock:Demonology': ['curse_of_elements','curse_of_recklessness','curse_of_weakness','blood_pact','demonic_sacrifice','fel_intelligence'],
+  'Warlock:Destruction':['curse_of_elements','curse_of_recklessness','curse_of_weakness','blood_pact','shadow_embrace','imp_shadow_bolt'],
+
+  // ── WARRIOR ────────────────────────────────────────────────────────────
+  'Warrior:Arms':       ['battle_shout','commanding_shout','demoralizing_shout','thunder_clap','sunder_armor','blood_frenzy'],
+  'Warrior:Fury':       ['battle_shout','commanding_shout','demoralizing_shout','thunder_clap','sunder_armor','imp_battle_shout'],
+  'Warrior:Protection': ['battle_shout','commanding_shout','demoralizing_shout','thunder_clap','sunder_armor','imp_demoralizing_shout','last_stand'],
+};
+
+// ── BUFF DEFINITIONS ────────────────────────────────────────────────────────
+const BUFF_DEFS = {
+  // BUFFS
+  'gift_of_the_wild':        { name:'Gift of the Wild',       cat:'Buffs',   color:'#4cd137' },
+  'mark_of_the_wild':        { name:'Mark of the Wild',       cat:'Buffs',   color:'#4cd137' },
+  'thorns':                  { name:'Thorns',                 cat:'Buffs',   color:'#4cd137' },
+  'innervate':               { name:'Innervate',              cat:'Other',   color:'#4cd137' },
+  'arcane_brilliance':       { name:'Arcane Brilliance',      cat:'Buffs',   color:'#3dc9eb' },
+  'amplify_magic':           { name:'Amplify Magic',          cat:'Buffs',   color:'#3dc9eb' },
+  'dampen_magic':            { name:'Dampen Magic',           cat:'Buffs',   color:'#3dc9eb' },
+  'greater_blessing_of_kings':{ name:'Greater Blessing of Kings', cat:'Buffs', color:'#f4d03f' },
+  'greater_blessing_of_wisdom':{ name:'Greater Blessing of Wisdom', cat:'Buffs', color:'#f4d03f' },
+  'greater_blessing_of_might':{ name:'Greater Blessing of Might', cat:'Buffs', color:'#f4d03f' },
+  'greater_blessing_of_light':{ name:'Greater Blessing of Light', cat:'Buffs', color:'#f4d03f' },
+  'devotion_aura':           { name:'Devotion Aura',          cat:'Buffs',   color:'#f4d03f' },
+  'concentration_aura':      { name:'Concentration Aura',     cat:'Buffs',   color:'#f4d03f' },
+  'retribution_aura':        { name:'Retribution Aura',       cat:'Buffs',   color:'#f4d03f' },
+  'sanctity_aura':           { name:'Sanctity Aura',          cat:'Buffs',   color:'#f4d03f' },
+  'blessing_of_sanctuary':   { name:'Blessing of Sanctuary',  cat:'Buffs',   color:'#f4d03f' },
+  'judgement_of_wisdom':     { name:'Judgement of Wisdom',    cat:'Buffs',   color:'#f4d03f' },
+  'judgement_of_light':      { name:'Judgement of Light',     cat:'Buffs',   color:'#f4d03f' },
+  'prayer_of_fortitude':     { name:'Prayer of Fortitude',    cat:'Buffs',   color:'#f0f0f0' },
+  'divine_spirit':           { name:'Divine Spirit',          cat:'Buffs',   color:'#f0f0f0' },
+  'improved_divine_spirit':  { name:'Improved Divine Spirit', cat:'Buffs',   color:'#f0f0f0' },
+  'prayer_of_shadow_protection':{ name:'Prayer of Shadow Protection', cat:'Buffs', color:'#f0f0f0' },
+  'power_word_fortitude':    { name:'Power Word: Fortitude',  cat:'Buffs',   color:'#f0f0f0' },
+  'battle_shout':            { name:'Battle Shout',           cat:'Buffs',   color:'#c0392b' },
+  'commanding_shout':        { name:'Commanding Shout',       cat:'Buffs',   color:'#c0392b' },
+  'imp_battle_shout':        { name:'Improved Battle Shout',  cat:'Buffs',   color:'#c0392b' },
+  'bloodlust':               { name:'Bloodlust',              cat:'Buffs',   color:'#0070dd' },
+  'mana_spring':             { name:'Mana Spring Totem',      cat:'Buffs',   color:'#0070dd' },
+  'healing_stream':          { name:'Healing Stream Totem',   cat:'Buffs',   color:'#0070dd' },
+  'mana_tide':               { name:'Mana Tide Totem',        cat:'Buffs',   color:'#0070dd' },
+  'wrath_of_air':            { name:'Wrath of Air Totem',     cat:'Buffs',   color:'#0070dd' },
+  'strength_of_earth':       { name:'Strength of Earth Totem',cat:'Buffs',   color:'#0070dd' },
+  'grace_of_air':            { name:'Grace of Air Totem',     cat:'Buffs',   color:'#0070dd' },
+  'flametongue_totem':       { name:'Flametongue Totem',      cat:'Buffs',   color:'#0070dd' },
+  'windfury_totem':          { name:'Windfury Totem',         cat:'Buffs',   color:'#0070dd' },
+  'unleashed_rage':          { name:'Unleashed Rage',         cat:'Buffs',   color:'#0070dd' },
+  'totem_of_wrath':          { name:'Totem of Wrath',         cat:'Buffs',   color:'#0070dd' },
+  'blood_pact':              { name:'Blood Pact',             cat:'Buffs',   color:'#9b59b6' },
+  'fel_intelligence':        { name:'Fel Intelligence',       cat:'Buffs',   color:'#9b59b6' },
+  'arcane_empowerment':      { name:'Arcane Empowerment',     cat:'Buffs',   color:'#3dc9eb' },
+  'moonkin_aura':            { name:'Moonkin Aura',           cat:'Buffs',   color:'#4cd137' },
+  'leader_of_the_pack':      { name:'Leader of the Pack',     cat:'Buffs',   color:'#4cd137' },
+  'ferocious_inspiration':   { name:'Ferocious Inspiration',  cat:'Buffs',   color:'#abebc6' },
+  'trueshot_aura':           { name:'Trueshot Aura',          cat:'Buffs',   color:'#abebc6' },
+  'vampiric_embrace':        { name:'Vampiric Embrace',       cat:'Buffs',   color:'#f0f0f0' },
+  'demonic_sacrifice':       { name:'Demonic Sacrifice',      cat:'Buffs',   color:'#9b59b6' },
+  'tree_of_life':            { name:'Tree of Life Aura',      cat:'Buffs',   color:'#4cd137' },
+  'last_stand':              { name:'Last Stand',             cat:'Other',   color:'#c0392b' },
+  'blade_flurry':            { name:'Blade Flurry',           cat:'Other',   color:'#fff569' },
+  'master_of_subtlety':      { name:'Master of Subtlety',     cat:'Other',   color:'#fff569' },
+  // DEBUFFS
+  'faerie_fire':             { name:'Faerie Fire',            cat:'Debuffs', color:'#4cd137' },
+  'imp_faerie_fire':         { name:'Improved Faerie Fire',   cat:'Debuffs', color:'#4cd137' },
+  'sunder_armor':            { name:'Sunder Armor',           cat:'Debuffs', color:'#c0392b' },
+  'imp_demoralizing_shout':  { name:'Imp. Demoralizing Shout',cat:'Debuffs', color:'#c0392b' },
+  'demoralizing_shout':      { name:'Demoralizing Shout',     cat:'Debuffs', color:'#c0392b' },
+  'thunder_clap':            { name:'Thunder Clap',           cat:'Debuffs', color:'#c0392b' },
+  'blood_frenzy':            { name:'Blood Frenzy',           cat:'Debuffs', color:'#c0392b' },
+  'expose_armor':            { name:'Expose Armor',           cat:'Debuffs', color:'#fff569' },
+  'imp_expose_armor':        { name:'Imp. Expose Armor',      cat:'Debuffs', color:'#fff569' },
+  'hemorrhage':              { name:'Hemorrhage',             cat:'Debuffs', color:'#fff569' },
+  'curse_of_elements':       { name:'Curse of Elements',      cat:'Debuffs', color:'#9b59b6' },
+  'curse_of_recklessness':   { name:'Curse of Recklessness',  cat:'Debuffs', color:'#9b59b6' },
+  'curse_of_weakness':       { name:'Curse of Weakness',      cat:'Debuffs', color:'#9b59b6' },
+  'malediction':             { name:'Malediction',            cat:'Debuffs', color:'#9b59b6' },
+  'shadow_embrace':          { name:'Shadow Embrace',         cat:'Debuffs', color:'#9b59b6' },
+  'imp_shadow_bolt':         { name:'Improved Shadow Bolt',   cat:'Debuffs', color:'#9b59b6' },
+  'shadow_weaving':          { name:'Shadow Weaving',         cat:'Debuffs', color:'#f0f0f0' },
+  'misery':                  { name:'Misery',                 cat:'Debuffs', color:'#f0f0f0' },
+  'expose_weakness':         { name:'Expose Weakness',        cat:'Debuffs', color:'#abebc6' },
+  'hunters_mark':            { name:"Hunter's Mark",          cat:'Debuffs', color:'#abebc6' },
+  'scorpid_sting':           { name:'Scorpid Sting',          cat:'Debuffs', color:'#abebc6' },
+  'serpent_sting':           { name:'Serpent Sting',          cat:'Debuffs', color:'#abebc6' },
+  'wyvern_sting':            { name:'Wyvern Sting',           cat:'Debuffs', color:'#abebc6' },
+  'winters_chill':           { name:"Winter's Chill",         cat:'Debuffs', color:'#3dc9eb' },
+  'imp_scorch':              { name:'Improved Scorch',        cat:'Debuffs', color:'#3dc9eb' },
+  'mangle_cat':              { name:'Mangle',                 cat:'Debuffs', color:'#4cd137' },
+  // OTHER
+  'divine_spirit_paladin':   { name:'Divine Spirit',          cat:'Other',   color:'#f4d03f' },
+};
+
+
+// ── BUFF HELPERS ────────────────────────────────────────────────────────
+
+function getBuffsForMember(m) {
+  if (!m) return [];
+  const key = m.cls + ':' + m.spec;
+  return TBC_BUFFS[key] || TBC_BUFFS[m.cls + ':'] || [];
+}
+
+function getGroupBuffs(gi) {
+  const grp = groups[gi];
+  const buffSet = {};
+  grp.forEach(s => {
+    if (!s) return;
+    const m = getMemberById(s.id);
+    if (!m) return;
+    getBuffsForMember(m).forEach(b => {
+      buffSet[b] = (buffSet[b] || 0) + 1;
+    });
+  });
+  return buffSet;
+}
+
+function getRaidBuffs() {
+  const buffSet = {};
+  groups.forEach((grp, gi) => {
+    grp.forEach(s => {
+      if (!s) return;
+      const m = getMemberById(s.id);
+      if (!m) return;
+      getBuffsForMember(m).forEach(b => {
+        buffSet[b] = (buffSet[b] || 0) + 1;
+      });
+    });
+  });
+  return buffSet;
+}
+
+function renderBuffPanel(buffSet, compact) {
+  if (Object.keys(buffSet).length === 0) {
+    return '<div style="font-size:10px;color:var(--text3);padding:4px 0">No buffs</div>';
+  }
+  const cats = ['Buffs', 'Debuffs', 'Other'];
+  let html = '';
+  cats.forEach(cat => {
+    const entries = Object.entries(buffSet)
+      .filter(([k]) => BUFF_DEFS[k] && BUFF_DEFS[k].cat === cat)
+      .sort((a,b) => BUFF_DEFS[a[0]].name.localeCompare(BUFF_DEFS[b[0]].name));
+    if (!entries.length) return;
+    html += `<div style="margin-bottom:${compact?'3':'5'}px">
+      <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px">${cat}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:2px">`;
+    entries.forEach(([k, count]) => {
+      const def = BUFF_DEFS[k];
+      html += `<span style="font-size:${compact?'9':'10'}px;color:${def.color};background:rgba(0,0,0,0.3);border-radius:3px;padding:1px 4px;white-space:nowrap" title="${def.name}">`;
+      if (count > 1) html += `<span style="opacity:0.7">${count}×</span> `;
+      html += `${def.name}</span>`;
+    });
+    html += '</div></div>';
+  });
+  return html;
+}
+
+
 function renderGroups() {
   document.getElementById('groups-grid').innerHTML = groups.map((grp, gi) => {
     const count = grp.filter(Boolean).length;
@@ -1503,6 +1722,8 @@ function renderGroups() {
       }
       return slotEmpty(gi, si);
     }).join('');
+    const groupBuffs = getGroupBuffs(gi);
+    const buffHtml = renderBuffPanel(groupBuffs, true);
     return `<div class="group-box" id="group-${gi}"
       ondragover="onGroupDragOver(event,${gi})"
       ondragleave="onGroupDragLeave(${gi})"
@@ -1512,8 +1733,24 @@ function renderGroups() {
         <span class="group-count">${count}/5</span>
       </div>
       <div class="group-slots">${slots}</div>
+      <div class="group-buffs">${buffHtml}</div>
     </div>`;
   }).join('');
+
+  // Raid-wide buff summary
+  const raidBuffs = getRaidBuffs();
+  const raidEl = document.getElementById('raid-buff-summary');
+  if (raidEl) {
+    const anyInRaid = groups.some(g => g.some(Boolean));
+    raidEl.style.display = anyInRaid ? 'block' : 'none';
+    raidEl.innerHTML = anyInRaid ? `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold)">⚔ Raid Buffs</span>
+        <span style="font-size:10px;color:var(--text3)">— all buffs provided by current raid composition</span>
+      </div>
+      ${renderBuffPanel(raidBuffs, false)}
+    ` : '';
+  }
 }
 
 function slotEmpty(gi, si) {
