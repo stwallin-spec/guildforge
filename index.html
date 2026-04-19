@@ -413,6 +413,9 @@ body {
   display: flex; align-items: center; justify-content: space-between;
   border-bottom: 1px solid var(--border);
 }
+/* RAID ARCHIVE */
+.archive-entry:hover { border-color: var(--gold) !important; transition: border-color 0.15s; }
+
 .group-count { font-size: 10px; color: var(--text3); font-family: 'Exo 2', sans-serif; font-weight: 400; }
 .group-slots { padding: 8px; display: flex; flex-direction: column; gap: 5px; }
 .slot {
@@ -703,7 +706,29 @@ body {
       <h2>Raid Planner</h2>
       <button class="btn" onclick="benchRemaining()">Bench remaining</button>
       <button class="btn" id="clear-btn" onclick="clearRaid()">Clear All</button>
+      <button class="btn btn-gold" onclick="showSaveRaidModal()">💾 Save Roster</button>
+      <button class="btn" onclick="toggleRaidArchive()">📋 Archive</button>
       <button class="btn btn-gold" id="print-btn" onclick="exportImage()">📷 Export as Image</button>
+    </div>
+    <!-- Raid Archive Panel -->
+    <div id="raid-archive-panel" style="display:none;margin-bottom:16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <span style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold)">📋 Saved Rosters</span>
+        <button class="btn" style="font-size:11px;padding:3px 10px" onclick="toggleRaidArchive()">✕ Close</button>
+      </div>
+      <div id="raid-archive-list"></div>
+    </div>
+    <!-- Save Raid Modal -->
+    <div id="save-raid-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;display:none;align-items:center;justify-content:center">
+      <div style="background:var(--bg2);border:1px solid var(--gold);border-radius:var(--radius2);padding:24px;width:340px;max-width:95vw">
+        <h3 style="font-family:'Cinzel',serif;color:var(--gold);margin:0 0 16px">💾 Save Roster</h3>
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px">Roster Name</label>
+        <input id="save-raid-name" class="bench-search" placeholder="e.g. Gruul 23 Apr" style="width:100%;margin-bottom:16px">
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" onclick="closeSaveRaidModal()">Cancel</button>
+          <button class="btn btn-gold" onclick="confirmSaveRaid()">Save</button>
+        </div>
+      </div>
     </div>
     <div class="print-guild-name" id="print-guild-name"></div>
     <div class="print-date" id="print-date"></div>
@@ -1550,6 +1575,130 @@ function slotEmpty(gi, si) {
 }
 
 function renderRaid() { renderBench(); renderGroups(); }
+
+// ── RAID ROSTER SAVE / ARCHIVE ─────────────────────────────────────────────
+
+function getRaidArchive() {
+  try { return JSON.parse(localStorage.getItem('gm_raid_archive')) || []; }
+  catch(e) { return []; }
+}
+
+function saveRaidArchive(archive) {
+  localStorage.setItem('gm_raid_archive', JSON.stringify(archive));
+  // Also sync to Supabase
+  sbSet('raid_archive', archive).catch(() => {});
+}
+
+function showSaveRaidModal() {
+  if (!_li) { alert('Please login as officer to save rosters.'); return; }
+  const hasPlayers = groups.some(g => g.some(Boolean));
+  if (!hasPlayers) { alert('Add some players to groups first!'); return; }
+  // Pre-fill with today's date
+  const today = new Date().toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+  document.getElementById('save-raid-name').value = today;
+  const modal = document.getElementById('save-raid-modal');
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('save-raid-name').select(), 50);
+}
+
+function closeSaveRaidModal() {
+  document.getElementById('save-raid-modal').style.display = 'none';
+}
+
+function confirmSaveRaid() {
+  const name = document.getElementById('save-raid-name').value.trim();
+  if (!name) { alert('Please enter a name.'); return; }
+  const archive = getRaidArchive();
+  const entry = {
+    id: Date.now(),
+    name,
+    date: new Date().toISOString(),
+    groups: JSON.parse(JSON.stringify(groups)),
+    memberSnapshot: groups.flat().filter(Boolean).map(s => {
+      const m = getMemberById(s.id);
+      return m ? { id: m.id, name: m.name, cls: m.cls, spec: m.spec } : null;
+    }).filter(Boolean)
+  };
+  archive.unshift(entry); // newest first
+  saveRaidArchive(archive);
+  closeSaveRaidModal();
+  renderRaidArchive();
+  // Flash confirmation
+  const btn = document.querySelector('[onclick="toggleRaidArchive()"]');
+  if (btn) { btn.textContent = '✓ Saved!'; setTimeout(() => btn.textContent = '📋 Archive', 1500); }
+}
+
+function toggleRaidArchive() {
+  const panel = document.getElementById('raid-archive-panel');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    renderRaidArchive();
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function renderRaidArchive() {
+  const archive = getRaidArchive();
+  const el = document.getElementById('raid-archive-list');
+  if (!archive.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:8px 0">No saved rosters yet. Fill your groups and click 💾 Save Roster.</div>';
+    return;
+  }
+  el.innerHTML = archive.map(entry => {
+    const date = new Date(entry.date).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+    const playerCount = entry.groups.flat().filter(Boolean).length;
+    // Show first 6 player names as preview
+    const preview = (entry.memberSnapshot || []).slice(0, 8).map(m => {
+      const cc = CM[m.cls] || { color: '#888' };
+      return `<span style="font-size:10px;color:${cc.color}">${m.name}</span>`;
+    }).join(', ');
+    return `<div class="archive-entry" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div>
+          <span style="font-weight:600;color:var(--text);font-size:13px">${entry.name}</span>
+          <span style="font-size:10px;color:var(--text3);margin-left:8px">${date} · ${playerCount} players</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" style="font-size:11px;padding:3px 10px" onclick="loadRaidEntry(${entry.id})">Load</button>
+          <button class="btn" style="font-size:11px;padding:3px 10px;color:#e07070;border-color:#e07070" onclick="deleteRaidEntry(${entry.id})">✕</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">${preview}${playerCount > 8 ? `<span style="font-size:10px;color:var(--text3)"> +${playerCount - 8} more</span>` : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function loadRaidEntry(id) {
+  if (!_li) { alert('Please login as officer to load rosters.'); return; }
+  const archive = getRaidArchive();
+  const entry = archive.find(e => e.id === id);
+  if (!entry) return;
+  if (!confirm(`Load "${entry.name}"? This will replace your current groups.`)) return;
+  groups = entry.groups;
+  save();
+  renderRaid();
+  // Close archive panel
+  document.getElementById('raid-archive-panel').style.display = 'none';
+}
+
+function deleteRaidEntry(id) {
+  if (!_li) return;
+  const archive = getRaidArchive();
+  const entry = archive.find(e => e.id === id);
+  if (!entry) return;
+  if (!confirm(`Delete "${entry.name}"?`)) return;
+  const updated = archive.filter(e => e.id !== id);
+  saveRaidArchive(updated);
+  renderRaidArchive();
+}
+
+// Close save modal on backdrop click
+document.addEventListener('click', function(e) {
+  const modal = document.getElementById('save-raid-modal');
+  if (modal && e.target === modal) closeSaveRaidModal();
+});
+
 
 // Drag handlers
 function onBenchDragStart(e, memberId) {
@@ -3130,6 +3279,13 @@ initClassSelect();
 
 (async function() {
   await loadFromCloud();
+  // Also load raid archive from Supabase
+  try {
+    const archiveData = await sbGet('raid_archive');
+    if (archiveData && Array.isArray(archiveData) && archiveData.length > 0) {
+      localStorage.setItem('gm_raid_archive', JSON.stringify(archiveData));
+    }
+  } catch(e) {}
   renderRoster();
   renderProfPills();
   // Restore last active tab
