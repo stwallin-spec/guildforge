@@ -3325,7 +3325,7 @@ function getGroupBuffs(gi) {
     if (!s) return;
     const m = getMemberById(s.id);
     const entry = getSpecEntry(m);
-    if (!entry) return;
+    if (!entry || !entry.unique) return;
     entry.unique.forEach(b => {
       buffSet[b] = (buffSet[b] || 0) + 1;
     });
@@ -3341,7 +3341,7 @@ function getRaidBuffs() {
       if (!s) return;
       const m = getMemberById(s.id);
       const entry = getSpecEntry(m);
-      if (!entry) return;
+      if (!entry || !entry.unique || !entry.shared) return;
       [...entry.unique, ...entry.shared].forEach(b => {
         buffSet[b] = (buffSet[b] || 0) + 1;
       });
@@ -3418,7 +3418,7 @@ function renderGroups() {
       return slotEmpty(gi, si);
     }).join('');
     const groupBuffs = getGroupBuffs(gi);
-    const buffHtml = renderBuffPanel(groupBuffs, true);
+    const buffHtml = (() => { try { return renderBuffPanel(groupBuffs, true); } catch(e) { return ''; } })();
     return `<div class="group-box" id="group-${gi}"
       ondragover="onGroupDragOver(event,${gi})"
       ondragleave="onGroupDragLeave(${gi})"
