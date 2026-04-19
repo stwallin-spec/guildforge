@@ -705,6 +705,7 @@ body {
     <div class="raid-toolbar">
       <h2>Raid Planner</h2>
       <button class="btn" onclick="benchRemaining()">Bench remaining</button>
+      <button class="btn btn-gold" onclick="showImportRaidModal()">🔗 Import Signups</button>
       <button class="btn" id="clear-btn" onclick="clearRaid()">Clear All</button>
       <button class="btn btn-gold" onclick="showSaveRaidModal()">💾 Save Roster</button>
       <button class="btn" onclick="toggleRaidArchive()">📋 Archive</button>
@@ -718,6 +719,28 @@ body {
       </div>
       <div id="raid-archive-list"></div>
     </div>
+    <!-- Import Signups Modal -->
+    <div id="import-raid-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+      <div style="background:var(--bg2);border:1px solid var(--gold);border-radius:var(--radius2);padding:24px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto">
+        <h3 style="font-family:'Cinzel',serif;color:var(--gold);margin:0 0 6px">🔗 Import Raid-Helper Signups</h3>
+        <p style="font-size:11px;color:var(--text3);margin:0 0 16px">Paste a Raid-Helper event URL to load who signed up. Only confirmed signups are shown in the bench.</p>
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px">Event URL</label>
+        <input id="import-raid-url" class="bench-search" placeholder="https://raid-helper.xyz/event/..." style="width:100%;margin-bottom:12px">
+        <div id="import-raid-status" style="font-size:12px;min-height:20px;margin-bottom:12px"></div>
+        <div id="import-raid-preview" style="display:none;margin-bottom:16px">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Signups found</div>
+          <div id="import-raid-confirmed" style="margin-bottom:8px"></div>
+          <div id="import-raid-missing" style="margin-bottom:8px"></div>
+          <div id="import-raid-tentative"></div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" onclick="closeImportRaidModal()">Cancel</button>
+          <button class="btn" id="import-fetch-btn" onclick="fetchRaidSignups()">🔍 Fetch</button>
+          <button class="btn btn-gold" id="import-apply-btn" style="display:none" onclick="applyRaidSignups()">✓ Apply to Bench</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Save Raid Modal -->
     <div id="save-raid-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;display:none;align-items:center;justify-content:center">
       <div style="background:var(--bg2);border:1px solid var(--gold);border-radius:var(--radius2);padding:24px;width:340px;max-width:95vw">
@@ -1455,10 +1478,60 @@ function renderBench() {
   const available = members.filter(m => !assigned.has(m.id) && !benched.has(m.id) && (
     !q || m.name.toLowerCase().includes(q) || m.cls.toLowerCase().includes(q)
   ));
+
+  const el = document.getElementById('bench-list');
+
   if (!available.length) {
-    document.getElementById('bench-list').innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:8px">All members assigned or benched</div>';
+    el.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:8px">All members assigned or benched</div>';
+    renderBenchedGroup();
+    return;
+  }
+
+  // If we have signup data, split into two sections
+  if (_raidSignupIds && _raidSignupIds.size > 0) {
+    const signedUp  = available.filter(m =>  _raidSignupIds.has(m.id));
+    const notSigned = available.filter(m => !_raidSignupIds.has(m.id));
+
+    const makeCard = (m, highlight) => {
+      const cc = CM[m.cls] || { color: '#888' };
+      const icon = specIcon(m.cls, m.spec);
+      const style = highlight
+        ? `border:1px solid ${cc.color}88;background:rgba(0,0,0,0.35);`
+        : `opacity:0.45;border:1px solid transparent;`;
+      return `<div class="bench-member" draggable="true" style="${style}"
+        data-id="${m.id}"
+        ondragstart="onBenchDragStart(event,${m.id})"
+        ondragend="onDragEnd(event)">
+        <img src="${icon}" class="spec-icon" alt="${m.spec||m.cls}" onerror="this.style.display='none'">
+        <span class="bench-name" style="color:${cc.color}">${m.name}</span>
+        <span class="bench-cls">${m.spec || m.cls}</span>
+        ${highlight ? '<span style="font-size:9px;color:#80d080;margin-left:auto;flex-shrink:0">✓ Signed</span>' : ''}
+      </div>`;
+    };
+
+    let out = '';
+
+    // Banner showing which event is loaded
+    out += `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 8px;margin-bottom:6px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.25);border-radius:var(--radius);font-size:10px">
+      <span style="color:var(--gold)">⚔ <strong>${_raidSignupTitle}</strong> &mdash; ${_raidSignupDate}</span>
+      <button onclick="_raidSignupIds=null;_raidSignupTitle=null;_raidSignupDate=null;renderBench()"
+        style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:0 2px" title="Clear import">✕</button>
+    </div>`;
+
+    if (signedUp.length) {
+      out += `<div style="font-size:9px;font-weight:700;color:#80d080;text-transform:uppercase;letter-spacing:0.08em;padding:2px 4px;margin-bottom:4px">✓ Signed Up (${signedUp.length})</div>`;
+      out += signedUp.map(m => makeCard(m, true)).join('');
+    }
+
+    if (notSigned.length) {
+      out += `<div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;padding:2px 4px;margin:8px 0 4px">Not Signed (${notSigned.length})</div>`;
+      out += notSigned.map(m => makeCard(m, false)).join('');
+    }
+
+    el.innerHTML = out;
   } else {
-    document.getElementById('bench-list').innerHTML = available.map(m => {
+    // Normal render — no import active
+    el.innerHTML = available.map(m => {
       const cc = CM[m.cls] || { color: '#888' };
       const icon = specIcon(m.cls, m.spec);
       return `<div class="bench-member" draggable="true"
@@ -1471,6 +1544,7 @@ function renderBench() {
       </div>`;
     }).join('');
   }
+
   renderBenchedGroup();
 }
 
@@ -1502,6 +1576,9 @@ function renderBenchedGroup() {
 }
 
 let benchedIds = [];
+let _raidSignupIds   = null; // Set of member IDs from Raid-Helper import
+let _raidSignupTitle = null;
+let _raidSignupDate  = null;
 
 function benchRemaining() {
   const assigned = assignedIds();
@@ -1575,6 +1652,180 @@ function slotEmpty(gi, si) {
 }
 
 function renderRaid() { renderBench(); renderGroups(); }
+
+// ── RAID-HELPER IMPORT ─────────────────────────────────────────────────────
+
+// Map Raid-Helper spec names → our canonical spec names
+const RH_SPEC_MAP = {
+  'Protection1': 'Protection', 'Protection2': 'Protection',
+  'Holy1':       'Holy',       'Holy2':       'Holy',
+  'Restoration1':'Restoration','Restoration2':'Restoration',
+  'Beastmastery':'Beast Mastery',
+  'Feral1':      'Feral Combat','Feral2':     'Feral Combat',
+  'Guardian':    'Feral Combat',
+  'Demonology':  'Demonology',
+  'Destruction': 'Destruction',
+  'Affliction':  'Affliction',
+  'Subtlety':    'Subtlety',
+  'Assassination':'Assassination',
+  'Combat':      'Combat',
+  'Arms':        'Arms',
+  'Fury':        'Fury',
+  'Arcane':      'Arcane',
+  'Fire':        'Fire',
+  'Frost':       'Frost',
+  'Shadow':      'Shadow',
+  'Discipline':  'Discipline',
+  'Balance':     'Balance',
+  'Elemental':   'Elemental',
+  'Enhancement': 'Enhancement',
+  'Retribution': 'Retribution',
+  'Survival':    'Survival',
+  'Marksmanship':'Marksmanship',
+};
+
+// Map Raid-Helper class names → our class names
+const RH_CLASS_MAP = {
+  'Tank':    null, // role not class — will match by name only
+  'Healer':  null,
+  'Melee':   null,
+  'Ranged':  null,
+  'Absence': null,
+  'Tentative':null,
+};
+
+let _importedSignups = null; // holds fetched data before applying
+
+function showImportRaidModal() {
+  document.getElementById('import-raid-url').value = '';
+  document.getElementById('import-raid-status').textContent = '';
+  document.getElementById('import-raid-preview').style.display = 'none';
+  document.getElementById('import-apply-btn').style.display = 'none';
+  document.getElementById('import-fetch-btn').style.display = '';
+  _importedSignups = null;
+  const modal = document.getElementById('import-raid-modal');
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('import-raid-url').focus(), 50);
+}
+
+function closeImportRaidModal() {
+  document.getElementById('import-raid-modal').style.display = 'none';
+}
+
+async function fetchRaidSignups() {
+  const raw = document.getElementById('import-raid-url').value.trim();
+  const statusEl = document.getElementById('import-raid-status');
+  const btn = document.getElementById('import-fetch-btn');
+
+  // Extract event ID from URL
+  const match = raw.match(/(\d{15,})/);
+  if (!match) {
+    statusEl.style.color = '#e07070';
+    statusEl.textContent = '⚠ Could not find event ID in URL. Try: https://raid-helper.xyz/event/123...';
+    return;
+  }
+
+  const eventId = match[1];
+  const apiUrl = `https://raid-helper.xyz/api/v4/events/${eventId}`;
+
+  statusEl.style.color = 'var(--text3)';
+  statusEl.textContent = '⟳ Fetching signups...';
+  btn.disabled = true;
+
+  try {
+    const resp = await fetch(apiUrl);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+
+    if (!data.signUps || !data.signUps.length) {
+      throw new Error('No signups found in this event.');
+    }
+
+    // Categorise signups
+    const confirmed = [], tentative = [], absent = [], unmatched = [];
+
+    data.signUps.forEach(s => {
+      const isAbsence   = s.className === 'Absence'   || s.status === 'absence';
+      const isTentative = s.className === 'Tentative' || s.status === 'tentative';
+
+      // Find matching member in our roster (by name, case-insensitive)
+      const member = members.find(m =>
+        m.name.toLowerCase() === s.name.toLowerCase()
+      );
+
+      const entry = { rhName: s.name, member };
+
+      if (isAbsence)        absent.push(entry);
+      else if (isTentative) tentative.push(entry);
+      else if (member)      confirmed.push(entry);
+      else                  unmatched.push(entry);
+    });
+
+    _importedSignups = { confirmed, tentative, absent, unmatched, eventTitle: data.title, eventDate: data.date };
+
+    // Show preview
+    statusEl.style.color = '#80d080';
+    statusEl.textContent = `✓ Loaded "${data.title}" — ${data.date}`;
+
+    renderImportPreview(confirmed, tentative, absent, unmatched);
+    document.getElementById('import-raid-preview').style.display = 'block';
+    document.getElementById('import-apply-btn').style.display = '';
+
+  } catch(e) {
+    statusEl.style.color = '#e07070';
+    statusEl.textContent = `⚠ ${e.message}`;
+  }
+  btn.disabled = false;
+}
+
+function renderImportPreview(confirmed, tentative, absent, unmatched) {
+  const confirmedEl = document.getElementById('import-raid-confirmed');
+  const missingEl   = document.getElementById('import-raid-missing');
+  const tentativeEl = document.getElementById('import-raid-tentative');
+
+  // Confirmed + matched
+  confirmedEl.innerHTML = `<div style="font-size:11px;color:#80d080;font-weight:600;margin-bottom:4px">✓ Confirmed (${confirmed.length})</div>` +
+    confirmed.map(e => {
+      const cc = CM[e.member.cls] || { color:'#888' };
+      return `<span style="font-size:11px;color:${cc.color};background:rgba(0,0,0,0.3);border-radius:3px;padding:1px 6px;margin:2px;display:inline-block">${e.member.name} <span style="opacity:0.6">${e.member.spec||e.member.cls}</span></span>`;
+    }).join('');
+
+  // Unmatched (in Raid-Helper but not in our roster)
+  missingEl.innerHTML = unmatched.length ? `<div style="font-size:11px;color:#e0a040;font-weight:600;margin-bottom:4px">⚠ Not in roster (${unmatched.length}) — will be ignored</div>` +
+    unmatched.map(e => `<span style="font-size:11px;color:#e0a040;background:rgba(0,0,0,0.3);border-radius:3px;padding:1px 6px;margin:2px;display:inline-block">${e.rhName}</span>`).join('') : '';
+
+  // Tentative
+  tentativeEl.innerHTML = tentative.length ? `<div style="font-size:11px;color:#9896a4;font-weight:600;margin-bottom:4px">? Tentative (${tentative.length})</div>` +
+    tentative.map(e => `<span style="font-size:11px;color:#9896a4;background:rgba(0,0,0,0.3);border-radius:3px;padding:1px 6px;margin:2px;display:inline-block">${e.rhName}</span>`).join('') : '';
+}
+
+function applyRaidSignups() {
+  if (!_importedSignups) return;
+  const { confirmed } = _importedSignups;
+  if (!confirmed.length) { alert('No confirmed signups matched your roster.'); return; }
+
+  // Store confirmed IDs so renderBench can highlight them
+  _raidSignupIds   = new Set(confirmed.map(e => e.member.id));
+  _raidSignupTitle = _importedSignups.eventTitle;
+  _raidSignupDate  = _importedSignups.eventDate;
+
+  closeImportRaidModal();
+  renderBench();
+
+  // Toast
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a24;border:1px solid var(--gold);border-radius:6px;padding:10px 20px;font-size:12px;color:#fff;z-index:9999;pointer-events:none';
+  toast.textContent = `✓ ${confirmed.length} signups highlighted for "${_importedSignups.eventTitle}" (${_importedSignups.eventDate})`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+// Close import modal on backdrop click
+document.addEventListener('click', function(e) {
+  const modal = document.getElementById('import-raid-modal');
+  if (modal && e.target === modal) closeImportRaidModal();
+});
+
+
 
 // ── RAID ROSTER SAVE / ARCHIVE ─────────────────────────────────────────────
 
