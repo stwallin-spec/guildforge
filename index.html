@@ -1027,7 +1027,7 @@ body {
     <div class="fg"><label>Spec / Role</label><select id="f-spec"></select></div>
     <div class="fg"><label>Rank</label>
       <select id="f-rank">
-        <option>Guild Master</option><option>Officer</option><option>Veteran</option><option selected>Member</option><option>Initiate</option>
+        <option>Guild Master</option><option>Veteran Raider</option><option>Raider</option><option selected>Social</option><option>Alt</option>
       </select>
     </div>
     <div class="fg"><label>Notes (OS, availability...)</label><textarea id="f-notes"></textarea></div>
@@ -1188,33 +1188,33 @@ function clsBg(cls) {
 }
 
 const DEFAULT_MEMBERS = [
-  {id:1,  name:'Rokkr',        cls:'Warrior', spec:'Protection',   rank:'Member', notes:''},
-  {id:2,  name:'Orcuspine',    cls:'Warrior', spec:'Fury',         rank:'Member', notes:'OS: Protection'},
-  {id:3,  name:'Buckstar',     cls:'Warrior', spec:'Fury',         rank:'Member', notes:'OS: Protection'},
-  {id:4,  name:'Bloodgrin',    cls:'Warrior', spec:'Fury',         rank:'Member', notes:'OS: Protection'},
-  {id:5,  name:'Bhalldos',     cls:'Warlock', spec:'Destruction',  rank:'Member', notes:''},
-  {id:6,  name:'Yelinde',      cls:'Warlock', spec:'Destruction',  rank:'Member', notes:''},
-  {id:7,  name:'Moolock',      cls:'Warlock', spec:'Affliction',   rank:'Member', notes:''},
-  {id:8,  name:'Orcstronaunt', cls:'Shaman',  spec:'Restoration',  rank:'Member', notes:'OS: Enhancement'},
-  {id:9,  name:'Xiolora',      cls:'Shaman',  spec:'Restoration',  rank:'Member', notes:'OS: Enhancement'},
-  {id:10, name:'Vasj',         cls:'Shaman',  spec:'Enhancement',  rank:'Member', notes:'OS: Restoration'},
-  {id:11, name:'Elsjaman',     cls:'Shaman',  spec:'Elemental',    rank:'Member', notes:''},
-  {id:12, name:'Mentet',       cls:'Rogue',   spec:'Combat',       rank:'Member', notes:''},
-  {id:13, name:'Dorey',        cls:'Rogue',   spec:'Combat',       rank:'Member', notes:''},
-  {id:14, name:'Darkp',        cls:'Priest',  spec:'Holy',         rank:'Member', notes:''},
-  {id:15, name:'Astradamus',   cls:'Priest',  spec:'Shadow',       rank:'Member', notes:'OS: Holy'},
-  {id:16, name:'Lorric',       cls:'Paladin', spec:'Retribution',  rank:'Member', notes:'OS: Holy'},
-  {id:17, name:'Tynck',        cls:'Paladin', spec:'Holy',         rank:'Member', notes:''},
-  {id:18, name:'Hemoroidz',    cls:'Paladin', spec:'Holy',         rank:'Member', notes:'OS: Protection'},
-  {id:19, name:'Holyhavoc',    cls:'Paladin', spec:'Protection',   rank:'Member', notes:'OS: Retribution'},
-  {id:20, name:'Brian',        cls:'Mage',    spec:'Frost',        rank:'Member', notes:''},
-  {id:21, name:'Loimu',        cls:'Mage',    spec:'Frost',        rank:'Member', notes:''},
-  {id:22, name:'Mereel',       cls:'Mage',    spec:'Frost',        rank:'Member', notes:''},
-  {id:23, name:'Tryllebue',    cls:'Hunter',  spec:'Beast Mastery',rank:'Member', notes:''},
-  {id:24, name:'Cuppatea',     cls:'Hunter',  spec:'Survival',     rank:'Member', notes:''},
-  {id:25, name:'Bowhard',      cls:'Hunter',  spec:'Beast Mastery',rank:'Member', notes:''},
-  {id:26, name:'Johnpaw',      cls:'Druid',   spec:'Feral',        rank:'Member', notes:'OS: Balance'},
-  {id:27, name:'Fanmoo',       cls:'Druid',   spec:'Balance',      rank:'Member', notes:'OS: Restoration'},
+  {id:1,  name:'Rokkr',        cls:'Warrior', spec:'Protection',   rank:'Raider', notes:''},
+  {id:2,  name:'Orcuspine',    cls:'Warrior', spec:'Fury',         rank:'Raider', notes:'OS: Protection'},
+  {id:3,  name:'Buckstar',     cls:'Warrior', spec:'Fury',         rank:'Raider', notes:'OS: Protection'},
+  {id:4,  name:'Bloodgrin',    cls:'Warrior', spec:'Fury',         rank:'Raider', notes:'OS: Protection'},
+  {id:5,  name:'Bhalldos',     cls:'Warlock', spec:'Destruction',  rank:'Raider', notes:''},
+  {id:6,  name:'Yelinde',      cls:'Warlock', spec:'Destruction',  rank:'Raider', notes:''},
+  {id:7,  name:'Moolock',      cls:'Warlock', spec:'Affliction',   rank:'Raider', notes:''},
+  {id:8,  name:'Orcstronaunt', cls:'Shaman',  spec:'Restoration',  rank:'Raider', notes:'OS: Enhancement'},
+  {id:9,  name:'Xiolora',      cls:'Shaman',  spec:'Restoration',  rank:'Raider', notes:'OS: Enhancement'},
+  {id:10, name:'Vasj',         cls:'Shaman',  spec:'Enhancement',  rank:'Raider', notes:'OS: Restoration'},
+  {id:11, name:'Elsjaman',     cls:'Shaman',  spec:'Elemental',    rank:'Raider', notes:''},
+  {id:12, name:'Mentet',       cls:'Rogue',   spec:'Combat',       rank:'Raider', notes:''},
+  {id:13, name:'Dorey',        cls:'Rogue',   spec:'Combat',       rank:'Raider', notes:''},
+  {id:14, name:'Darkp',        cls:'Priest',  spec:'Holy',         rank:'Raider', notes:''},
+  {id:15, name:'Astradamus',   cls:'Priest',  spec:'Shadow',       rank:'Raider', notes:'OS: Holy'},
+  {id:16, name:'Lorric',       cls:'Paladin', spec:'Retribution',  rank:'Raider', notes:'OS: Holy'},
+  {id:17, name:'Tynck',        cls:'Paladin', spec:'Holy',         rank:'Raider', notes:''},
+  {id:18, name:'Hemoroidz',    cls:'Paladin', spec:'Holy',         rank:'Raider', notes:'OS: Protection'},
+  {id:19, name:'Holyhavoc',    cls:'Paladin', spec:'Protection',   rank:'Raider', notes:'OS: Retribution'},
+  {id:20, name:'Brian',        cls:'Mage',    spec:'Frost',        rank:'Raider', notes:''},
+  {id:21, name:'Loimu',        cls:'Mage',    spec:'Frost',        rank:'Raider', notes:''},
+  {id:22, name:'Mereel',       cls:'Mage',    spec:'Frost',        rank:'Raider', notes:''},
+  {id:23, name:'Tryllebue',    cls:'Hunter',  spec:'Beast Mastery',rank:'Raider', notes:''},
+  {id:24, name:'Cuppatea',     cls:'Hunter',  spec:'Survival',     rank:'Raider', notes:''},
+  {id:25, name:'Bowhard',      cls:'Hunter',  spec:'Beast Mastery',rank:'Raider', notes:''},
+  {id:26, name:'Johnpaw',      cls:'Druid',   spec:'Feral',        rank:'Raider', notes:'OS: Balance'},
+  {id:27, name:'Fanmoo',       cls:'Druid',   spec:'Balance',      rank:'Raider', notes:'OS: Restoration'},
 ];
 
 const DEFAULT_IDEAL = {};
@@ -1346,7 +1346,7 @@ function renderRoster() {
   document.getElementById('stats').innerHTML = `
     <div class="stats-top">
       <div class="stat-card"><div class="lbl">Total</div><div class="val">${members.length}</div></div>
-      <div class="stat-card"><div class="lbl">Officers+</div><div class="val">${members.filter(m=>m.rank==='Guild Master'||m.rank==='Officer').length}</div></div>
+      <div class="stat-card"><div class="lbl">Raiders+</div><div class="val">${members.filter(m=>m.rank==='Guild Master'||m.rank==='Veteran Raider'||m.rank==='Raider').length}</div></div>
       <div class="stat-card"><div class="lbl">In Raid</div><div class="val">${groups.flat().filter(Boolean).length}</div></div>
     </div>
     <div class="class-summary">${classCards}</div>
@@ -1397,7 +1397,7 @@ function openAdd() {
   document.getElementById('modal-title').textContent = 'Add Member';
   ['f-name','f-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-class').value = 'Warrior';
-  document.getElementById('f-rank').value = 'Member';
+  document.getElementById('f-rank').value = 'Social';
   updateSpecSelect('Warrior');
   document.getElementById('modal-bg').classList.add('open');
 }
