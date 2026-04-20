@@ -1027,7 +1027,7 @@ body {
     <div class="fg"><label>Spec / Role</label><select id="f-spec"></select></div>
     <div class="fg"><label>Rank</label>
       <select id="f-rank">
-        <option>Guild Master</option><option>Veteran Raider</option><option>Raider</option><option selected>Social</option><option>Alt</option>
+        <option>Guild Master</option><option>Officer</option><option>Veteran Raider</option><option>Raider</option><option selected>Social</option><option>Alt</option>
       </select>
     </div>
     <div class="fg"><label>Notes (OS, availability...)</label><textarea id="f-notes"></textarea></div>
@@ -1346,7 +1346,7 @@ function renderRoster() {
   document.getElementById('stats').innerHTML = `
     <div class="stats-top">
       <div class="stat-card"><div class="lbl">Total</div><div class="val">${members.length}</div></div>
-      <div class="stat-card"><div class="lbl">Raiders+</div><div class="val">${members.filter(m=>m.rank==='Guild Master'||m.rank==='Veteran Raider'||m.rank==='Raider').length}</div></div>
+      <div class="stat-card"><div class="lbl">Raiders+</div><div class="val">${members.filter(m=>m.rank==='Guild Master'||m.rank==='Officer'||m.rank==='Veteran Raider'||m.rank==='Raider').length}</div></div>
       <div class="stat-card"><div class="lbl">In Raid</div><div class="val">${groups.flat().filter(Boolean).length}</div></div>
     </div>
     <div class="class-summary">${classCards}</div>
