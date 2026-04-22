@@ -4764,7 +4764,17 @@ function wlShowPanel(memberId) {
   document.getElementById('wl-panel-name').textContent = m.name;
   document.getElementById('wl-panel-name').style.color = cc.color;
   document.getElementById('wl-panel-sub').textContent = `${m.spec || m.cls} · ${m.rank || ''}`.replace(/ · $/, '');
-  document.getElementById('wl-panel-count').textContent = items.length ? `${items.length} item${items.length !== 1 ? 's' : ''}` : 'No items yet';
+
+  // Count only unreceived items for the header
+  const unreceived = items.filter(item => {
+    const overridden = item.manualReceived === false;
+    const lootGot = _lootData.some(e => String(e.itemID) === String(item.itemId) && findMemberByLootName(e.character)?.id === memberId);
+    return overridden ? false : !(lootGot || !!item.manualReceived);
+  });
+  const total = items.length;
+  document.getElementById('wl-panel-count').textContent = total
+    ? `${unreceived.length} remaining · ${total} total`
+    : 'No items yet';
 
   wlRenderItems(memberId);
 }
@@ -4779,65 +4789,104 @@ function wlRenderItems(memberId) {
     return;
   }
 
-  el.innerHTML = items.map((item, i) => {
-    const pc = WL_PRIO_COLORS[item.prio] || WL_PRIO_COLORS.upgrade;
-    const qClass = QUALITY_CLASS[item.quality ?? 4];
+  // Compute received status for each item, keeping original index for drag/toggle/remove
+  const annotated = items.map((item, i) => {
     const lootTrackerReceived = _lootData.some(e => {
-      // itemID in loot tracker is a number, itemId in wishlist is a string — normalise both
       if (String(e.itemID) !== String(item.itemId)) return false;
-      // Match by member name (loot tracker uses character names, not IDs)
       const matched = findMemberByLootName(e.character);
-      // Accept both main spec AND offspec loot as "received"
       return matched?.id === memberId;
     });
-    // manualReceived=false overrides loot tracker (marked as NOT received)
-    // manualReceived=true forces received even without loot tracker
-    // manualReceived=undefined = no manual override
     const overriddenNotReceived = item.manualReceived === false;
     const received = overriddenNotReceived ? false : (lootTrackerReceived || !!item.manualReceived);
-    const rowOpacity = received ? '0.55' : '1';
     const receivedSource = overriddenNotReceived ? '' :
       lootTrackerReceived && item.manualReceived ? 'via Loot Tracker + manual' :
       lootTrackerReceived ? 'via Loot Tracker' :
       item.manualReceived ? 'marked manually' : '';
+    return { item, i, lootTrackerReceived, overriddenNotReceived, received, receivedSource };
+  });
 
+  const active   = annotated.filter(a => !a.received);
+  const received = annotated.filter(a =>  a.received);
+
+  // ── Helper: render a single item row ──
+  function makeRow({ item, i, lootTrackerReceived, overriddenNotReceived, received, receivedSource }, isReceivedSection) {
+    const pc = WL_PRIO_COLORS[item.prio] || WL_PRIO_COLORS.upgrade;
+    const qClass = QUALITY_CLASS[item.quality ?? 4];
+    const rank = active.indexOf(annotated[i]) + 1; // rank within active list only
+
+    // "Who else wants this" — only show in active section
+    const othersHtml = isReceivedSection ? '' : (() => {
+      const others = [];
+      Object.entries(wlData).forEach(([mid, list]) => {
+        if (parseInt(mid) === memberId) return;
+        const entry = list.find(w => w.itemId === item.itemId);
+        if (!entry) return;
+        const m2 = members.find(x => x.id === parseInt(mid));
+        if (!m2) return;
+        const received2 = (entry.manualReceived === true) || (entry.manualReceived !== false && _lootData.some(e => String(e.itemID) === String(entry.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid)));
+        others.push({ m: m2, rank: list.indexOf(entry) + 1, prio: entry.prio, received: received2 });
+      });
+      if (!others.length) return '';
+      const activeOthers = others.filter(o => !o.received);
+      const label = activeOthers.length
+        ? `<span style="color:var(--text3)">Also wanted by </span>${activeOthers.map(o => {
+            const cc2 = CM[o.m.cls] || { color: '#888' };
+            return `<span style="color:${cc2.color};font-weight:600">${o.m.name}</span><span style="color:var(--text3)"> #${o.rank}</span>`;
+          }).join('<span style="color:var(--text3)"> · </span>')}${others.length > activeOthers.length ? `<span style="color:var(--text3)"> (+${others.length - activeOthers.length} received)</span>` : ''}`
+        : `<span style="color:var(--text3)">Wanted by ${others.length} other${others.length>1?'s':''} — all received ✓</span>`;
+      return `<div style="font-size:10px;margin-top:2px;line-height:1.5">${label}</div>`;
+    })();
+
+    // Received button
+    const btnBg     = received ? 'rgba(128,208,128,0.15)' : overriddenNotReceived ? 'rgba(224,96,96,0.1)' : 'transparent';
+    const btnBorder = received ? 'rgba(128,208,128,0.4)'  : overriddenNotReceived ? 'rgba(224,96,96,0.35)' : 'rgba(255,255,255,0.12)';
+    const btnColor  = received ? '#80d080'                : overriddenNotReceived ? '#e06060' : 'var(--text3)';
+    const btnLabel  = received ? '✓ Received' : overriddenNotReceived ? '✕ Overridden' : '○ Received?';
+    const btnTitle  = overriddenNotReceived
+      ? 'Manually overridden as not received — click to restore'
+      : lootTrackerReceived && !item.manualReceived
+      ? 'Auto-detected from Loot Tracker — click to override as not received'
+      : received ? 'Mark as not received' : 'Mark as received';
+
+    if (isReceivedSection) {
+      // Simplified row — no drag handle, no rank number, no prio selector
+      return `<div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,0.04);opacity:0.6"
+        onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+        ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:28px;height:28px;border-radius:4px;flex-shrink:0;filter:grayscale(0.6)" onerror="this.style.display='none'">` : ''}
+        <div style="flex:1;min-width:0">
+          <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:line-through;font-size:12px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
+          <div style="font-size:10px;color:#80d080;margin-top:1px">✓ ${receivedSource || 'Received'}</div>
+        </div>
+        <span style="font-size:10px;padding:1px 7px;border-radius:8px;border:1px solid ${pc.border};background:${pc.bg};color:${pc.color};flex-shrink:0;opacity:0.7">${WL_PRIO_LABELS[item.prio]}</span>
+        <button onclick="wlToggleReceived(${memberId},${i})"
+          title="${btnTitle}"
+          style="background:${btnBg};border:1px solid ${btnBorder};color:${btnColor};
+                 cursor:pointer;font-size:11px;padding:3px 8px;border-radius:5px;flex-shrink:0;
+                 line-height:1;font-family:'Exo 2',sans-serif;white-space:nowrap"
+          onmouseover="this.style.borderColor='rgba(224,96,96,0.5)';this.style.color='#e06060'"
+          onmouseout="this.style.borderColor='${btnBorder}';this.style.color='${btnColor}'"
+          title="Remove received status">✕ Received</button>
+        <button onclick="wlRemoveItem(${memberId},${i})"
+          style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0;flex-shrink:0;line-height:1"
+          onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'" title="Remove from wishlist">✕</button>
+      </div>`;
+    }
+
+    // Active wishlist row — full row with drag, rank, prio selector
     return `<div id="wl-row-${i}" draggable="true"
       ondragstart="wlDragStart(event,${i})"
       ondragover="wlDragOver(event,${i})"
       ondrop="wlDrop(event,${i},${memberId})"
       ondragend="wlDragEnd()"
-      style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);transition:background .1s;cursor:grab;opacity:${rowOpacity}"
+      style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);transition:background .1s;cursor:grab"
       onmouseover="this.style.background='rgba(255,255,255,0.03)'"
       onmouseout="this.style.background='transparent'">
       <span style="color:var(--text3);font-size:18px;cursor:grab;user-select:none">⠿</span>
-      <span style="font-size:11px;color:var(--text3);min-width:18px;text-align:center;font-weight:600">${i + 1}</span>
-      ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:32px;height:32px;border-radius:4px;flex-shrink:0;${received?'filter:grayscale(0.5)':''}" onerror="this.style.display='none'">` : ''}
+      <span style="font-size:11px;color:var(--text3);min-width:18px;text-align:center;font-weight:600">${rank}</span>
+      ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:32px;height:32px;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'">` : ''}
       <div style="flex:1;min-width:0">
-        <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:${received?'line-through':'none'};font-size:13px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
-        ${received ? `<div style="font-size:10px;color:#80d080;margin-top:1px">✓ Already received <span style="color:var(--text3)">${receivedSource}</span></div>` : ''}
-        ${(() => {
-          // Who else wants this item?
-          const others = [];
-          Object.entries(wlData).forEach(([mid, list]) => {
-            if (parseInt(mid) === memberId) return;
-            const entry = list.find(w => w.itemId === item.itemId);
-            if (!entry) return;
-            const m2 = members.find(x => x.id === parseInt(mid));
-            if (!m2) return;
-            const received2 = (entry.manualReceived === true) || (entry.manualReceived !== false && _lootData.some(e => String(e.itemID) === String(entry.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid)));
-            others.push({ m: m2, rank: list.indexOf(entry) + 1, prio: entry.prio, received: received2 });
-          });
-          if (!others.length) return '';
-          const activeOthers = others.filter(o => !o.received);
-          const label = activeOthers.length
-            ? `<span style="color:var(--text3)">Also wanted by </span>${activeOthers.map(o => {
-                const cc2 = CM[o.m.cls] || { color: '#888' };
-                const pc2 = WL_PRIO_COLORS[o.prio] || WL_PRIO_COLORS.upgrade;
-                return `<span style="color:${cc2.color};font-weight:600">${o.m.name}</span><span style="color:var(--text3)"> #${o.rank}</span>`;
-              }).join('<span style="color:var(--text3)"> · </span>')}${others.length > activeOthers.length ? `<span style="color:var(--text3)"> (+${others.length - activeOthers.length} received)</span>` : ''}`
-            : `<span style="color:var(--text3)">Wanted by ${others.length} other${others.length>1?'s':''} — all received ✓</span>`;
-          return `<div style="font-size:10px;margin-top:2px;line-height:1.5">${label}</div>`;
-        })()}
+        <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:none;font-size:13px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
+        ${othersHtml}
       </div>
       <span style="font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid ${pc.border};background:${pc.bg};color:${pc.color};flex-shrink:0;white-space:nowrap">${WL_PRIO_LABELS[item.prio]}</span>
       <select onchange="wlChangePrio(${memberId},${i},this.value)" style="padding:3px 6px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:11px;flex-shrink:0">
@@ -4845,32 +4894,48 @@ function wlRenderItems(memberId) {
         <option value="upgrade" ${item.prio==='upgrade'?'selected':''}>Upgrade</option>
         <option value="offspec" ${item.prio==='offspec'?'selected':''}>Off Spec</option>
       </select>
-      ${(() => {
-        const isReceived = received;
-        const btnBg     = isReceived ? 'rgba(128,208,128,0.15)' : overriddenNotReceived ? 'rgba(224,96,96,0.1)' : 'transparent';
-        const btnBorder = isReceived ? 'rgba(128,208,128,0.4)'  : overriddenNotReceived ? 'rgba(224,96,96,0.35)' : 'rgba(255,255,255,0.12)';
-        const btnColor  = isReceived ? '#80d080'                : overriddenNotReceived ? '#e06060' : 'var(--text3)';
-        const btnLabel  = isReceived ? '✓ Received' : overriddenNotReceived ? '✕ Overridden' : '○ Received?';
-        const btnTitle  = overriddenNotReceived
-          ? 'Manually overridden as not received — click to restore Loot Tracker detection'
-          : lootTrackerReceived && !item.manualReceived
-          ? 'Auto-detected from Loot Tracker — click to override as not received'
-          : isReceived ? 'Mark as not received' : 'Mark as received';
-        return `<button onclick="wlToggleReceived(${memberId},${i})"
-          title="${btnTitle}"
-          style="background:${btnBg};border:1px solid ${btnBorder};color:${btnColor};
-                 cursor:pointer;font-size:11px;padding:3px 8px;border-radius:5px;flex-shrink:0;
-                 line-height:1;font-family:'Exo 2',sans-serif;white-space:nowrap;transition:all .15s"
-          onmouseover="this.style.borderColor='rgba(128,208,128,0.5)';this.style.color='#80d080'"
-          onmouseout="this.style.borderColor='${btnBorder}';this.style.color='${btnColor}'">
-          ${btnLabel}
-        </button>`;
-      })()}
+      <button onclick="wlToggleReceived(${memberId},${i})"
+        title="${btnTitle}"
+        style="background:${btnBg};border:1px solid ${btnBorder};color:${btnColor};
+               cursor:pointer;font-size:11px;padding:3px 8px;border-radius:5px;flex-shrink:0;
+               line-height:1;font-family:'Exo 2',sans-serif;white-space:nowrap;transition:all .15s"
+        onmouseover="this.style.borderColor='rgba(128,208,128,0.5)';this.style.color='#80d080'"
+        onmouseout="this.style.borderColor='${btnBorder}';this.style.color='${btnColor}'">${btnLabel}</button>
       <button onclick="wlRemoveItem(${memberId},${i})"
         style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0;flex-shrink:0;line-height:1"
         onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'" title="Remove from wishlist">✕</button>
     </div>`;
-  }).join('');
+  }
+
+  // ── Build the HTML ──
+  let html = '';
+
+  // Active wishlist section
+  if (active.length) {
+    html += active.map(a => makeRow(a, false)).join('');
+  } else {
+    html += '<div style="padding:16px;text-align:center;font-size:12px;color:#80d080">🎉 All items received!</div>';
+  }
+
+  // Received section (collapsible)
+  if (received.length) {
+    const sectionId = `wl-received-section-${memberId}`;
+    html += `
+      <div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:4px">
+        <button onclick="document.getElementById('${sectionId}').style.display=document.getElementById('${sectionId}').style.display==='none'?'block':'none';this.querySelector('.wl-chevron').style.transform=document.getElementById('${sectionId}').style.display==='none'?'rotate(0deg)':'rotate(180deg)'"
+          style="width:100%;display:flex;align-items:center;gap:8px;padding:10px 16px;background:transparent;border:none;cursor:pointer;color:var(--text3);font-family:'Exo 2',sans-serif;font-size:11px;text-align:left"
+          onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+          <span class="wl-chevron" style="font-size:10px;transition:transform .2s;display:inline-block;transform:rotate(180deg)">▼</span>
+          <span style="text-transform:uppercase;letter-spacing:.06em">Already Received</span>
+          <span style="background:rgba(128,208,128,0.15);color:#80d080;padding:1px 8px;border-radius:8px;font-size:10px">${received.length}</span>
+        </button>
+        <div id="${sectionId}">
+          ${received.map(a => makeRow(a, true)).join('')}
+        </div>
+      </div>`;
+  }
+
+  el.innerHTML = html;
 }
 
 function wlToggleReceived(memberId, idx) {
