@@ -1021,81 +1021,95 @@ body {
 
 <!-- WISHLIST -->
 <div class="page" id="page-wishlist">
-  <div style="max-width:1200px;margin:0 auto">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+  <div style="max-width:1300px;margin:0 auto">
+
+    <!-- Header + view toggle -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
       <h2 style="font-family:'Cinzel',serif;color:var(--gold);margin:0;flex:1">🎯 Item Wishlists</h2>
-      <input id="wl-search" class="search" placeholder="Search items or players..." oninput="wlRender()" style="width:220px">
+      <!-- View tabs -->
+      <div style="display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:3px">
+        <button id="wl-tab-player" onclick="wlSetView('player')"
+          style="padding:5px 14px;border-radius:4px;border:none;font-family:'Exo 2',sans-serif;font-size:12px;cursor:pointer;background:var(--gold);color:#0e0e12;font-weight:600">
+          👤 Player Wishlists
+        </button>
+        <button id="wl-tab-competition" onclick="wlSetView('competition')"
+          style="padding:5px 14px;border-radius:4px;border:none;font-family:'Exo 2',sans-serif;font-size:12px;cursor:pointer;background:transparent;color:var(--text2)">
+          ⚔ Item Competition
+        </button>
+      </div>
+      <input id="wl-search" class="search" placeholder="Search..." oninput="wlRender()" style="width:180px">
     </div>
 
-    <!-- Layout: left = player list, right = selected player wishlist -->
-    <div style="display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start">
+    <!-- ── VIEW: PLAYER WISHLISTS ── -->
+    <div id="wl-view-player">
+      <div style="display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start">
 
-      <!-- LEFT: Player picker -->
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden">
-        <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-family:'Cinzel',serif;font-size:12px;color:var(--gold)">Players</div>
-        <div id="wl-player-list" style="display:flex;flex-direction:column"></div>
-      </div>
-
-      <!-- RIGHT: Selected player's wishlist -->
-      <div>
-        <div id="wl-empty-state" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:32px;text-align:center;color:var(--text3)">
-          <div style="font-size:28px;margin-bottom:8px">🎯</div>
-          <div style="font-size:13px">Select a player to view or edit their wishlist</div>
+        <!-- LEFT: Player picker -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;position:sticky;top:72px">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-family:'Cinzel',serif;font-size:12px;color:var(--gold)">Players</div>
+          <div id="wl-player-list" style="display:flex;flex-direction:column"></div>
         </div>
 
-        <!-- Player wishlist panel -->
-        <div id="wl-panel" style="display:none">
-          <!-- Header -->
-          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px">
-            <img id="wl-panel-icon" style="width:36px;height:36px;border-radius:50%;flex-shrink:0">
-            <div style="flex:1;min-width:0">
-              <div id="wl-panel-name" style="font-family:'Cinzel',serif;font-size:15px;font-weight:700"></div>
-              <div id="wl-panel-sub" style="font-size:11px;color:var(--text3)"></div>
-            </div>
-            <span id="wl-panel-count" style="font-size:11px;color:var(--text3)"></span>
+        <!-- RIGHT: Selected player's wishlist -->
+        <div>
+          <div id="wl-empty-state" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:32px;text-align:center;color:var(--text3)">
+            <div style="font-size:28px;margin-bottom:8px">🎯</div>
+            <div style="font-size:13px">Select a player to view or edit their wishlist</div>
           </div>
 
-          <!-- Add item form -->
-          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;margin-bottom:12px">
-            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Add Item</div>
-            <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
-              <input id="wl-url-input" placeholder="Paste WoWHead item URL..." style="flex:1;min-width:200px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:12px" onkeydown="if(event.key==='Enter')wlLookup()">
-              <button class="btn" onclick="wlLookup()" style="flex-shrink:0">🔍 Look up</button>
-            </div>
-            <!-- Preview -->
-            <div id="wl-preview" style="display:none;margin-top:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;display:none;align-items:center;gap:10px">
-              <img id="wl-preview-icon" style="width:36px;height:36px;border-radius:4px;flex-shrink:0">
+          <!-- Player wishlist panel -->
+          <div id="wl-panel" style="display:none">
+            <!-- Header -->
+            <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px">
+              <img id="wl-panel-icon" style="width:36px;height:36px;border-radius:50%;flex-shrink:0">
               <div style="flex:1;min-width:0">
-                <div id="wl-preview-name" style="font-size:13px;font-weight:600"></div>
-                <div id="wl-preview-meta" style="font-size:11px;color:var(--text3)"></div>
+                <div id="wl-panel-name" style="font-family:'Cinzel',serif;font-size:15px;font-weight:700"></div>
+                <div id="wl-panel-sub" style="font-size:11px;color:var(--text3)"></div>
               </div>
-              <select id="wl-prio-sel" style="padding:5px 8px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:12px">
-                <option value="bis">BiS</option>
-                <option value="upgrade">Upgrade</option>
-                <option value="offspec">Off Spec</option>
-              </select>
-              <button class="btn btn-gold" onclick="wlAddItem()" id="wl-add-btn">+ Add</button>
+              <span id="wl-panel-count" style="font-size:11px;color:var(--text3)"></span>
             </div>
-            <div id="wl-status" style="font-size:12px;color:var(--text3);margin-top:6px;min-height:16px"></div>
-          </div>
 
-          <!-- Wishlist items -->
-          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden">
-            <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-              <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;flex:1">Priority List</span>
-              <span style="font-size:10px;color:var(--text3)">Drag to reorder</span>
+            <!-- Add item form -->
+            <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;margin-bottom:12px">
+              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Add Item</div>
+              <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+                <input id="wl-url-input" placeholder="Paste WoWHead item URL..." style="flex:1;min-width:200px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:12px" onkeydown="if(event.key==='Enter')wlLookup()">
+                <button class="btn" onclick="wlLookup()" style="flex-shrink:0">🔍 Look up</button>
+              </div>
+              <div id="wl-preview" style="display:none;margin-top:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;align-items:center;gap:10px">
+                <img id="wl-preview-icon" style="width:36px;height:36px;border-radius:4px;flex-shrink:0">
+                <div style="flex:1;min-width:0">
+                  <div id="wl-preview-name" style="font-size:13px;font-weight:600"></div>
+                  <div id="wl-preview-meta" style="font-size:11px;color:var(--text3)"></div>
+                </div>
+                <select id="wl-prio-sel" style="padding:5px 8px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:12px">
+                  <option value="bis">BiS</option>
+                  <option value="upgrade">Upgrade</option>
+                  <option value="offspec">Off Spec</option>
+                </select>
+                <button class="btn btn-gold" onclick="wlAddItem()" id="wl-add-btn">+ Add</button>
+              </div>
+              <div id="wl-status" style="font-size:12px;color:var(--text3);margin-top:6px;min-height:16px"></div>
             </div>
-            <div id="wl-items" style="min-height:60px"></div>
+
+            <!-- Wishlist items -->
+            <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden">
+              <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+                <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;flex:1">Priority List</span>
+                <span style="font-size:10px;color:var(--text3)">Drag to reorder</span>
+              </div>
+              <div id="wl-items" style="min-height:60px"></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Overview: all players with wishlists as cards -->
-    <div id="wl-overview" style="display:none;margin-top:24px">
-      <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(200,168,75,0.2)">All Wishlists Overview</div>
-      <div id="wl-overview-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+    <!-- ── VIEW: ITEM COMPETITION ── -->
+    <div id="wl-view-competition" style="display:none">
+      <div id="wl-competition-content"></div>
     </div>
+
   </div>
 </div>
 
@@ -4624,6 +4638,7 @@ let wlData = {};           // memberId(str) -> array of wish items
 let wlSelectedId = null;   // currently selected member id (number)
 let wlLookupResult = null; // pending item from lookup
 let wlDragIdx = null;      // drag-to-reorder index
+let wlCurrentView = 'player'; // 'player' | 'competition'
 
 const WL_PRIO_LABELS = { bis: 'BiS', upgrade: 'Upgrade', offspec: 'Off Spec' };
 const WL_PRIO_COLORS = {
@@ -4645,10 +4660,33 @@ function initWishlist() {
   wlLoad();
   wlSelectedId = null;
   wlLookupResult = null;
-  wlRender();
+  wlSetView(wlCurrentView);
+}
+
+function wlSetView(view) {
+  wlCurrentView = view;
+  const playerBtn = document.getElementById('wl-tab-player');
+  const compBtn   = document.getElementById('wl-tab-competition');
+  const playerView = document.getElementById('wl-view-player');
+  const compView   = document.getElementById('wl-view-competition');
+  if (!playerBtn) return;
+  if (view === 'player') {
+    playerBtn.style.background = 'var(--gold)'; playerBtn.style.color = '#0e0e12'; playerBtn.style.fontWeight = '600';
+    compBtn.style.background = 'transparent'; compBtn.style.color = 'var(--text2)'; compBtn.style.fontWeight = '400';
+    playerView.style.display = 'block';
+    compView.style.display = 'none';
+    wlRender();
+  } else {
+    compBtn.style.background = 'var(--gold)'; compBtn.style.color = '#0e0e12'; compBtn.style.fontWeight = '600';
+    playerBtn.style.background = 'transparent'; playerBtn.style.color = 'var(--text2)'; playerBtn.style.fontWeight = '400';
+    playerView.style.display = 'none';
+    compView.style.display = 'block';
+    wlRenderCompetition();
+  }
 }
 
 function wlRender() {
+  if (wlCurrentView === 'competition') { wlRenderCompetition(); return; }
   wlRenderPlayerList();
   if (wlSelectedId !== null) {
     wlShowPanel(wlSelectedId);
@@ -4705,8 +4743,9 @@ function wlSelectPlayer(memberId) {
   if (prev) prev.style.display = 'none';
   const st = document.getElementById('wl-status');
   if (st) st.textContent = '';
-  wlRenderPlayerList();
-  wlShowPanel(memberId);
+  // If we're in competition view, switch to player view first
+  if (wlCurrentView !== 'player') wlSetView('player');
+  else { wlRenderPlayerList(); wlShowPanel(memberId); }
 }
 
 function wlShowPanel(memberId) {
@@ -4745,9 +4784,16 @@ function wlRenderItems(memberId) {
       e.itemID === parseInt(item.itemId) &&
       findMemberByLootName(e.character)?.id === memberId && !e.offspec
     );
-    const received = lootTrackerReceived || !!item.manualReceived;
+    // manualReceived=false overrides loot tracker (marked as NOT received)
+    // manualReceived=true forces received even without loot tracker
+    // manualReceived=undefined = no manual override
+    const overriddenNotReceived = item.manualReceived === false;
+    const received = overriddenNotReceived ? false : (lootTrackerReceived || !!item.manualReceived);
     const rowOpacity = received ? '0.55' : '1';
-    const receivedSource = lootTrackerReceived ? 'via Loot Tracker' : (item.manualReceived ? 'marked manually' : '');
+    const receivedSource = overriddenNotReceived ? '' :
+      lootTrackerReceived && item.manualReceived ? 'via Loot Tracker + manual' :
+      lootTrackerReceived ? 'via Loot Tracker' :
+      item.manualReceived ? 'marked manually' : '';
 
     return `<div id="wl-row-${i}" draggable="true"
       ondragstart="wlDragStart(event,${i})"
@@ -4763,6 +4809,29 @@ function wlRenderItems(memberId) {
       <div style="flex:1;min-width:0">
         <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:${received?'line-through':'none'};font-size:13px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
         ${received ? `<div style="font-size:10px;color:#80d080;margin-top:1px">✓ Already received <span style="color:var(--text3)">${receivedSource}</span></div>` : ''}
+        ${(() => {
+          // Who else wants this item?
+          const others = [];
+          Object.entries(wlData).forEach(([mid, list]) => {
+            if (parseInt(mid) === memberId) return;
+            const entry = list.find(w => w.itemId === item.itemId);
+            if (!entry) return;
+            const m2 = members.find(x => x.id === parseInt(mid));
+            if (!m2) return;
+            const received2 = (entry.manualReceived) || _lootData.some(e => e.itemID === parseInt(entry.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid) && !e.offspec);
+            others.push({ m: m2, rank: list.indexOf(entry) + 1, prio: entry.prio, received: received2 });
+          });
+          if (!others.length) return '';
+          const activeOthers = others.filter(o => !o.received);
+          const label = activeOthers.length
+            ? `<span style="color:var(--text3)">Also wanted by </span>${activeOthers.map(o => {
+                const cc2 = CM[o.m.cls] || { color: '#888' };
+                const pc2 = WL_PRIO_COLORS[o.prio] || WL_PRIO_COLORS.upgrade;
+                return `<span style="color:${cc2.color};font-weight:600">${o.m.name}</span><span style="color:var(--text3)"> #${o.rank}</span>`;
+              }).join('<span style="color:var(--text3)"> · </span>')}${others.length > activeOthers.length ? `<span style="color:var(--text3)"> (+${others.length - activeOthers.length} received)</span>` : ''}`
+            : `<span style="color:var(--text3)">Wanted by ${others.length} other${others.length>1?'s':''} — all received ✓</span>`;
+          return `<div style="font-size:10px;margin-top:2px;line-height:1.5">${label}</div>`;
+        })()}
       </div>
       <span style="font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid ${pc.border};background:${pc.bg};color:${pc.color};flex-shrink:0;white-space:nowrap">${WL_PRIO_LABELS[item.prio]}</span>
       <select onchange="wlChangePrio(${memberId},${i},this.value)" style="padding:3px 6px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:11px;flex-shrink:0">
@@ -4770,18 +4839,27 @@ function wlRenderItems(memberId) {
         <option value="upgrade" ${item.prio==='upgrade'?'selected':''}>Upgrade</option>
         <option value="offspec" ${item.prio==='offspec'?'selected':''}>Off Spec</option>
       </select>
-      ${!lootTrackerReceived ? `
-        <button onclick="wlToggleReceived(${memberId},${i})"
-          title="${item.manualReceived ? 'Mark as not received' : 'Mark as received'}"
-          style="background:${item.manualReceived ? 'rgba(128,208,128,0.15)' : 'transparent'};
-                 border:1px solid ${item.manualReceived ? 'rgba(128,208,128,0.4)' : 'rgba(255,255,255,0.12)'};
-                 color:${item.manualReceived ? '#80d080' : 'var(--text3)'};
+      ${(() => {
+        const isReceived = received;
+        const btnBg     = isReceived ? 'rgba(128,208,128,0.15)' : overriddenNotReceived ? 'rgba(224,96,96,0.1)' : 'transparent';
+        const btnBorder = isReceived ? 'rgba(128,208,128,0.4)'  : overriddenNotReceived ? 'rgba(224,96,96,0.35)' : 'rgba(255,255,255,0.12)';
+        const btnColor  = isReceived ? '#80d080'                : overriddenNotReceived ? '#e06060' : 'var(--text3)';
+        const btnLabel  = isReceived ? '✓ Received' : overriddenNotReceived ? '✕ Overridden' : '○ Received?';
+        const btnTitle  = overriddenNotReceived
+          ? 'Manually overridden as not received — click to restore Loot Tracker detection'
+          : lootTrackerReceived && !item.manualReceived
+          ? 'Auto-detected from Loot Tracker — click to override as not received'
+          : isReceived ? 'Mark as not received' : 'Mark as received';
+        return `<button onclick="wlToggleReceived(${memberId},${i})"
+          title="${btnTitle}"
+          style="background:${btnBg};border:1px solid ${btnBorder};color:${btnColor};
                  cursor:pointer;font-size:11px;padding:3px 8px;border-radius:5px;flex-shrink:0;
                  line-height:1;font-family:'Exo 2',sans-serif;white-space:nowrap;transition:all .15s"
           onmouseover="this.style.borderColor='rgba(128,208,128,0.5)';this.style.color='#80d080'"
-          onmouseout="this.style.borderColor='${item.manualReceived ? 'rgba(128,208,128,0.4)' : 'rgba(255,255,255,0.12)'}';this.style.color='${item.manualReceived ? '#80d080' : 'var(--text3)'}'">
-          ${item.manualReceived ? '✓ Received' : '○ Received?'}
-        </button>` : `<span style="font-size:11px;color:#80d080;padding:3px 8px;flex-shrink:0">✓ Tracked</span>`}
+          onmouseout="this.style.borderColor='${btnBorder}';this.style.color='${btnColor}'">
+          ${btnLabel}
+        </button>`;
+      })()}
       <button onclick="wlRemoveItem(${memberId},${i})"
         style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0;flex-shrink:0;line-height:1"
         onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'" title="Remove from wishlist">✕</button>
@@ -4792,7 +4870,26 @@ function wlRenderItems(memberId) {
 function wlToggleReceived(memberId, idx) {
   const list = wlData[memberId] || [];
   if (!list[idx]) return;
-  list[idx].manualReceived = !list[idx].manualReceived;
+  const item = list[idx];
+  const lootTrackerReceived = _lootData.some(e =>
+    e.itemID === parseInt(item.itemId) &&
+    findMemberByLootName(e.character)?.id === memberId && !e.offspec
+  );
+
+  if (lootTrackerReceived) {
+    // Loot tracker says received — toggle manualReceived as an override
+    // undefined/true -> false (override: mark as NOT received despite tracker)
+    // false -> undefined (remove override, go back to tracker)
+    if (item.manualReceived === false) {
+      delete item.manualReceived; // remove override, tracker wins again
+    } else {
+      item.manualReceived = false; // override: not received
+    }
+  } else {
+    // No loot tracker entry — simple toggle
+    item.manualReceived = !item.manualReceived;
+  }
+
   wlData[memberId] = list;
   wlSave();
   wlRenderItems(memberId);
@@ -4925,6 +5022,115 @@ function wlDrop(e, idx, memberId) {
 function wlDragEnd() {
   wlDragIdx = null;
   document.querySelectorAll('[id^=wl-row-]').forEach(el => { el.style.opacity = '1'; el.style.borderTop = ''; });
+}
+
+// ── Item Competition View ─────────────────────────────────
+function wlRenderCompetition() {
+  const el = document.getElementById('wl-competition-content');
+  if (!el) return;
+  const q = (document.getElementById('wl-search')?.value || '').toLowerCase();
+
+  // Build item map: itemId -> { itemName, itemIcon, itemUrl, quality, players: [{member, rank, prio, received}] }
+  const itemMap = {};
+  Object.entries(wlData).forEach(([mid, list]) => {
+    const member = members.find(m => m.id === parseInt(mid));
+    if (!member) return;
+    list.forEach((item, idx) => {
+      if (!itemMap[item.itemId]) {
+        itemMap[item.itemId] = { itemId: item.itemId, itemName: item.itemName, itemIcon: item.itemIcon, itemUrl: item.itemUrl, quality: item.quality, players: [] };
+      }
+      const received = !!item.manualReceived || _lootData.some(e =>
+        e.itemID === parseInt(item.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid) && !e.offspec
+      );
+      itemMap[item.itemId].players.push({ member, rank: idx + 1, prio: item.prio, received });
+    });
+  });
+
+  // Filter by search
+  let items = Object.values(itemMap).filter(item =>
+    !q || item.itemName.toLowerCase().includes(q) ||
+    item.players.some(p => p.member.name.toLowerCase().includes(q))
+  );
+
+  if (!items.length) {
+    el.innerHTML = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:40px;text-align:center;color:var(--text3)">
+      <div style="font-size:28px;margin-bottom:8px">⚔</div>
+      <div style="font-size:13px">${Object.keys(wlData).length ? 'No items match your search' : 'No wishlist data yet — add items to player wishlists first'}</div>
+    </div>`;
+    return;
+  }
+
+  // Sort: most wanted first (active players only), then alphabetical
+  items.sort((a, b) => {
+    const aActive = a.players.filter(p => !p.received).length;
+    const bActive = b.players.filter(p => !p.received).length;
+    if (bActive !== aActive) return bActive - aActive;
+    return a.itemName.localeCompare(b.itemName);
+  });
+
+  // Demand colour thresholds
+  const maxDemand = Math.max(...items.map(it => it.players.filter(p => !p.received).length), 1);
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px">
+      ${items.map(item => {
+        const qClass = QUALITY_CLASS[item.quality ?? 4];
+        const activePlayers = item.players.filter(p => !p.received);
+        const receivedPlayers = item.players.filter(p => p.received);
+        const demand = activePlayers.length;
+        const demandPct = Math.round((demand / maxDemand) * 100);
+
+        // Demand colour: green=1, yellow=2-3, orange=4-5, red=6+
+        const demandColor = demand >= 6 ? '#e06060' : demand >= 4 ? '#e09040' : demand >= 2 ? '#e0d060' : '#80d080';
+
+        // Sort active players: BiS first, then Upgrade, then Offspec, then by rank within that
+        const priOrder = { bis: 0, upgrade: 1, offspec: 2 };
+        const sorted = [...activePlayers].sort((a, b) => (priOrder[a.prio] ?? 1) - (priOrder[b.prio] ?? 1) || a.rank - b.rank);
+
+        return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;transition:border-color .15s"
+          onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+
+          <!-- Item header -->
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+            ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:32px;height:32px;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'">` : ''}
+            <div style="flex:1;min-width:0">
+              <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:none;font-size:13px;font-weight:700;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
+              <!-- Demand bar -->
+              <div style="margin-top:5px;display:flex;align-items:center;gap:6px">
+                <div style="flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden">
+                  <div style="height:100%;width:${demandPct}%;background:${demandColor};border-radius:2px;transition:width .3s"></div>
+                </div>
+                <span style="font-size:11px;font-weight:700;color:${demandColor};flex-shrink:0">${demand} want${demand === 1 ? 's' : ''} it</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Players who want it -->
+          <div style="padding:8px 0">
+            ${sorted.map((p, i) => {
+              const cc = CM[p.member.cls] || { color: '#888' };
+              const pc = WL_PRIO_COLORS[p.prio] || WL_PRIO_COLORS.upgrade;
+              const icon = specIcon(p.member.cls, p.member.spec);
+              return `<div style="display:flex;align-items:center;gap:8px;padding:6px 14px;${i < sorted.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.04)' : ''}"
+                onclick="wlSetView('player');wlSelectPlayer(${p.member.id})" style="cursor:pointer"
+                onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                <span style="font-size:10px;color:var(--text3);min-width:16px;text-align:center;font-weight:600">#${p.rank}</span>
+                <img src="${icon}" style="width:24px;height:24px;border-radius:50%;flex-shrink:0" onerror="this.style.display='none'">
+                <span style="flex:1;font-size:12px;font-weight:600;color:${cc.color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.member.name}</span>
+                <span style="font-size:10px;color:var(--text3)">${p.member.spec || p.member.cls}</span>
+                <span style="font-size:10px;padding:1px 7px;border-radius:8px;border:1px solid ${pc.border};background:${pc.bg};color:${pc.color};flex-shrink:0">${WL_PRIO_LABELS[p.prio]}</span>
+              </div>`;
+            }).join('')}
+            ${receivedPlayers.length ? `
+              <div style="padding:6px 14px;border-top:1px solid rgba(255,255,255,0.04);margin-top:2px">
+                <span style="font-size:10px;color:#80d080">✓ Already received: </span>
+                <span style="font-size:10px;color:var(--text3)">${receivedPlayers.map(p => p.member.name).join(', ')}</span>
+              </div>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
 }
 
 _checkSession();
