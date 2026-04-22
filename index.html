@@ -4658,6 +4658,8 @@ function wlSave() {
 
 function initWishlist() {
   wlLoad();
+  loadLootData();   // ensure loot tracker data is available for received checks
+  loadItemCache();  // ensure item cache is available for lookups
   wlSelectedId = null;
   wlLookupResult = null;
   wlSetView(wlCurrentView);
@@ -4780,10 +4782,14 @@ function wlRenderItems(memberId) {
   el.innerHTML = items.map((item, i) => {
     const pc = WL_PRIO_COLORS[item.prio] || WL_PRIO_COLORS.upgrade;
     const qClass = QUALITY_CLASS[item.quality ?? 4];
-    const lootTrackerReceived = _lootData.some(e =>
-      e.itemID === parseInt(item.itemId) &&
-      findMemberByLootName(e.character)?.id === memberId && !e.offspec
-    );
+    const lootTrackerReceived = _lootData.some(e => {
+      // itemID in loot tracker is a number, itemId in wishlist is a string — normalise both
+      if (String(e.itemID) !== String(item.itemId)) return false;
+      // Match by member name (loot tracker uses character names, not IDs)
+      const matched = findMemberByLootName(e.character);
+      // Accept both main spec AND offspec loot as "received"
+      return matched?.id === memberId;
+    });
     // manualReceived=false overrides loot tracker (marked as NOT received)
     // manualReceived=true forces received even without loot tracker
     // manualReceived=undefined = no manual override
@@ -4818,7 +4824,7 @@ function wlRenderItems(memberId) {
             if (!entry) return;
             const m2 = members.find(x => x.id === parseInt(mid));
             if (!m2) return;
-            const received2 = (entry.manualReceived) || _lootData.some(e => e.itemID === parseInt(entry.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid) && !e.offspec);
+            const received2 = (entry.manualReceived === true) || (entry.manualReceived !== false && _lootData.some(e => String(e.itemID) === String(entry.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid)));
             others.push({ m: m2, rank: list.indexOf(entry) + 1, prio: entry.prio, received: received2 });
           });
           if (!others.length) return '';
@@ -4872,8 +4878,8 @@ function wlToggleReceived(memberId, idx) {
   if (!list[idx]) return;
   const item = list[idx];
   const lootTrackerReceived = _lootData.some(e =>
-    e.itemID === parseInt(item.itemId) &&
-    findMemberByLootName(e.character)?.id === memberId && !e.offspec
+    String(e.itemID) === String(item.itemId) &&
+    findMemberByLootName(e.character)?.id === memberId
   );
 
   if (lootTrackerReceived) {
@@ -5040,7 +5046,7 @@ function wlRenderCompetition() {
         itemMap[item.itemId] = { itemId: item.itemId, itemName: item.itemName, itemIcon: item.itemIcon, itemUrl: item.itemUrl, quality: item.quality, players: [] };
       }
       const received = !!item.manualReceived || _lootData.some(e =>
-        e.itemID === parseInt(item.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid) && !e.offspec
+        String(e.itemID) === String(item.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid)
       );
       itemMap[item.itemId].players.push({ member, rank: idx + 1, prio: item.prio, received });
     });
