@@ -4716,8 +4716,25 @@ function wlRenderPlayerList() {
   el.innerHTML = filtered.map(m => {
     const cc = CM[m.cls] || { color: '#888' };
     const icon = specIcon(m.cls, m.spec);
-    const count = (wlData[m.id] || []).length;
+    const items = wlData[m.id] || [];
     const isActive = m.id === wlSelectedId;
+
+    // Count received vs unreceived
+    let receivedCount = 0, unreceivedCount = 0;
+    items.forEach(item => {
+      const overridden = item.manualReceived === false;
+      const lootGot = _lootData.some(e => String(e.itemID) === String(item.itemId) && findMemberByLootName(e.character)?.id === m.id);
+      const isReceived = overridden ? false : (lootGot || !!item.manualReceived);
+      if (isReceived) receivedCount++; else unreceivedCount++;
+    });
+
+    const badges = items.length ? `
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+        ${unreceivedCount ? `<span style="font-size:10px;background:rgba(200,168,75,0.15);color:var(--gold);padding:1px 7px;border-radius:8px">${unreceivedCount}</span>` : ''}
+        ${unreceivedCount && receivedCount ? `<span style="color:var(--text3);font-size:10px">·</span>` : ''}
+        ${receivedCount ? `<span style="font-size:10px;background:rgba(128,208,128,0.15);color:#80d080;padding:1px 7px;border-radius:8px">✓${receivedCount}</span>` : ''}
+      </div>` : '';
+
     return `<div onclick="wlSelectPlayer(${m.id})"
       style="display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;
              border-left:3px solid ${isActive ? cc.color : 'transparent'};
@@ -4730,7 +4747,7 @@ function wlRenderPlayerList() {
         <div style="font-size:12px;font-weight:600;color:${cc.color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.name}</div>
         <div style="font-size:10px;color:var(--text3)">${m.spec || m.cls}</div>
       </div>
-      ${count ? `<span style="font-size:10px;background:rgba(200,168,75,0.15);color:var(--gold);padding:1px 7px;border-radius:8px;flex-shrink:0">${count}</span>` : ''}
+      ${badges}
     </div>`;
   }).join('');
 }
