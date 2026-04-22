@@ -1052,9 +1052,8 @@ body {
 
         <!-- RIGHT: Selected player's wishlist -->
         <div>
-          <div id="wl-empty-state" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:32px;text-align:center;color:var(--text3)">
-            <div style="font-size:28px;margin-bottom:8px">🎯</div>
-            <div style="font-size:13px">Select a player to view or edit their wishlist</div>
+          <div id="wl-empty-state">
+            <div id="wl-hot-items"></div>
           </div>
 
           <!-- Player wishlist panel -->
@@ -4695,7 +4694,130 @@ function wlRender() {
   } else {
     document.getElementById('wl-panel').style.display = 'none';
     document.getElementById('wl-empty-state').style.display = 'block';
+    wlRenderHotItems();
   }
+}
+
+function wlRenderHotItems() {
+  const el = document.getElementById('wl-hot-items');
+  if (!el) return;
+
+  // Build item map: itemId -> { itemName, itemIcon, itemUrl, quality, wanted: [], received: [] }
+  const itemMap = {};
+  Object.entries(wlData).forEach(([mid, list]) => {
+    const member = members.find(m => m.id === parseInt(mid));
+    if (!member) return;
+    list.forEach((item, idx) => {
+      if (!itemMap[item.itemId]) {
+        itemMap[item.itemId] = { itemId: item.itemId, itemName: item.itemName, itemIcon: item.itemIcon, itemUrl: item.itemUrl, quality: item.quality, wanted: [], received: [] };
+      }
+      const isReceived = (item.manualReceived === true) ||
+        (item.manualReceived !== false && _lootData.some(e => String(e.itemID) === String(item.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid)));
+      const overridden = item.manualReceived === false;
+      const actuallyReceived = overridden ? false : isReceived;
+      if (actuallyReceived) {
+        itemMap[item.itemId].received.push({ member, prio: item.prio });
+      } else {
+        itemMap[item.itemId].wanted.push({ member, prio: item.prio, rank: idx + 1 });
+      }
+    });
+  });
+
+  // Sort by most wanted (unreceived), top 10
+  const sorted = Object.values(itemMap)
+    .filter(it => it.wanted.length > 0)
+    .sort((a, b) => b.wanted.length - a.wanted.length || a.itemName.localeCompare(b.itemName))
+    .slice(0, 10);
+
+  if (!sorted.length) {
+    el.innerHTML = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:40px;text-align:center;color:var(--text3)">
+      <div style="font-size:28px;margin-bottom:8px">🎯</div>
+      <div style="font-size:13px">Select a player to view or edit their wishlist</div>
+    </div>`;
+    return;
+  }
+
+  const maxWanted = sorted[0].wanted.length;
+
+  el.innerHTML = `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden">
+      <!-- Header -->
+      <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <span style="font-size:18px">🔥</span>
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold2)">Most Contested Items</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:1px">Top 10 most wishlisted items across all players</div>
+        </div>
+      </div>
+
+      <!-- List -->
+      <div>
+        ${sorted.map((item, rank) => {
+          const qClass = QUALITY_CLASS[item.quality ?? 4];
+          const wantCount = item.wanted.length;
+          const recvCount = item.received.length;
+          const barPct = Math.round((wantCount / maxWanted) * 100);
+          const barColor = wantCount >= 6 ? '#e06060' : wantCount >= 4 ? '#e09040' : wantCount >= 3 ? '#e0d060' : wantCount >= 2 ? '#80c8ff' : '#80d080';
+
+          // Sort wanted: BiS first then upgrade then offspec
+          const priOrder = { bis: 0, upgrade: 1, offspec: 2 };
+          const sortedWanted = [...item.wanted].sort((a, b) => (priOrder[a.prio] ?? 1) - (priOrder[b.prio] ?? 1));
+
+          // Player avatars (up to 8)
+          const avatars = sortedWanted.slice(0, 8).map(p => {
+            const cc = CM[p.member.cls] || { color: '#888' };
+            const icon = specIcon(p.member.cls, p.member.spec);
+            const pc = WL_PRIO_COLORS[p.prio] || WL_PRIO_COLORS.upgrade;
+            return `<div title="${p.member.name} — ${WL_PRIO_LABELS[p.prio]}" onclick="event.stopPropagation();wlSelectPlayer(${p.member.id})"
+              style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0;cursor:pointer;
+                     border:2px solid ${pc.color};transition:transform .12s"
+              onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+              <img src="${icon}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">
+            </div>`;
+          }).join('');
+
+          const isTopThree = rank < 3;
+          const rankEmoji = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : '';
+
+          return `<div style="padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.04);${isTopThree ? 'background:rgba(255,255,255,0.015)' : ''}">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+              <!-- Rank -->
+              <div style="min-width:28px;text-align:center;flex-shrink:0">
+                ${rankEmoji
+                  ? `<span style="font-size:18px">${rankEmoji}</span>`
+                  : `<span style="font-size:12px;font-weight:700;color:var(--text3)">${rank + 1}</span>`}
+              </div>
+              <!-- Icon -->
+              ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:36px;height:36px;border-radius:6px;flex-shrink:0" onerror="this.style.display='none'">` : ''}
+              <!-- Name + bar -->
+              <div style="flex:1;min-width:0">
+                <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:none;font-size:13px;font-weight:700;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+                  <div style="flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden">
+                    <div style="height:100%;width:${barPct}%;background:${barColor};border-radius:3px"></div>
+                  </div>
+                  <span style="font-size:11px;font-weight:700;color:${barColor};flex-shrink:0;min-width:60px">
+                    ${wantCount} want${wantCount !== 1 ? 's' : ''} it${recvCount ? ` · <span style="color:#80d080;font-weight:400">✓${recvCount}</span>` : ''}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <!-- Player avatars -->
+            <div style="display:flex;align-items:center;gap:6px;padding-left:40px;flex-wrap:wrap">
+              ${avatars}
+              ${sortedWanted.length > 8 ? `<span style="font-size:11px;color:var(--text3)">+${sortedWanted.length - 8} more</span>` : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <div style="padding:10px 20px;text-align:center;border-top:1px solid rgba(255,255,255,0.04)">
+        <span style="font-size:11px;color:var(--text3)">Click a player avatar to jump to their wishlist · Switch to </span>
+        <span onclick="wlSetView('competition')" style="font-size:11px;color:var(--gold);cursor:pointer;text-decoration:underline">⚔ Item Competition</span>
+        <span style="font-size:11px;color:var(--text3)"> for the full breakdown</span>
+      </div>
+    </div>
+  `;
 }
 
 function wlRenderPlayerList() {
