@@ -731,6 +731,7 @@ body {
     <button class="nav-btn" onclick="showPage('raid',this)">Raid Planner</button>
     <button class="nav-btn" onclick="showPage('assign',this)">Assignments</button>
     <button class="nav-btn" onclick="showPage('loot',this)">Loot Tracker</button>
+    <button class="nav-btn" onclick="showPage('wishlist',this)">🎯 Wishlists</button>
   </nav>
   <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
     <span id="sync-status" style="font-size:11px;color:#9896a4">⟳ Connecting...</span>
@@ -1018,6 +1019,86 @@ body {
     </div>
   </div>
 
+<!-- WISHLIST -->
+<div class="page" id="page-wishlist">
+  <div style="max-width:1200px;margin:0 auto">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+      <h2 style="font-family:'Cinzel',serif;color:var(--gold);margin:0;flex:1">🎯 Item Wishlists</h2>
+      <input id="wl-search" class="search" placeholder="Search items or players..." oninput="wlRender()" style="width:220px">
+    </div>
+
+    <!-- Layout: left = player list, right = selected player wishlist -->
+    <div style="display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start">
+
+      <!-- LEFT: Player picker -->
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden">
+        <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-family:'Cinzel',serif;font-size:12px;color:var(--gold)">Players</div>
+        <div id="wl-player-list" style="display:flex;flex-direction:column"></div>
+      </div>
+
+      <!-- RIGHT: Selected player's wishlist -->
+      <div>
+        <div id="wl-empty-state" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:32px;text-align:center;color:var(--text3)">
+          <div style="font-size:28px;margin-bottom:8px">🎯</div>
+          <div style="font-size:13px">Select a player to view or edit their wishlist</div>
+        </div>
+
+        <!-- Player wishlist panel -->
+        <div id="wl-panel" style="display:none">
+          <!-- Header -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px">
+            <img id="wl-panel-icon" style="width:36px;height:36px;border-radius:50%;flex-shrink:0">
+            <div style="flex:1;min-width:0">
+              <div id="wl-panel-name" style="font-family:'Cinzel',serif;font-size:15px;font-weight:700"></div>
+              <div id="wl-panel-sub" style="font-size:11px;color:var(--text3)"></div>
+            </div>
+            <span id="wl-panel-count" style="font-size:11px;color:var(--text3)"></span>
+          </div>
+
+          <!-- Add item form -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;margin-bottom:12px">
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Add Item</div>
+            <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+              <input id="wl-url-input" placeholder="Paste WoWHead item URL..." style="flex:1;min-width:200px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:12px" onkeydown="if(event.key==='Enter')wlLookup()">
+              <button class="btn" onclick="wlLookup()" style="flex-shrink:0">🔍 Look up</button>
+            </div>
+            <!-- Preview -->
+            <div id="wl-preview" style="display:none;margin-top:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;display:none;align-items:center;gap:10px">
+              <img id="wl-preview-icon" style="width:36px;height:36px;border-radius:4px;flex-shrink:0">
+              <div style="flex:1;min-width:0">
+                <div id="wl-preview-name" style="font-size:13px;font-weight:600"></div>
+                <div id="wl-preview-meta" style="font-size:11px;color:var(--text3)"></div>
+              </div>
+              <select id="wl-prio-sel" style="padding:5px 8px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:12px">
+                <option value="bis">BiS</option>
+                <option value="upgrade">Upgrade</option>
+                <option value="offspec">Off Spec</option>
+              </select>
+              <button class="btn btn-gold" onclick="wlAddItem()" id="wl-add-btn">+ Add</button>
+            </div>
+            <div id="wl-status" style="font-size:12px;color:var(--text3);margin-top:6px;min-height:16px"></div>
+          </div>
+
+          <!-- Wishlist items -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden">
+            <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+              <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;flex:1">Priority List</span>
+              <span style="font-size:10px;color:var(--text3)">Drag to reorder</span>
+            </div>
+            <div id="wl-items" style="min-height:60px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overview: all players with wishlists as cards -->
+    <div id="wl-overview" style="display:none;margin-top:24px">
+      <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(200,168,75,0.2)">All Wishlists Overview</div>
+      <div id="wl-overview-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL -->
 <div class="modal-bg" id="modal-bg">
   <div class="modal">
@@ -1283,6 +1364,7 @@ function showPage(name, btn) {
   if (name === 'assign') initAssign();
   if (name === 'prof') initProfessions();
   if (name === 'loot') initLoot();
+  if (name === 'wishlist') initWishlist();
   closeMobileNav();
   localStorage.setItem('gm_activetab', name);
 }
@@ -3606,14 +3688,22 @@ async function loadFromCloud() {
     if (assign_data !== null && assign_data.plans && Object.keys(assign_data.plans).length > 0) {
       localStorage.setItem('gm_assign', JSON.stringify(assign_data));
     }
+    // Wishlists
+    const wl_data = await sbGet('wishlists');
+    if (wl_data !== null && typeof wl_data === 'object') {
+      localStorage.setItem('gm_wishlists', JSON.stringify(wl_data));
+    }
     showSyncStatus('ok');
   } catch(e) {
     console.warn('loadFromCloud error', e);
     showSyncStatus('error');
   }
 }
-
-// ── Save helpers called after each mutation ──────────────
+async function cloudSaveWishlists(data) {
+  localStorage.setItem('gm_wishlists', JSON.stringify(data));
+  await sbSet('wishlists', data);
+  showSyncStatus('saved');
+}
 async function cloudSaveMembers() {
   localStorage.setItem('gm_members', JSON.stringify(members));
   await sbSaveMembers();
@@ -4523,6 +4613,293 @@ showPage = function(name, btn) {
   _origShowPage(name, btn);
   setTimeout(_applyRestrictions, 50);
 };
+
+// ══════════════════════════════════════════════════════════════════════════════
+// WISHLIST
+// ══════════════════════════════════════════════════════════════════════════════
+// Data: { [memberId]: [ { itemId, itemName, itemIcon, itemUrl, quality, prio, addedAt }, ... ] }
+// prio: 'bis' | 'upgrade' | 'offspec'
+
+let wlData = {};           // memberId(str) -> array of wish items
+let wlSelectedId = null;   // currently selected member id (number)
+let wlLookupResult = null; // pending item from lookup
+let wlDragIdx = null;      // drag-to-reorder index
+
+const WL_PRIO_LABELS = { bis: 'BiS', upgrade: 'Upgrade', offspec: 'Off Spec' };
+const WL_PRIO_COLORS = {
+  bis:     { color: '#f0d070', bg: 'rgba(240,208,112,0.15)', border: 'rgba(240,208,112,0.4)' },
+  upgrade: { color: '#80d0ff', bg: 'rgba(128,208,255,0.12)', border: 'rgba(128,208,255,0.35)' },
+  offspec: { color: '#9896a4', bg: 'rgba(152,150,164,0.1)',  border: 'rgba(152,150,164,0.3)' },
+};
+
+function wlLoad() {
+  try { wlData = JSON.parse(localStorage.getItem('gm_wishlists') || '{}'); }
+  catch(e) { wlData = {}; }
+}
+
+function wlSave() {
+  cloudSaveWishlists(wlData);
+}
+
+function initWishlist() {
+  wlLoad();
+  wlSelectedId = null;
+  wlLookupResult = null;
+  wlRender();
+}
+
+function wlRender() {
+  wlRenderPlayerList();
+  if (wlSelectedId !== null) {
+    wlShowPanel(wlSelectedId);
+  } else {
+    document.getElementById('wl-panel').style.display = 'none';
+    document.getElementById('wl-empty-state').style.display = 'block';
+  }
+}
+
+function wlRenderPlayerList() {
+  const q = (document.getElementById('wl-search')?.value || '').toLowerCase();
+  const el = document.getElementById('wl-player-list');
+  if (!el) return;
+
+  const filtered = members.filter(m =>
+    !q || m.name.toLowerCase().includes(q) ||
+    (wlData[m.id] || []).some(w => w.itemName.toLowerCase().includes(q))
+  );
+
+  if (!filtered.length) {
+    el.innerHTML = '<div style="padding:12px 14px;font-size:12px;color:var(--text3)">No players found</div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map(m => {
+    const cc = CM[m.cls] || { color: '#888' };
+    const icon = specIcon(m.cls, m.spec);
+    const count = (wlData[m.id] || []).length;
+    const isActive = m.id === wlSelectedId;
+    return `<div onclick="wlSelectPlayer(${m.id})"
+      style="display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;
+             border-left:3px solid ${isActive ? cc.color : 'transparent'};
+             background:${isActive ? 'rgba(255,255,255,0.05)' : 'transparent'};
+             transition:all .12s"
+      onmouseover="if(${m.id}!==${wlSelectedId})this.style.background='rgba(255,255,255,0.03)'"
+      onmouseout="if(${m.id}!==${wlSelectedId})this.style.background='transparent'">
+      <img src="${icon}" style="width:28px;height:28px;border-radius:50%;flex-shrink:0" onerror="this.style.display='none'">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:${cc.color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.name}</div>
+        <div style="font-size:10px;color:var(--text3)">${m.spec || m.cls}</div>
+      </div>
+      ${count ? `<span style="font-size:10px;background:rgba(200,168,75,0.15);color:var(--gold);padding:1px 7px;border-radius:8px;flex-shrink:0">${count}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function wlSelectPlayer(memberId) {
+  wlSelectedId = memberId;
+  wlLookupResult = null;
+  // Reset add form
+  const inp = document.getElementById('wl-url-input');
+  if (inp) inp.value = '';
+  const prev = document.getElementById('wl-preview');
+  if (prev) prev.style.display = 'none';
+  const st = document.getElementById('wl-status');
+  if (st) st.textContent = '';
+  wlRenderPlayerList();
+  wlShowPanel(memberId);
+}
+
+function wlShowPanel(memberId) {
+  const m = members.find(x => x.id === memberId);
+  if (!m) return;
+  const cc = CM[m.cls] || { color: '#888' };
+  const icon = specIcon(m.cls, m.spec);
+  const items = wlData[memberId] || [];
+
+  document.getElementById('wl-empty-state').style.display = 'none';
+  document.getElementById('wl-panel').style.display = 'block';
+
+  document.getElementById('wl-panel-icon').src = icon;
+  document.getElementById('wl-panel-name').textContent = m.name;
+  document.getElementById('wl-panel-name').style.color = cc.color;
+  document.getElementById('wl-panel-sub').textContent = `${m.spec || m.cls} · ${m.rank || ''}`.replace(/ · $/, '');
+  document.getElementById('wl-panel-count').textContent = items.length ? `${items.length} item${items.length !== 1 ? 's' : ''}` : 'No items yet';
+
+  wlRenderItems(memberId);
+}
+
+function wlRenderItems(memberId) {
+  const el = document.getElementById('wl-items');
+  if (!el) return;
+  const items = wlData[memberId] || [];
+
+  if (!items.length) {
+    el.innerHTML = '<div style="padding:20px 16px;text-align:center;font-size:12px;color:var(--text3)">No items yet — paste a WoWHead URL above to add the first one</div>';
+    return;
+  }
+
+  el.innerHTML = items.map((item, i) => {
+    const pc = WL_PRIO_COLORS[item.prio] || WL_PRIO_COLORS.upgrade;
+    const qClass = QUALITY_CLASS[item.quality ?? 4];
+    const alreadyLooted = _lootData.some(e =>
+      e.itemID === parseInt(item.itemId) &&
+      findMemberByLootName(e.character)?.id === memberId && !e.offspec
+    );
+    return `<div id="wl-row-${i}" draggable="true"
+      ondragstart="wlDragStart(event,${i})"
+      ondragover="wlDragOver(event,${i})"
+      ondrop="wlDrop(event,${i},${memberId})"
+      ondragend="wlDragEnd()"
+      style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);transition:background .1s;cursor:grab"
+      onmouseover="this.style.background='rgba(255,255,255,0.03)'"
+      onmouseout="this.style.background='transparent'">
+      <span style="color:var(--text3);font-size:18px;cursor:grab;user-select:none">⠿</span>
+      <span style="font-size:11px;color:var(--text3);min-width:18px;text-align:center;font-weight:600">${i + 1}</span>
+      ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:32px;height:32px;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'">` : ''}
+      <div style="flex:1;min-width:0">
+        <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:none;font-size:13px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
+        ${alreadyLooted ? '<div style="font-size:10px;color:#80d080;margin-top:1px">✓ Already received</div>' : ''}
+      </div>
+      <span style="font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid ${pc.border};background:${pc.bg};color:${pc.color};flex-shrink:0;white-space:nowrap">${WL_PRIO_LABELS[item.prio]}</span>
+      <select onchange="wlChangePrio(${memberId},${i},this.value)" style="padding:3px 6px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:11px;flex-shrink:0">
+        <option value="bis" ${item.prio==='bis'?'selected':''}>BiS</option>
+        <option value="upgrade" ${item.prio==='upgrade'?'selected':''}>Upgrade</option>
+        <option value="offspec" ${item.prio==='offspec'?'selected':''}>Off Spec</option>
+      </select>
+      <button onclick="wlRemoveItem(${memberId},${i})"
+        style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0;flex-shrink:0;line-height:1"
+        onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ── Lookup ────────────────────────────────────────────────
+async function wlLookup() {
+  const url = document.getElementById('wl-url-input').value.trim();
+  const status = document.getElementById('wl-status');
+  const preview = document.getElementById('wl-preview');
+
+  wlLookupResult = null;
+  preview.style.display = 'none';
+  status.textContent = '';
+
+  if (!url) { status.textContent = 'Paste a WoWHead item URL first.'; status.style.color = '#e06060'; return; }
+
+  const itemMatch = url.match(/item[=\/](\d+)/i);
+  if (!itemMatch) { status.textContent = 'Could not find an item ID in that URL.'; status.style.color = '#e06060'; return; }
+
+  const itemId = itemMatch[1];
+  status.textContent = '⟳ Looking up...'; status.style.color = 'var(--text3)';
+
+  try {
+    // Check item cache first
+    let cached = _itemCache[parseInt(itemId)];
+    if (!cached) {
+      const r = await fetch(WOWHEAD_TOOLTIP + itemId);
+      const d = await r.json();
+      cached = { name: d.name || 'Item #' + itemId, quality: d.quality ?? 4, icon: d.icon || '' };
+      _itemCache[parseInt(itemId)] = cached;
+      saveItemCache();
+    }
+
+    const slugMatch = url.match(/item[=\/]\d+[\/]([a-z0-9-]+)/i);
+    const nameFromSlug = slugMatch ? slugMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : null;
+    const itemName = cached.name !== 'Item #' + itemId ? cached.name : (nameFromSlug || 'Item #' + itemId);
+
+    wlLookupResult = {
+      itemId,
+      itemName,
+      itemIcon: cached.icon || '',
+      itemUrl: 'https://www.wowhead.com/tbc/item=' + itemId,
+      quality: cached.quality ?? 4,
+    };
+
+    const qClass = QUALITY_CLASS[cached.quality ?? 4];
+    document.getElementById('wl-preview-icon').src = cached.icon
+      ? `https://wow.zamimg.com/images/wow/icons/medium/${cached.icon}.jpg` : '';
+    document.getElementById('wl-preview-icon').style.display = cached.icon ? 'block' : 'none';
+    document.getElementById('wl-preview-name').className = qClass;
+    document.getElementById('wl-preview-name').textContent = itemName;
+    document.getElementById('wl-preview-meta').textContent = `Item #${itemId} · ${QUALITY_NAME[cached.quality ?? 4] || 'Epic'}`;
+    preview.style.display = 'flex';
+    status.textContent = '✓ Item found — choose a priority and click + Add';
+    status.style.color = '#80d080';
+  } catch(e) {
+    status.textContent = 'Lookup failed — check the URL and try again.';
+    status.style.color = '#e06060';
+  }
+}
+
+function wlAddItem() {
+  if (!wlLookupResult || wlSelectedId === null) return;
+  const prio = document.getElementById('wl-prio-sel').value;
+  const list = wlData[wlSelectedId] || [];
+
+  // Prevent duplicates
+  if (list.some(w => w.itemId === wlLookupResult.itemId)) {
+    document.getElementById('wl-status').textContent = 'This item is already on the wishlist.';
+    document.getElementById('wl-status').style.color = '#e06060';
+    return;
+  }
+
+  list.push({ ...wlLookupResult, prio, addedAt: new Date().toISOString() });
+  wlData[wlSelectedId] = list;
+  wlSave();
+
+  // Reset form
+  document.getElementById('wl-url-input').value = '';
+  document.getElementById('wl-preview').style.display = 'none';
+  document.getElementById('wl-status').textContent = `✓ ${wlLookupResult.itemName} added`;
+  document.getElementById('wl-status').style.color = '#80d080';
+  wlLookupResult = null;
+
+  wlShowPanel(wlSelectedId);
+  wlRenderPlayerList();
+}
+
+function wlRemoveItem(memberId, idx) {
+  const list = wlData[memberId] || [];
+  list.splice(idx, 1);
+  if (!list.length) delete wlData[memberId];
+  else wlData[memberId] = list;
+  wlSave();
+  wlShowPanel(memberId);
+  wlRenderPlayerList();
+}
+
+function wlChangePrio(memberId, idx, prio) {
+  const list = wlData[memberId] || [];
+  if (list[idx]) { list[idx].prio = prio; wlData[memberId] = list; wlSave(); wlRenderItems(memberId); }
+}
+
+// ── Drag to reorder ───────────────────────────────────────
+function wlDragStart(e, idx) {
+  wlDragIdx = idx;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => { const el = document.getElementById('wl-row-' + idx); if (el) el.style.opacity = '0.4'; }, 0);
+}
+function wlDragOver(e, idx) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('[id^=wl-row-]').forEach(el => el.style.borderTop = '');
+  const target = document.getElementById('wl-row-' + idx);
+  if (target && idx !== wlDragIdx) target.style.borderTop = '2px solid var(--gold)';
+}
+function wlDrop(e, idx, memberId) {
+  e.preventDefault();
+  if (wlDragIdx === null || wlDragIdx === idx) return;
+  const list = wlData[memberId] || [];
+  const item = list.splice(wlDragIdx, 1)[0];
+  list.splice(idx, 0, item);
+  wlData[memberId] = list;
+  wlDragIdx = null;
+  wlSave();
+  wlRenderItems(memberId);
+}
+function wlDragEnd() {
+  wlDragIdx = null;
+  document.querySelectorAll('[id^=wl-row-]').forEach(el => { el.style.opacity = '1'; el.style.borderTop = ''; });
+}
 
 _checkSession();
 </script>
