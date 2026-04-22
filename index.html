@@ -4741,24 +4741,28 @@ function wlRenderItems(memberId) {
   el.innerHTML = items.map((item, i) => {
     const pc = WL_PRIO_COLORS[item.prio] || WL_PRIO_COLORS.upgrade;
     const qClass = QUALITY_CLASS[item.quality ?? 4];
-    const alreadyLooted = _lootData.some(e =>
+    const lootTrackerReceived = _lootData.some(e =>
       e.itemID === parseInt(item.itemId) &&
       findMemberByLootName(e.character)?.id === memberId && !e.offspec
     );
+    const received = lootTrackerReceived || !!item.manualReceived;
+    const rowOpacity = received ? '0.55' : '1';
+    const receivedSource = lootTrackerReceived ? 'via Loot Tracker' : (item.manualReceived ? 'marked manually' : '');
+
     return `<div id="wl-row-${i}" draggable="true"
       ondragstart="wlDragStart(event,${i})"
       ondragover="wlDragOver(event,${i})"
       ondrop="wlDrop(event,${i},${memberId})"
       ondragend="wlDragEnd()"
-      style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);transition:background .1s;cursor:grab"
+      style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);transition:background .1s;cursor:grab;opacity:${rowOpacity}"
       onmouseover="this.style.background='rgba(255,255,255,0.03)'"
       onmouseout="this.style.background='transparent'">
       <span style="color:var(--text3);font-size:18px;cursor:grab;user-select:none">⠿</span>
       <span style="font-size:11px;color:var(--text3);min-width:18px;text-align:center;font-weight:600">${i + 1}</span>
-      ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:32px;height:32px;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'">` : ''}
+      ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:32px;height:32px;border-radius:4px;flex-shrink:0;${received?'filter:grayscale(0.5)':''}" onerror="this.style.display='none'">` : ''}
       <div style="flex:1;min-width:0">
-        <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:none;font-size:13px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
-        ${alreadyLooted ? '<div style="font-size:10px;color:#80d080;margin-top:1px">✓ Already received</div>' : ''}
+        <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:${received?'line-through':'none'};font-size:13px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
+        ${received ? `<div style="font-size:10px;color:#80d080;margin-top:1px">✓ Already received <span style="color:var(--text3)">${receivedSource}</span></div>` : ''}
       </div>
       <span style="font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid ${pc.border};background:${pc.bg};color:${pc.color};flex-shrink:0;white-space:nowrap">${WL_PRIO_LABELS[item.prio]}</span>
       <select onchange="wlChangePrio(${memberId},${i},this.value)" style="padding:3px 6px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:11px;flex-shrink:0">
@@ -4766,11 +4770,33 @@ function wlRenderItems(memberId) {
         <option value="upgrade" ${item.prio==='upgrade'?'selected':''}>Upgrade</option>
         <option value="offspec" ${item.prio==='offspec'?'selected':''}>Off Spec</option>
       </select>
+      ${!lootTrackerReceived ? `
+        <button onclick="wlToggleReceived(${memberId},${i})"
+          title="${item.manualReceived ? 'Mark as not received' : 'Mark as received'}"
+          style="background:${item.manualReceived ? 'rgba(128,208,128,0.15)' : 'transparent'};
+                 border:1px solid ${item.manualReceived ? 'rgba(128,208,128,0.4)' : 'rgba(255,255,255,0.12)'};
+                 color:${item.manualReceived ? '#80d080' : 'var(--text3)'};
+                 cursor:pointer;font-size:11px;padding:3px 8px;border-radius:5px;flex-shrink:0;
+                 line-height:1;font-family:'Exo 2',sans-serif;white-space:nowrap;transition:all .15s"
+          onmouseover="this.style.borderColor='rgba(128,208,128,0.5)';this.style.color='#80d080'"
+          onmouseout="this.style.borderColor='${item.manualReceived ? 'rgba(128,208,128,0.4)' : 'rgba(255,255,255,0.12)'}';this.style.color='${item.manualReceived ? '#80d080' : 'var(--text3)'}'">
+          ${item.manualReceived ? '✓ Received' : '○ Received?'}
+        </button>` : `<span style="font-size:11px;color:#80d080;padding:3px 8px;flex-shrink:0">✓ Tracked</span>`}
       <button onclick="wlRemoveItem(${memberId},${i})"
         style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0;flex-shrink:0;line-height:1"
-        onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'" title="Remove">✕</button>
+        onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'" title="Remove from wishlist">✕</button>
     </div>`;
   }).join('');
+}
+
+function wlToggleReceived(memberId, idx) {
+  const list = wlData[memberId] || [];
+  if (!list[idx]) return;
+  list[idx].manualReceived = !list[idx].manualReceived;
+  wlData[memberId] = list;
+  wlSave();
+  wlRenderItems(memberId);
+  wlRenderPlayerList();
 }
 
 // ── Lookup ────────────────────────────────────────────────
