@@ -3701,9 +3701,10 @@ async function loadFromCloud() {
     if (assign_data !== null && assign_data.plans && Object.keys(assign_data.plans).length > 0) {
       localStorage.setItem('gm_assign', JSON.stringify(assign_data));
     }
-    // Wishlists
+    // Wishlists — only overwrite local if cloud has actual entries
     const wl_data = await sbGet('wishlists');
-    if (wl_data !== null && typeof wl_data === 'object') {
+    if (wl_data !== null && typeof wl_data === 'object' && Object.keys(wl_data).length > 0) {
+      wlData = wl_data;
       localStorage.setItem('gm_wishlists', JSON.stringify(wl_data));
     }
     showSyncStatus('ok');
