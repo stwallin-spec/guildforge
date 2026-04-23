@@ -1037,6 +1037,7 @@ body {
           ⚔ Item Competition
         </button>
       </div>
+      <button id="wl-lock-btn" onclick="wlToggleLock()" style="font-size:12px;padding:6px 14px" class="btn">🔓 Unlocked</button>
       <button class="btn btn-gold" onclick="wlShowExportModal()" style="font-size:12px;padding:6px 14px">🎮 Addon Export</button>
       <input id="wl-search" class="search" placeholder="Search..." oninput="wlRender()" style="width:180px">
     </div>
@@ -1102,7 +1103,7 @@ body {
             </div>
 
             <!-- Add item form -->
-            <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;margin-bottom:12px">
+            <div id="wl-add-form" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;margin-bottom:12px">
               <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Add Item</div>
               <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
                 <input id="wl-url-input" placeholder="Paste WoWHead item URL..." style="flex:1;min-width:200px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:12px" onkeydown="if(event.key==='Enter')wlLookup()">
@@ -3740,6 +3741,12 @@ async function loadFromCloud() {
       wlData = wl_data;
       localStorage.setItem('gm_wishlists', JSON.stringify(wl_data));
     }
+    // Load wishlist lock state from cloud
+    const wl_locked = await sbGet('wishlists_locked');
+    if (wl_locked !== null) {
+      wlLocked = wl_locked === true;
+      localStorage.setItem('gm_wishlists_locked', String(wlLocked));
+    }
     showSyncStatus('ok');
   } catch(e) {
     console.warn('loadFromCloud error', e);
@@ -4628,7 +4635,7 @@ function handleLoginBtn() {
 
 function doLogin() {
   var pw = document.getElementById('login-pw').value;
-  var stored = localStorage.getItem('gm_pw') || 'guild2024';
+  var stored = localStorage.getItem('gm_pw') || 'dvdl0l';
   if (pw === stored) {
     _li = true;
     sessionStorage.setItem('gm_ok', '1');
@@ -4672,6 +4679,7 @@ let wlSelectedId = null;   // currently selected member id (number)
 let wlLookupResult = null; // pending item from lookup
 let wlDragIdx = null;      // drag-to-reorder index
 let wlCurrentView = 'player'; // 'player' | 'competition'
+let wlLocked = false;          // when true, no edits allowed
 
 const WL_PRIO_LABELS = { bis: 'BiS', upgrade: 'Upgrade', offspec: 'Off Spec' };
 const WL_PRIO_COLORS = {
@@ -4683,10 +4691,59 @@ const WL_PRIO_COLORS = {
 function wlLoad() {
   try { wlData = JSON.parse(localStorage.getItem('gm_wishlists') || '{}'); }
   catch(e) { wlData = {}; }
+  wlLocked = localStorage.getItem('gm_wishlists_locked') === 'true';
 }
 
 function wlSave() {
   cloudSaveWishlists(wlData);
+}
+
+function wlSaveLock() {
+  localStorage.setItem('gm_wishlists_locked', String(wlLocked));
+  sbSet('wishlists_locked', wlLocked).catch(() => {});
+}
+
+function wlUpdateLockBtn() {
+  const btn = document.getElementById('wl-lock-btn');
+  if (!btn) return;
+  if (wlLocked) {
+    btn.textContent = '🔒 Locked';
+    btn.style.background = 'rgba(224,96,96,0.15)';
+    btn.style.borderColor = 'rgba(224,96,96,0.5)';
+    btn.style.color = '#e06060';
+  } else {
+    btn.textContent = '🔓 Unlocked';
+    btn.style.background = 'transparent';
+    btn.style.borderColor = 'rgba(255,255,255,0.14)';
+    btn.style.color = 'var(--text2)';
+  }
+  // Show/hide the add form and locked banner
+  const addForm = document.getElementById('wl-add-form');
+  if (addForm) addForm.style.display = wlLocked ? 'none' : '';
+  let banner = document.getElementById('wl-locked-banner');
+  if (wlLocked) {
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'wl-locked-banner';
+      banner.style.cssText = 'background:rgba(224,96,96,0.08);border:1px solid rgba(224,96,96,0.3);border-radius:6px;padding:10px 16px;margin-bottom:12px;font-size:12px;color:#e06060;display:flex;align-items:center;gap:8px';
+      banner.innerHTML = '🔒 Wishlists are locked — no edits can be made until an officer unlocks them.';
+      const panel = document.getElementById('wl-panel');
+      const addFormEl = document.getElementById('wl-add-form');
+      if (panel && addFormEl) panel.insertBefore(banner, addFormEl);
+    }
+    banner.style.display = 'flex';
+  } else if (banner) {
+    banner.style.display = 'none';
+  }
+}
+
+function wlToggleLock() {
+  if (!_li) { showToast('🔒 Login as officer to lock/unlock wishlists.'); return; }
+  wlLocked = !wlLocked;
+  wlSaveLock();
+  wlUpdateLockBtn();
+  wlRender(); // re-render to show/hide edit controls
+  showToast(wlLocked ? '🔒 Wishlists locked — no edits allowed.' : '🔓 Wishlists unlocked.');
 }
 
 function initWishlist() {
@@ -4695,6 +4752,7 @@ function initWishlist() {
   loadItemCache();  // ensure item cache is available for lookups
   wlSelectedId = null;
   wlLookupResult = null;
+  wlUpdateLockBtn();
   wlSetView(wlCurrentView);
 }
 
@@ -4932,6 +4990,7 @@ function wlShowPanel(memberId) {
 
   document.getElementById('wl-empty-state').style.display = 'none';
   document.getElementById('wl-panel').style.display = 'block';
+  wlUpdateLockBtn();
 
   document.getElementById('wl-panel-icon').src = icon;
   document.getElementById('wl-panel-name').textContent = m.name;
@@ -5198,6 +5257,7 @@ async function wlLookup() {
 }
 
 function wlAddItem() {
+  if (wlLocked) { showToast('🔒 Wishlists are locked. Unlock to make changes.'); return; }
   if (!wlLookupResult || wlSelectedId === null) return;
   const prio = document.getElementById('wl-prio-sel').value;
   const list = wlData[wlSelectedId] || [];
@@ -5225,6 +5285,7 @@ function wlAddItem() {
 }
 
 function wlRemoveItem(memberId, idx) {
+  if (wlLocked) { showToast('🔒 Wishlists are locked. Unlock to make changes.'); return; }
   const list = wlData[memberId] || [];
   list.splice(idx, 1);
   if (!list.length) delete wlData[memberId];
@@ -5235,6 +5296,7 @@ function wlRemoveItem(memberId, idx) {
 }
 
 function wlChangePrio(memberId, idx, prio) {
+  if (wlLocked) { showToast('🔒 Wishlists are locked.'); return; }
   const list = wlData[memberId] || [];
   if (list[idx]) { list[idx].prio = prio; wlData[memberId] = list; wlSave(); wlRenderItems(memberId); }
 }
@@ -5254,6 +5316,7 @@ function wlDragOver(e, idx) {
 }
 function wlDrop(e, idx, memberId) {
   e.preventDefault();
+  if (wlLocked) return;
   if (wlDragIdx === null || wlDragIdx === idx) return;
   const list = wlData[memberId] || [];
   const item = list.splice(wlDragIdx, 1)[0];
