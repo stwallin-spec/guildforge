@@ -3736,16 +3736,27 @@ async function loadFromCloud() {
     if (assign_data !== null && assign_data.plans && Object.keys(assign_data.plans).length > 0) {
       localStorage.setItem('gm_assign', JSON.stringify(assign_data));
     }
-    // Wishlists — only overwrite local if cloud version is NEWER than local
+    // Wishlists — wipe counter takes priority, then timestamp comparison
     const wl_data = await sbGet('wishlists');
     if (wl_data !== null && typeof wl_data === 'object') {
       const cloudEntries = wl_data.data || wl_data;
-      const cloudTs = wl_data.savedAt ? new Date(wl_data.savedAt).getTime() : 0;
-      const localTs  = parseInt(localStorage.getItem('gm_wishlists_savedAt') || '0');
-      if (cloudTs >= localTs && Object.keys(cloudEntries).length > 0) {
+      const cloudTs      = wl_data.savedAt ? new Date(wl_data.savedAt).getTime() : 0;
+      const cloudWipeGen = wl_data.wipeGen  || 0;
+      const localTs      = parseInt(localStorage.getItem('gm_wishlists_savedAt') || '0');
+      const localWipeGen = parseInt(localStorage.getItem('gm_wishlists_wipeGen')  || '0');
+
+      if (cloudWipeGen > localWipeGen) {
+        // Officer wiped data — force clear regardless of local timestamps
+        wlData = {};
+        localStorage.setItem('gm_wishlists', JSON.stringify({}));
+        localStorage.setItem('gm_wishlists_savedAt', String(cloudTs));
+        localStorage.setItem('gm_wishlists_wipeGen', String(cloudWipeGen));
+      } else if (cloudTs >= localTs && Object.keys(cloudEntries).length > 0) {
+        // Cloud is newer — load it
         wlData = cloudEntries;
         localStorage.setItem('gm_wishlists', JSON.stringify(cloudEntries));
         localStorage.setItem('gm_wishlists_savedAt', String(cloudTs));
+        localStorage.setItem('gm_wishlists_wipeGen', String(cloudWipeGen));
       }
     }
     // Load wishlist lock state from cloud
@@ -3762,7 +3773,15 @@ async function loadFromCloud() {
 }
 async function cloudSaveWishlists(data) {
   const now = Date.now();
-  const payload = { data: data, savedAt: new Date(now).toISOString() };
+  const isEmpty = !data || Object.keys(data).length === 0;
+  // If clearing, bump the wipe counter so all browsers know to discard their local copy
+  let wipeGen = parseInt(localStorage.getItem('gm_wishlists_wipeGen') || '0');
+  if (isEmpty) {
+    wipeGen += 1;
+    localStorage.setItem('gm_wishlists_wipeGen', String(wipeGen));
+    await sbSet('wishlists_wipeGen', wipeGen);
+  }
+  const payload = { data: data, savedAt: new Date(now).toISOString(), wipeGen };
   localStorage.setItem('gm_wishlists', JSON.stringify(data));
   localStorage.setItem('gm_wishlists_savedAt', String(now));
   await sbSet('wishlists', payload);
