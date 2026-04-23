@@ -1038,6 +1038,7 @@ body {
         </button>
       </div>
       <button id="wl-lock-btn" onclick="wlToggleLock()" style="font-size:12px;padding:6px 14px" class="btn">🔓 Unlocked</button>
+      <button id="wl-clear-btn" onclick="wlClearAll()" style="font-size:12px;padding:6px 14px;display:none" class="btn btn-danger">🗑 Clear All</button>
       <button class="btn btn-gold" onclick="wlShowExportModal()" style="font-size:12px;padding:6px 14px">🎮 Addon Export</button>
       <input id="wl-search" class="search" placeholder="Search..." oninput="wlRender()" style="width:180px">
     </div>
@@ -3735,11 +3736,17 @@ async function loadFromCloud() {
     if (assign_data !== null && assign_data.plans && Object.keys(assign_data.plans).length > 0) {
       localStorage.setItem('gm_assign', JSON.stringify(assign_data));
     }
-    // Wishlists — only overwrite local if cloud has actual entries
+    // Wishlists — only overwrite local if cloud version is NEWER than local
     const wl_data = await sbGet('wishlists');
-    if (wl_data !== null && typeof wl_data === 'object' && Object.keys(wl_data).length > 0) {
-      wlData = wl_data;
-      localStorage.setItem('gm_wishlists', JSON.stringify(wl_data));
+    if (wl_data !== null && typeof wl_data === 'object') {
+      const cloudEntries = wl_data.data || wl_data;
+      const cloudTs = wl_data.savedAt ? new Date(wl_data.savedAt).getTime() : 0;
+      const localTs  = parseInt(localStorage.getItem('gm_wishlists_savedAt') || '0');
+      if (cloudTs >= localTs && Object.keys(cloudEntries).length > 0) {
+        wlData = cloudEntries;
+        localStorage.setItem('gm_wishlists', JSON.stringify(cloudEntries));
+        localStorage.setItem('gm_wishlists_savedAt', String(cloudTs));
+      }
     }
     // Load wishlist lock state from cloud
     const wl_locked = await sbGet('wishlists_locked');
@@ -3754,8 +3761,11 @@ async function loadFromCloud() {
   }
 }
 async function cloudSaveWishlists(data) {
+  const now = Date.now();
+  const payload = { data: data, savedAt: new Date(now).toISOString() };
   localStorage.setItem('gm_wishlists', JSON.stringify(data));
-  await sbSet('wishlists', data);
+  localStorage.setItem('gm_wishlists_savedAt', String(now));
+  await sbSet('wishlists', payload);
   showSyncStatus('saved');
 }
 async function cloudSaveMembers() {
@@ -4583,6 +4593,9 @@ function _checkSession() {
 function _updateUI() {
   var btn = document.getElementById('login-btn');
   if (btn) { btn.textContent = _li ? '🔓 Logout' : '🔒 Login'; btn.style.color = _li ? '#80d080' : ''; }
+  // Show/hide officer-only wishlist buttons
+  var clearBtn = document.getElementById('wl-clear-btn');
+  if (clearBtn) clearBtn.style.display = _li ? 'inline-flex' : 'none';
   _applyRestrictions();
 }
 
@@ -4735,6 +4748,19 @@ function wlUpdateLockBtn() {
   } else if (banner) {
     banner.style.display = 'none';
   }
+}
+
+function wlClearAll() {
+  if (!_li) return;
+  if (!confirm('Clear ALL wishlist data for every player? This cannot be undone.')) return;
+  wlData = {};
+  const now = Date.now();
+  localStorage.setItem('gm_wishlists', JSON.stringify({}));
+  localStorage.setItem('gm_wishlists_savedAt', String(now));
+  cloudSaveWishlists({});
+  wlSelectedId = null;
+  wlRender();
+  showToast('✓ All wishlist data cleared.');
 }
 
 function wlToggleLock() {
