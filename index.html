@@ -1037,7 +1037,40 @@ body {
           ⚔ Item Competition
         </button>
       </div>
+      <button class="btn btn-gold" onclick="wlShowExportModal()" style="font-size:12px;padding:6px 14px">📤 WeakAura Export</button>
       <input id="wl-search" class="search" placeholder="Search..." oninput="wlRender()" style="width:180px">
+    </div>
+
+    <!-- WeakAura Export Modal -->
+    <div id="wl-export-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center">
+      <div style="background:var(--bg2);border:1px solid var(--gold);border-radius:var(--radius2);padding:24px;width:600px;max-width:95vw;max-height:90vh;overflow-y:auto">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <span style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold);flex:1">📤 WeakAura Wishlist Export</span>
+          <button onclick="wlCloseExportModal()" style="background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;line-height:1">✕</button>
+        </div>
+
+        <!-- Format selector -->
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <button id="wl-fmt-addon" onclick="wlSetExportFormat('addon')" class="btn" style="font-size:11px;padding:4px 12px;background:rgba(200,168,75,0.2);border-color:var(--gold);color:var(--gold)">🎮 Addon Import</button>
+          <button id="wl-fmt-full" onclick="wlSetExportFormat('full')" class="btn" style="font-size:11px;padding:4px 12px">Full List</button>
+          <button id="wl-fmt-bis" onclick="wlSetExportFormat('bis')" class="btn" style="font-size:11px;padding:4px 12px">BiS Only</button>
+          <button id="wl-fmt-short" onclick="wlSetExportFormat('short')" class="btn" style="font-size:11px;padding:4px 12px">Short (names only)</button>
+          <button id="wl-fmt-macro" onclick="wlSetExportFormat('macro')" class="btn" style="font-size:11px;padding:4px 12px">WoW /macro</button>
+        </div>
+
+        <p style="font-size:11px;color:var(--text3);margin-bottom:10px" id="wl-export-hint">
+          Copy this into a WeakAura → Custom Text display. Each player's wishlist on one line.
+        </p>
+
+        <textarea id="wl-export-text" readonly
+          style="width:100%;height:240px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:monospace;font-size:11px;padding:10px;resize:vertical;line-height:1.6"
+        ></textarea>
+
+        <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+          <button class="btn" onclick="wlCloseExportModal()">Close</button>
+          <button class="btn btn-gold" onclick="wlCopyExport()" id="wl-copy-btn">📋 Copy to Clipboard</button>
+        </div>
+      </div>
     </div>
 
     <!-- ── VIEW: PLAYER WISHLISTS ── -->
@@ -5343,6 +5376,144 @@ function wlRenderCompetition() {
     </div>
   `;
 }
+
+// ── Wishlist WeakAura Export ──────────────────────────────
+let wlExportFormat = 'addon';
+
+function wlShowExportModal() {
+  wlLoad();
+  wlSetExportFormat('addon');
+  document.getElementById('wl-export-modal').style.display = 'flex';
+}
+
+function wlCloseExportModal() {
+  document.getElementById('wl-export-modal').style.display = 'none';
+}
+
+function wlSetExportFormat(fmt) {
+  wlExportFormat = fmt;
+  // Update button styles
+  ['addon','full','bis','short','macro'].forEach(f => {
+    const btn = document.getElementById('wl-fmt-' + f);
+    if (!btn) return;
+    if (f === fmt) {
+      btn.style.background = 'rgba(200,168,75,0.2)';
+      btn.style.borderColor = 'var(--gold)';
+      btn.style.color = 'var(--gold)';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.borderColor = 'rgba(255,255,255,0.14)';
+      btn.style.color = 'var(--text2)';
+    }
+  });
+
+  const hints = {
+    addon:  '🎮 For the DadsVsDragons WoW addon. Copy this string, then in-game type /dvdwl import and paste it.',
+    full:  'Copy into a WeakAura → Custom Text display. Shows each player with item names and priority.',
+    bis:   'BiS items only — useful for raid leaders to quickly see top priorities.',
+    short: 'Compact version: just player names and item names, no priority labels.',
+    macro: 'Formatted as WoW /print lines. Paste into a macro to whisper or display in-game. Note: WoW macros are limited to 255 characters — this may be truncated.',
+  };
+  document.getElementById('wl-export-hint').textContent = hints[fmt];
+  wlGenerateExport();
+}
+
+function wlGenerateExport() {
+  const fmt = wlExportFormat;
+  const lines = [];
+
+  // Sort members by name for consistent output
+  const membersSorted = [...members].sort((a, b) => a.name.localeCompare(b.name));
+
+  // ── Addon Import format ──────────────────────────────────
+  if (fmt === 'addon') {
+    // Build JSON object: { "PlayerName": [{itemId,itemName,prio,rank}, ...], ... }
+    const obj = {};
+    membersSorted.forEach(m => {
+      const list = wlData[String(m.id)] || [];
+      if (!list.length) return;
+      obj[m.name] = list.map((it, i) => ({
+        itemId:   String(it.itemId),
+        itemName: it.itemName,
+        prio:     it.prio || 'upgrade',
+        rank:     i + 1,
+      }));
+    });
+    if (!Object.keys(obj).length) {
+      document.getElementById('wl-export-text').value = '-- No wishlist data found.';
+      return;
+    }
+    document.getElementById('wl-export-text').value = 'DVDWishlist:' + JSON.stringify(obj);
+    return;
+  }
+
+  membersSorted.forEach(m => {
+    const list = (wlData[String(m.id)] || []).filter(it => {
+      if (fmt === 'bis') return it.prio === 'bis';
+      return true;
+    });
+    if (!list.length) return;
+
+    if (fmt === 'full') {
+      const itemParts = list.map((it, i) => {
+        const prioTag = it.prio === 'bis' ? '[BiS]' : it.prio === 'upgrade' ? '[Up]' : '[OS]';
+        return `${i + 1}. ${it.itemName} ${prioTag}`;
+      });
+      lines.push(`${m.name} (${m.spec || m.cls}):\n  ${itemParts.join('\n  ')}`);
+
+    } else if (fmt === 'bis') {
+      const itemParts = list.map((it, i) => `${i + 1}. ${it.itemName}`);
+      lines.push(`${m.name}: ${itemParts.join(' | ')}`);
+
+    } else if (fmt === 'short') {
+      const itemParts = list.map(it => it.itemName);
+      lines.push(`${m.name}: ${itemParts.join(', ')}`);
+
+    } else if (fmt === 'macro') {
+      // WoW macro: /print each player's list
+      list.forEach((it, i) => {
+        lines.push(`/print ${m.name} #${i + 1}: ${it.itemName}`);
+      });
+    }
+  });
+
+  if (!lines.length) {
+    document.getElementById('wl-export-text').value = '-- No wishlist data found. Add items to player wishlists first.';
+    return;
+  }
+
+  if (fmt === 'full' || fmt === 'short' || fmt === 'bis') {
+    // Add a WeakAura-friendly header
+    const header = `-- Guild Wishlist Export (${new Date().toLocaleDateString()})\n-- Paste into WeakAura → Display → Custom Text\n\n`;
+    document.getElementById('wl-export-text').value = header + lines.join('\n\n');
+  } else {
+    document.getElementById('wl-export-text').value = lines.join('\n');
+  }
+}
+
+function wlCopyExport() {
+  const ta = document.getElementById('wl-export-text');
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(ta.value).then(() => {
+    const btn = document.getElementById('wl-copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  }).catch(() => {
+    document.execCommand('copy');
+    const btn = document.getElementById('wl-copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+// Close export modal on backdrop click
+document.addEventListener('click', function(e) {
+  const m = document.getElementById('wl-export-modal');
+  if (m && e.target === m) wlCloseExportModal();
+});
 
 _checkSession();
 </script>
