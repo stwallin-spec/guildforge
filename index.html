@@ -846,6 +846,7 @@ body {
         <h2 style="font-family:'Cinzel',serif;color:var(--gold);margin:0">Loot Tracker</h2>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn-gold" onclick="showLootPasteModal()">⬆ Import Loot</button>
+          <button class="btn" onclick="showManualLootModal()">✏ Add Entry</button>
           <button class="btn" onclick="clearLootData()" style="color:#e07070;border-color:#e07070">🗑 Clear All</button>
         </div>
       </div>
@@ -888,6 +889,65 @@ body {
           <div style="display:flex;gap:8px;justify-content:flex-end">
             <button class="btn" onclick="closeLootPasteModal()">Cancel</button>
             <button class="btn btn-gold" onclick="handleLootPaste()">Import</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manual Loot Entry Modal -->
+      <div id="loot-manual-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+        <div style="background:var(--bg2);border:1px solid var(--gold);border-radius:var(--radius2);padding:24px;width:460px;max-width:95vw">
+          <h3 style="font-family:'Cinzel',serif;color:var(--gold);margin:0 0 6px">✏ Add Manual Loot Entry</h3>
+          <p style="font-size:11px;color:var(--text3);margin:0 0 16px">Use this for items awarded without a roll — boss loot given directly, crafted BiS, etc.</p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div>
+              <label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Character</label>
+              <select id="manual-loot-character" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px">
+                <option value="">— Select player —</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Date</label>
+              <input id="manual-loot-date" type="date" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px">
+            </div>
+          </div>
+
+          <div style="margin-bottom:10px">
+            <label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Item ID or WoWHead URL</label>
+            <div style="display:flex;gap:8px">
+              <input id="manual-loot-item" placeholder="e.g. 28789 or wowhead.com/tbc/item=28789" style="flex:1;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px" onkeydown="if(event.key==='Enter')manualLootLookup()">
+              <button class="btn" onclick="manualLootLookup()" style="flex-shrink:0">🔍 Look up</button>
+            </div>
+          </div>
+
+          <!-- Item preview -->
+          <div id="manual-loot-preview" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:10px;display:none;align-items:center;gap:10px">
+            <img id="manual-loot-icon" style="width:36px;height:36px;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'">
+            <div style="flex:1;min-width:0">
+              <div id="manual-loot-name" style="font-size:13px;font-weight:600"></div>
+              <div id="manual-loot-meta" style="font-size:11px;color:var(--text3)"></div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div>
+              <label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Spec</label>
+              <select id="manual-loot-offspec" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px">
+                <option value="0">Main Spec</option>
+                <option value="1">Off Spec</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Note (optional)</label>
+              <input id="manual-loot-note" placeholder="e.g. No roll, given directly" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px">
+            </div>
+          </div>
+
+          <div id="manual-loot-status" style="font-size:12px;min-height:18px;margin-bottom:12px;color:var(--text3)"></div>
+
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn" onclick="closeManualLootModal()">Cancel</button>
+            <button class="btn btn-gold" onclick="submitManualLootEntry()">+ Add Entry</button>
           </div>
         </div>
       </div>
@@ -3993,6 +4053,114 @@ document.addEventListener('click', function(e) {
   if (m && e.target === m) closeLootPasteModal();
 });
 
+// ── Manual Loot Entry ─────────────────────────────────────────────────────────
+
+let _manualLootItemID = null;
+
+function showManualLootModal() {
+  if (!_li) { alert('Please login as officer to add loot entries.'); return; }
+
+  // Populate character select from roster
+  const sel = document.getElementById('manual-loot-character');
+  sel.innerHTML = '<option value="">— Select player —</option>' +
+    members.slice().sort((a,b) => a.name.localeCompare(b.name))
+      .map(m => `<option value="${m.name}">${m.name} (${m.spec || m.cls})</option>`)
+      .join('') +
+    '<option value="_disenchanted">✨ Disenchanted</option>';
+
+  // Default to today's date
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('manual-loot-date').value = today;
+  document.getElementById('manual-loot-item').value = '';
+  document.getElementById('manual-loot-note').value = '';
+  document.getElementById('manual-loot-status').textContent = '';
+  document.getElementById('manual-loot-offspec').value = '0';
+  document.getElementById('manual-loot-preview').style.display = 'none';
+  _manualLootItemID = null;
+
+  document.getElementById('loot-manual-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('manual-loot-item').focus(), 50);
+}
+
+function closeManualLootModal() {
+  document.getElementById('loot-manual-modal').style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+  const m = document.getElementById('loot-manual-modal');
+  if (m && e.target === m) closeManualLootModal();
+});
+
+async function manualLootLookup() {
+  const raw = document.getElementById('manual-loot-item').value.trim();
+  const statusEl = document.getElementById('manual-loot-status');
+  if (!raw) { statusEl.style.color = '#e07070'; statusEl.textContent = 'Please enter an item ID or URL.'; return; }
+
+  // Extract numeric item ID from raw input (handles plain IDs and full WoWHead URLs)
+  const match = raw.match(/(\d{4,})/);
+  if (!match) { statusEl.style.color = '#e07070'; statusEl.textContent = '⚠ Could not find an item ID. Enter a number like 28789 or paste a WoWHead URL.'; return; }
+
+  const itemID = parseInt(match[1]);
+  statusEl.style.color = 'var(--text3)';
+  statusEl.textContent = '⟳ Fetching item info...';
+
+  try {
+    if (!_itemCache[itemID]) {
+      const r = await fetch(WOWHEAD_TOOLTIP + itemID);
+      const d = await r.json();
+      _itemCache[itemID] = { name: d.name || 'Unknown Item', quality: d.quality ?? 1, icon: d.icon || 'inv_misc_questionmark' };
+      saveItemCache();
+    }
+    const item = _itemCache[itemID];
+    const qc = QUALITY_CLASS[item.quality ?? 1];
+    const iconUrl = `${WOWHEAD_ICON}${item.icon}.jpg`;
+
+    document.getElementById('manual-loot-icon').src = iconUrl;
+    document.getElementById('manual-loot-name').innerHTML = `<span class="${qc}">${item.name}</span>`;
+    document.getElementById('manual-loot-meta').textContent = `Item ID: ${itemID} · ${QUALITY_NAME[item.quality ?? 1]}`;
+    document.getElementById('manual-loot-preview').style.display = 'flex';
+    statusEl.textContent = '';
+    _manualLootItemID = itemID;
+  } catch(e) {
+    statusEl.style.color = '#e07070';
+    statusEl.textContent = '⚠ Could not fetch item info. Check the ID and try again.';
+    _manualLootItemID = null;
+  }
+}
+
+async function submitManualLootEntry() {
+  const statusEl = document.getElementById('manual-loot-status');
+  const character = document.getElementById('manual-loot-character').value.trim();
+  const date = document.getElementById('manual-loot-date').value.trim();
+  const offspec = document.getElementById('manual-loot-offspec').value === '1';
+
+  if (!character) { statusEl.style.color = '#e07070'; statusEl.textContent = '⚠ Please select a character.'; return; }
+  if (!date)      { statusEl.style.color = '#e07070'; statusEl.textContent = '⚠ Please enter a date.'; return; }
+  if (!_manualLootItemID) {
+    // Try to look up first if user hasn't yet
+    await manualLootLookup();
+    if (!_manualLootItemID) return;
+  }
+
+  const entry = {
+    dateTime: date,
+    character,
+    itemID: _manualLootItemID,
+    offspec,
+    id: `manual-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
+    manual: true,
+  };
+
+  _lootData.push(entry);
+  _lootData.sort((a, b) => b.dateTime.localeCompare(a.dateTime));
+  saveLootData();
+  renderLootPage();
+  closeManualLootModal();
+
+  const item = _itemCache[_manualLootItemID];
+  showToast(`✓ Added ${item?.name || 'item'} → ${character === '_disenchanted' ? 'Disenchanted' : character}`);
+}
+
 function parseLootCSV(text) {
   const lines = text.trim().split('\n');
   const entries = [];
@@ -4231,7 +4399,7 @@ function renderLootHistory() {
         : e.offspec 
           ? '<span style="font-size:10px;color:#9896a4;background:rgba(255,255,255,0.07);padding:2px 7px;border-radius:10px">Off Spec</span>'
           : '<span style="font-size:10px;color:#80d080;background:rgba(128,208,128,0.1);padding:2px 7px;border-radius:10px">Main Spec</span>'
-      }</span>
+      }${e.manual ? ' <span style="font-size:9px;color:#a0a0d0;background:rgba(160,160,208,0.1);padding:1px 5px;border-radius:8px;border:1px solid rgba(160,160,208,0.25)" title="Added manually">✏</span>' : ''}</span>
     </div>`;
   }).join('') || '<div style="color:var(--text3);font-size:12px;padding:16px">No entries match the current filters.</div>';
 
