@@ -4582,9 +4582,10 @@ function renderLootStats() {
     <circle cx="190" cy="80" r="7" fill="#e0a040"/>
     <text x="202" y="85" fill="#ddd" font-size="12" font-family="Exo 2,sans-serif">DE (${deItems.length})</text>`);
 
-  // Bottom 10 (least dropped)
+  // Bottom 10 (least dropped) — epic quality (4) or higher only
   const allItemsSorted = Object.entries(itemDetail)
     .map(([id,d]) => [id, d, d.ms+d.os+d.de])
+    .filter(([id]) => (_itemCache[id]?.quality ?? 0) >= 4)
     .sort((a,b) => a[2]-b[2]);
   const bottom10 = allItemsSorted.slice(0, 10);
 
