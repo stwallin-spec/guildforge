@@ -1298,40 +1298,9 @@ const CLASS_SPECS = {
 };
 
 // Shorthand aliases → canonical names (for matching member specs to icons)
+const SPEC_ALIASES = {};
 
 // Class fallback icons (no spec)
-
-function canonicalSpec(cls, spec) {
-  if (!spec) return null;
-  // Try direct match first
-  const direct = cls + ':' + spec;
-  if (SPEC_ICONS[direct]) return spec;
-  // Try alias
-  const alias = SPEC_ALIASES[spec.toLowerCase()];
-  if (alias && SPEC_ICONS[cls + ':' + alias]) return alias;
-  return spec;
-}
-
-function specIcon(cls, spec) {
-  if (spec) {
-    const canonical = canonicalSpec(cls, spec);
-    const key = cls + ':' + canonical;
-    if (SPEC_ICONS[key]) return SPEC_ICONS[key];
-    // fallback: try original
-    if (SPEC_ICONS[cls + ':' + spec]) return SPEC_ICONS[cls + ':' + spec];
-  }
-  return CLASS_ICONS[cls] || BASE+'inv_misc_questionmark.jpg';
-}
-
-function clsBg(cls) {
-  const c = CM[cls];
-  if (!c) return 'rgba(128,128,128,0.15)';
-  const h = c.color;
-  const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16);
-  return `rgba(${r},${g},${b},0.15)`;
-}
-
-
 
 // Class fallback icons (no spec)
 const CLASS_ICONS = {
@@ -1461,7 +1430,7 @@ function closeMobileNav() {
   if (btn) btn.classList.remove('open');
 }
 
-function showPage(name, btn) {
+async function showPage(name, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
@@ -1472,7 +1441,7 @@ function showPage(name, btn) {
   if (name === 'assign') initAssign();
   if (name === 'prof') initProfessions();
   if (name === 'loot') initLoot();
-  if (name === 'wishlist') initWishlist();
+  if (name === 'wishlist') await initWishlist();
   closeMobileNav();
   localStorage.setItem('gm_activetab', name);
 }
@@ -1621,6 +1590,11 @@ function removeMember(id) {
   members = members.filter(x => x.id !== id);
   // also remove from raid groups
   groups = groups.map(g => g.map(s => (s && s.id === id) ? null : s));
+  // also clean up their wishlist data
+  if (wlData[String(id)]) {
+    delete wlData[String(id)];
+    wlSave();
+  }
   save(); renderRoster();
 }
 
@@ -3115,28 +3089,7 @@ function loadPlan(planId) {
   renderCanvas();
 }
 
-function addPlan() {
-  if (!currentEncounterId) { alert('Select an encounter first.'); return; }
-  const name = prompt('Plan name (e.g. "Phase 1", "Tank positions"):');
-  if (!name) return;
-  const id = 'plan_' + (nextPlanId++);
-  assignPlans[id] = { id, name, encounterId: currentEncounterId, elements: [] };
-  saveAssignData();
-  renderPlansList();
-  loadPlan(id);
-}
 
-function renderPlansList() {
-  const container = document.getElementById('boss-plans-list');
-  if (!container) return;
-  const plans = Object.values(assignPlans).filter(p => p.encounterId === currentEncounterId);
-  if (!plans.length) { container.innerHTML = '<div style="font-size:11px;color:var(--text3)">No plans yet</div>'; return; }
-  container.innerHTML = plans.map(p => `
-    <div class="plan-item ${p.id === currentPlanId ? 'active' : ''}" onclick="loadPlan('${p.id}')">
-      <span style="flex:1">${p.name}</span>
-      <button onclick="event.stopPropagation();deletePlan('${p.id}')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:11px">✕</button>
-    </div>`).join('');
-}
 
 function deletePlan(id) {
   if (!confirm('Delete this plan?')) return;
@@ -3796,35 +3749,18 @@ async function loadFromCloud() {
     if (assign_data !== null && assign_data.plans && Object.keys(assign_data.plans).length > 0) {
       localStorage.setItem('gm_assign', JSON.stringify(assign_data));
     }
-    // Wishlists — wipe counter takes priority, then timestamp comparison
+    // Wishlists — prime in-memory state for non-wishlist tab starting pages.
+    // If the wishlist tab is the active tab, initWishlist will do its own fresh fetch
+    // and overwrite this anyway, so we only set wlData if it is still empty.
     const wl_data = await sbGet('wishlists');
-    if (wl_data !== null && typeof wl_data === 'object') {
-      const cloudEntries = wl_data.data || wl_data;
-      const cloudTs      = wl_data.savedAt ? new Date(wl_data.savedAt).getTime() : 0;
-      const cloudWipeGen = wl_data.wipeGen  || 0;
-      const localTs      = parseInt(localStorage.getItem('gm_wishlists_savedAt') || '0');
-      const localWipeGen = parseInt(localStorage.getItem('gm_wishlists_wipeGen')  || '0');
-
-      if (cloudWipeGen > localWipeGen) {
-        // Officer wiped data — force clear regardless of local timestamps
-        wlData = {};
-        localStorage.setItem('gm_wishlists', JSON.stringify({}));
-        localStorage.setItem('gm_wishlists_savedAt', String(cloudTs));
-        localStorage.setItem('gm_wishlists_wipeGen', String(cloudWipeGen));
-      } else if (cloudTs >= localTs && Object.keys(cloudEntries).length > 0) {
-        // Cloud is newer — load it
-        wlData = cloudEntries;
-        localStorage.setItem('gm_wishlists', JSON.stringify(cloudEntries));
-        localStorage.setItem('gm_wishlists_savedAt', String(cloudTs));
-        localStorage.setItem('gm_wishlists_wipeGen', String(cloudWipeGen));
-      }
+    if (Object.keys(wlData).length === 0) {
+      wlData = (wl_data !== null && typeof wl_data === 'object')
+        ? (wl_data.data || wl_data)
+        : {};
     }
-    // Load wishlist lock state from cloud
+    // Wishlist lock state
     const wl_locked = await sbGet('wishlists_locked');
-    if (wl_locked !== null) {
-      wlLocked = wl_locked === true;
-      localStorage.setItem('gm_wishlists_locked', String(wlLocked));
-    }
+    wlLocked = wl_locked === true;
     showSyncStatus('ok');
   } catch(e) {
     console.warn('loadFromCloud error', e);
@@ -3832,20 +3768,22 @@ async function loadFromCloud() {
   }
 }
 async function cloudSaveWishlists(data) {
-  const now = Date.now();
-  const isEmpty = !data || Object.keys(data).length === 0;
-  // If clearing, bump the wipe counter so all browsers know to discard their local copy
-  let wipeGen = parseInt(localStorage.getItem('gm_wishlists_wipeGen') || '0');
-  if (isEmpty) {
-    wipeGen += 1;
-    localStorage.setItem('gm_wishlists_wipeGen', String(wipeGen));
-    await sbSet('wishlists_wipeGen', wipeGen);
+  // Single source of truth: always write directly to Supabase, no local caching.
+  // On load, data is always read fresh from Supabase, so there is no version conflict possible.
+  try {
+    await sbSet('wishlists', { data: data });
+    showSyncStatus('saved');
+  } catch(e) {
+    console.warn('cloudSaveWishlists failed, retrying...', e);
+    try {
+      await sbSet('wishlists', { data: data });
+      showSyncStatus('saved');
+    } catch(e2) {
+      console.warn('cloudSaveWishlists retry failed:', e2);
+      showSyncStatus('error');
+      throw e2; // re-throw so callers (e.g. wlClearAll) know it failed
+    }
   }
-  const payload = { data: data, savedAt: new Date(now).toISOString(), wipeGen };
-  localStorage.setItem('gm_wishlists', JSON.stringify(data));
-  localStorage.setItem('gm_wishlists_savedAt', String(now));
-  await sbSet('wishlists', payload);
-  showSyncStatus('saved');
 }
 async function cloudSaveMembers() {
   localStorage.setItem('gm_members', JSON.stringify(members));
@@ -3921,7 +3859,7 @@ initClassSelect();
   const savedTab = localStorage.getItem('gm_activetab');
   if (savedTab && savedTab !== 'roster') {
     const btn = document.querySelector(`.nav-btn[onclick*="showPage('${savedTab}'"]`);
-    if (btn) showPage(savedTab, btn);
+    if (btn) await showPage(savedTab, btn);
   }
 })();
 
@@ -4352,25 +4290,26 @@ function renderLootOverview() {
 function renderLootHistory() {
   const el = document.getElementById('loot-view-history');
 
+  // Read current filter values BEFORE rebuilding the DOM
+  const playerFilter = document.getElementById('loot-filter-player')?.value || 'All';
+  const dateFilter   = document.getElementById('loot-filter-date')?.value || 'All';
+  const msOnly       = document.getElementById('loot-filter-ms')?.checked || false;
+
   // Filter controls
   const players = ['All', ...[...new Set(_lootData.map(e => e.character))].sort().map(p => p === '_disenchanted' ? 'Disenchanted' : p)];
   const dates   = ['All', ...[...new Set(_lootData.map(e => e.dateTime))].sort().reverse()];
 
   let html = `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
     <select id="loot-filter-player" onchange="renderLootHistory()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);padding:5px 10px;font-family:'Exo 2',sans-serif;font-size:12px">
-      ${players.map(p => `<option>${p}</option>`).join('')}
+      ${players.map(p => `<option${p === playerFilter ? ' selected' : ''}>${p}</option>`).join('')}
     </select>
     <select id="loot-filter-date" onchange="renderLootHistory()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);padding:5px 10px;font-family:'Exo 2',sans-serif;font-size:12px">
-      ${dates.map(d => `<option>${d}</option>`).join('')}
+      ${dates.map(d => `<option${d === dateFilter ? ' selected' : ''}>${d}</option>`).join('')}
     </select>
     <label style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;cursor:pointer">
-      <input type="checkbox" id="loot-filter-ms" onchange="renderLootHistory()"> Main Spec only
+      <input type="checkbox" id="loot-filter-ms" onchange="renderLootHistory()"${msOnly ? ' checked' : ''}> Main Spec only
     </label>
   </div>`;
-
-  const playerFilter = document.getElementById('loot-filter-player')?.value || 'All';
-  const dateFilter   = document.getElementById('loot-filter-date')?.value || 'All';
-  const msOnly       = document.getElementById('loot-filter-ms')?.checked || false;
 
   let filtered = _lootData;
   if (playerFilter !== 'All') filtered = filtered.filter(e => (playerFilter === 'Disenchanted' ? e.character === '_disenchanted' : e.character === playerFilter));
@@ -4761,6 +4700,7 @@ function clearLootData() {
   localStorage.removeItem('gm_loot_cache');
   sbSet('loot', {}).catch(() => {});
   renderLootPage();
+  showToast('✓ All loot history cleared.');
 }
 
 function showToast(msg) {
@@ -4891,8 +4831,8 @@ document.getElementById('login-bg').addEventListener('click', function(e) {
 
 // Re-apply after each page switch (content re-renders)
 var _origShowPage = showPage;
-showPage = function(name, btn) {
-  _origShowPage(name, btn);
+showPage = async function(name, btn) {
+  await _origShowPage(name, btn);
   setTimeout(_applyRestrictions, 50);
 };
 
@@ -4917,17 +4857,20 @@ const WL_PRIO_COLORS = {
 };
 
 function wlLoad() {
-  try { wlData = JSON.parse(localStorage.getItem('gm_wishlists') || '{}'); }
-  catch(e) { wlData = {}; }
-  wlLocked = localStorage.getItem('gm_wishlists_locked') === 'true';
+  // No-op: wlData is loaded from Supabase at startup (loadFromCloud)
+  // and refreshed on every tab visit (initWishlist → wlRefresh).
+  // This function is kept so any legacy call sites don't break.
 }
 
+let _wlSaveTimer = null;
 function wlSave() {
-  cloudSaveWishlists(wlData);
+  // Debounce: coalesce rapid edits (drag-reorder, prio change etc.) into one cloud write
+  clearTimeout(_wlSaveTimer);
+  _wlSaveTimer = setTimeout(() => cloudSaveWishlists(wlData), 600);
 }
 
 function wlSaveLock() {
-  localStorage.setItem('gm_wishlists_locked', String(wlLocked));
+  // Single source of truth: lock state lives only in Supabase
   sbSet('wishlists_locked', wlLocked).catch(() => {});
 }
 
@@ -4965,17 +4908,18 @@ function wlUpdateLockBtn() {
   }
 }
 
-function wlClearAll() {
+async function wlClearAll() {
   if (!_li) return;
   if (!confirm('Clear ALL wishlist data for every player? This cannot be undone.')) return;
   wlData = {};
-  const now = Date.now();
-  localStorage.setItem('gm_wishlists', JSON.stringify({}));
-  localStorage.setItem('gm_wishlists_savedAt', String(now));
-  cloudSaveWishlists({});
   wlSelectedId = null;
   wlRender();
-  showToast('✓ All wishlist data cleared.');
+  try {
+    await cloudSaveWishlists({});
+    showToast('✓ All wishlist data cleared.');
+  } catch(e) {
+    showToast('⚠ Clear saved locally but failed to sync — check connection.');
+  }
 }
 
 function wlToggleLock() {
@@ -4987,12 +4931,25 @@ function wlToggleLock() {
   showToast(wlLocked ? '🔒 Wishlists locked — no edits allowed.' : '🔓 Wishlists unlocked.');
 }
 
-function initWishlist() {
-  wlLoad();
-  loadLootData();   // ensure loot tracker data is available for received checks
-  loadItemCache();  // ensure item cache is available for lookups
-  wlSelectedId = null;
+async function initWishlist() {
+  loadLootData();
+  loadItemCache();
   wlLookupResult = null;
+  // Always read fresh from Supabase — single source of truth, no version drift possible
+  showSyncStatus('loading');
+  try {
+    const wl_data = await sbGet('wishlists');
+    wlData = (wl_data !== null && typeof wl_data === 'object')
+      ? (wl_data.data || wl_data)
+      : {};
+    const wl_locked = await sbGet('wishlists_locked');
+    wlLocked = wl_locked === true;
+    showSyncStatus('ok');
+  } catch(e) {
+    console.warn('initWishlist fetch failed:', e);
+    showSyncStatus('error');
+    // Keep whatever is already in wlData rather than wiping it
+  }
   wlUpdateLockBtn();
   wlSetView(wlCurrentView);
 }
@@ -5160,7 +5117,7 @@ function wlRenderPlayerList() {
 
   const filtered = members.filter(m =>
     !q || m.name.toLowerCase().includes(q) ||
-    (wlData[m.id] || []).some(w => w.itemName.toLowerCase().includes(q))
+    (wlData[String(m.id)] || []).some(w => w.itemName.toLowerCase().includes(q))
   );
 
   if (!filtered.length) {
@@ -5171,7 +5128,7 @@ function wlRenderPlayerList() {
   el.innerHTML = filtered.map(m => {
     const cc = CM[m.cls] || { color: '#888' };
     const icon = specIcon(m.cls, m.spec);
-    const items = wlData[m.id] || [];
+    const items = wlData[String(m.id)] || [];
     const isActive = m.id === wlSelectedId;
 
     // Count received vs unreceived
@@ -5227,7 +5184,7 @@ function wlShowPanel(memberId) {
   if (!m) return;
   const cc = CM[m.cls] || { color: '#888' };
   const icon = specIcon(m.cls, m.spec);
-  const items = wlData[memberId] || [];
+  const items = wlData[String(memberId)] || [];
 
   document.getElementById('wl-empty-state').style.display = 'none';
   document.getElementById('wl-panel').style.display = 'block';
@@ -5255,7 +5212,7 @@ function wlShowPanel(memberId) {
 function wlRenderItems(memberId) {
   const el = document.getElementById('wl-items');
   if (!el) return;
-  const items = wlData[memberId] || [];
+  const items = wlData[String(memberId)] || [];
 
   if (!items.length) {
     el.innerHTML = '<div style="padding:20px 16px;text-align:center;font-size:12px;color:var(--text3)">No items yet — paste a WoWHead URL above to add the first one</div>';
@@ -5337,8 +5294,7 @@ function wlRenderItems(memberId) {
                  cursor:pointer;font-size:11px;padding:3px 8px;border-radius:5px;flex-shrink:0;
                  line-height:1;font-family:'Exo 2',sans-serif;white-space:nowrap"
           onmouseover="this.style.borderColor='rgba(224,96,96,0.5)';this.style.color='#e06060'"
-          onmouseout="this.style.borderColor='${btnBorder}';this.style.color='${btnColor}'"
-          title="Remove received status">✕ Received</button>
+          onmouseout="this.style.borderColor='${btnBorder}';this.style.color='${btnColor}'">✕ Received</button>
         <button onclick="wlRemoveItem(${memberId},${i})"
           style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0;flex-shrink:0;line-height:1"
           onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'" title="Remove from wishlist">✕</button>
@@ -5412,7 +5368,7 @@ function wlRenderItems(memberId) {
 }
 
 function wlToggleReceived(memberId, idx) {
-  const list = wlData[memberId] || [];
+  const list = wlData[String(memberId)] || [];
   if (!list[idx]) return;
   const item = list[idx];
   const lootTrackerReceived = _lootData.some(e =>
@@ -5434,7 +5390,7 @@ function wlToggleReceived(memberId, idx) {
     item.manualReceived = !item.manualReceived;
   }
 
-  wlData[memberId] = list;
+  wlData[String(memberId)] = list;
   wlSave();
   wlRenderItems(memberId);
   wlRenderPlayerList();
@@ -5501,17 +5457,18 @@ function wlAddItem() {
   if (wlLocked) { showToast('🔒 Wishlists are locked. Unlock to make changes.'); return; }
   if (!wlLookupResult || wlSelectedId === null) return;
   const prio = document.getElementById('wl-prio-sel').value;
-  const list = wlData[wlSelectedId] || [];
+  const wlKey = String(wlSelectedId);
+  const list = wlData[wlKey] || [];
 
   // Prevent duplicates
-  if (list.some(w => w.itemId === wlLookupResult.itemId)) {
+  if (list.some(w => String(w.itemId) === String(wlLookupResult.itemId))) {
     document.getElementById('wl-status').textContent = 'This item is already on the wishlist.';
     document.getElementById('wl-status').style.color = '#e06060';
     return;
   }
 
   list.push({ ...wlLookupResult, prio, addedAt: new Date().toISOString() });
-  wlData[wlSelectedId] = list;
+  wlData[wlKey] = list;
   wlSave();
 
   // Reset form
@@ -5527,10 +5484,11 @@ function wlAddItem() {
 
 function wlRemoveItem(memberId, idx) {
   if (wlLocked) { showToast('🔒 Wishlists are locked. Unlock to make changes.'); return; }
-  const list = wlData[memberId] || [];
+  const wlKey = String(memberId);
+  const list = wlData[wlKey] || [];
   list.splice(idx, 1);
-  if (!list.length) delete wlData[memberId];
-  else wlData[memberId] = list;
+  if (!list.length) delete wlData[wlKey];
+  else wlData[wlKey] = list;
   wlSave();
   wlShowPanel(memberId);
   wlRenderPlayerList();
@@ -5538,8 +5496,9 @@ function wlRemoveItem(memberId, idx) {
 
 function wlChangePrio(memberId, idx, prio) {
   if (wlLocked) { showToast('🔒 Wishlists are locked.'); return; }
-  const list = wlData[memberId] || [];
-  if (list[idx]) { list[idx].prio = prio; wlData[memberId] = list; wlSave(); wlRenderItems(memberId); }
+  const wlKey = String(memberId);
+  const list = wlData[wlKey] || [];
+  if (list[idx]) { list[idx].prio = prio; wlData[wlKey] = list; wlSave(); wlRenderItems(memberId); }
 }
 
 // ── Drag to reorder ───────────────────────────────────────
@@ -5559,10 +5518,11 @@ function wlDrop(e, idx, memberId) {
   e.preventDefault();
   if (wlLocked) return;
   if (wlDragIdx === null || wlDragIdx === idx) return;
-  const list = wlData[memberId] || [];
+  const wlKey = String(memberId);
+  const list = wlData[wlKey] || [];
   const item = list.splice(wlDragIdx, 1)[0];
   list.splice(idx, 0, item);
-  wlData[memberId] = list;
+  wlData[wlKey] = list;
   wlDragIdx = null;
   wlSave();
   wlRenderItems(memberId);
@@ -5587,9 +5547,10 @@ function wlRenderCompetition() {
       if (!itemMap[item.itemId]) {
         itemMap[item.itemId] = { itemId: item.itemId, itemName: item.itemName, itemIcon: item.itemIcon, itemUrl: item.itemUrl, quality: item.quality, players: [] };
       }
-      const received = !!item.manualReceived || _lootData.some(e =>
+      const lootTracked = _lootData.some(e =>
         String(e.itemID) === String(item.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid)
       );
+      const received = item.manualReceived === false ? false : (!!item.manualReceived || lootTracked);
       itemMap[item.itemId].players.push({ member, rank: idx + 1, prio: item.prio, received });
     });
   });
@@ -5685,7 +5646,6 @@ function wlRenderCompetition() {
 let wlExportFormat = 'addon';
 
 function wlShowExportModal() {
-  wlLoad();
   wlSetExportFormat('addon');
   document.getElementById('wl-export-modal').style.display = 'flex';
 }
