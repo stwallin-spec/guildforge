@@ -3796,25 +3796,21 @@ async function cloudSaveMembers() {
 
 async function cloudSaveGroups() {
   localStorage.setItem('gm_groups', JSON.stringify(groups));
-  await sbSet('groups', groups);
-  showSyncStatus('saved');
+  try { await sbSet('groups', groups); showSyncStatus('saved'); } catch(e) { showSyncStatus('error'); }
 }
 
 async function cloudSaveIdeal() {
   localStorage.setItem('gm_ideal', JSON.stringify(ideal));
-  await sbSet('ideal', ideal);
-  showSyncStatus('saved');
+  try { await sbSet('ideal', ideal); showSyncStatus('saved'); } catch(e) { showSyncStatus('error'); }
 }
 
 async function cloudSaveProf() {
   localStorage.setItem('gm_profitems', JSON.stringify(profItems));
-  await sbSet('profitems', profItems);
-  showSyncStatus('saved');
+  try { await sbSet('profitems', profItems); showSyncStatus('saved'); } catch(e) { showSyncStatus('error'); }
 }
 
 async function cloudSaveAssign(assignData) {
-  await sbSet('assign', assignData);
-  showSyncStatus('saved');
+  try { await sbSet('assign', assignData); showSyncStatus('saved'); } catch(e) { showSyncStatus('error'); }
 }
 
 // ── Sync status indicator ────────────────────────────────
