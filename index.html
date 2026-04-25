@@ -1593,7 +1593,7 @@ function removeMember(id) {
   // also clean up their wishlist data
   if (wlData[String(id)]) {
     delete wlData[String(id)];
-    wlSave();
+    sbDeleteMemberWishlist(id).catch(() => {});
   }
   save(); renderRoster();
 }
@@ -3701,6 +3701,53 @@ async function sbSet(key, value) {
   }
 }
 
+// ── Per-member wishlist helpers ──────────────────────────────────────────────
+// Each member gets their own row: key = 'wl_member_<id>', data = [...items]
+// This means saves are fully isolated — two members can save simultaneously
+// without ever overwriting each other.
+
+async function sbGetAllWishlists() {
+  // Fetch all rows whose key starts with 'wl_member_'
+  const { data, error } = await _sb.from('guild_data')
+    .select('key, data')
+    .like('key', 'wl_member_%');
+  if (error) {
+    console.warn('sbGetAllWishlists error', error.message);
+    throw new Error(error.message);
+  }
+  // Reassemble into { memberId(str): [...items] }
+  const result = {};
+  (data || []).forEach(row => {
+    const id = row.key.replace('wl_member_', '');
+    result[id] = row.data || [];
+  });
+  return result;
+}
+
+async function sbSetMemberWishlist(memberId, items) {
+  const key = 'wl_member_' + String(memberId);
+  const { error } = await _sb.from('guild_data')
+    .upsert({ key, data: items, updated_at: new Date().toISOString() });
+  if (error) {
+    console.warn('sbSetMemberWishlist error', memberId, error.message);
+    throw new Error(error.message);
+  }
+}
+
+async function sbDeleteMemberWishlist(memberId) {
+  const key = 'wl_member_' + String(memberId);
+  const { error } = await _sb.from('guild_data').delete().eq('key', key);
+  if (error) console.warn('sbDeleteMemberWishlist error', memberId, error.message);
+}
+
+async function sbClearAllMemberWishlists() {
+  const { error } = await _sb.from('guild_data').delete().like('key', 'wl_member_%');
+  if (error) {
+    console.warn('sbClearAllMemberWishlists error', error.message);
+    throw new Error(error.message);
+  }
+}
+
 // ── Members ──────────────────────────────────────────────
 async function sbLoadMembers() {
   const { data, error } = await _sb.from('members').select('id,data').order('id');
@@ -3752,14 +3799,10 @@ async function loadFromCloud() {
     if (assign_data !== null && assign_data.plans && Object.keys(assign_data.plans).length > 0) {
       localStorage.setItem('gm_assign', JSON.stringify(assign_data));
     }
-    // Wishlists — prime in-memory state for non-wishlist tab starting pages.
-    // If the wishlist tab is the active tab, initWishlist will do its own fresh fetch
-    // and overwrite this anyway, so we only set wlData if it is still empty.
-    const wl_data = await sbGet('wishlists');
+    // Wishlists — prime in-memory state. Each member has their own isolated row.
+    // initWishlist will re-fetch on tab visit anyway; this just primes for other tabs.
     if (Object.keys(wlData).length === 0) {
-      wlData = (wl_data !== null && typeof wl_data === 'object')
-        ? (wl_data.data || wl_data)
-        : {};
+      wlData = await sbGetAllWishlists();
     }
     // Wishlist lock state
     const wl_locked = await sbGet('wishlists_locked');
@@ -3770,21 +3813,21 @@ async function loadFromCloud() {
     showSyncStatus('error');
   }
 }
-async function cloudSaveWishlists(data) {
-  // Single source of truth: always write directly to Supabase, no local caching.
-  // On load, data is always read fresh from Supabase, so there is no version conflict possible.
+async function cloudSaveWishlists(memberId, items) {
+  // Each member has their own isolated row in Supabase (key = 'wl_member_<id>').
+  // Saving one member never touches any other member's data.
   try {
-    await sbSet('wishlists', { data: data });
+    await sbSetMemberWishlist(memberId, items);
     showSyncStatus('saved');
   } catch(e) {
     console.warn('cloudSaveWishlists failed, retrying...', e);
     try {
-      await sbSet('wishlists', { data: data });
+      await sbSetMemberWishlist(memberId, items);
       showSyncStatus('saved');
     } catch(e2) {
       console.warn('cloudSaveWishlists retry failed:', e2);
       showSyncStatus('error');
-      throw e2; // re-throw so callers (e.g. wlClearAll) know it failed
+      throw e2;
     }
   }
 }
@@ -4862,10 +4905,15 @@ function wlLoad() {
 }
 
 let _wlSaveTimer = null;
-function wlSave() {
-  // Debounce: coalesce rapid edits (drag-reorder, prio change etc.) into one cloud write
+function wlSave(memberId) {
+  // memberId must always be passed explicitly — never rely on wlSelectedId,
+  // because officers can edit items for any player regardless of which player
+  // is currently "selected" in the sidebar (e.g. via the competition view).
+  if (memberId === undefined || memberId === null) return;
+  const id = String(memberId);
+  const items = wlData[id] || [];
   clearTimeout(_wlSaveTimer);
-  _wlSaveTimer = setTimeout(() => cloudSaveWishlists(wlData), 600);
+  _wlSaveTimer = setTimeout(() => cloudSaveWishlists(id, items), 600);
 }
 
 function wlSaveLock() {
@@ -4914,10 +4962,10 @@ async function wlClearAll() {
   wlSelectedId = null;
   wlRender();
   try {
-    await cloudSaveWishlists({});
+    await sbClearAllMemberWishlists();
     showToast('✓ All wishlist data cleared.');
   } catch(e) {
-    showToast('⚠ Clear saved locally but failed to sync — check connection.');
+    showToast('⚠ Clear failed to sync — check connection.');
   }
 }
 
@@ -4934,13 +4982,10 @@ async function initWishlist() {
   loadLootData();
   loadItemCache();
   wlLookupResult = null;
-  // Always read fresh from Supabase — single source of truth, no version drift possible
+  // Always read fresh — each member's items come from their own isolated Supabase row
   showSyncStatus('loading');
   try {
-    const wl_data = await sbGet('wishlists');
-    wlData = (wl_data !== null && typeof wl_data === 'object')
-      ? (wl_data.data || wl_data)
-      : {};
+    wlData = await sbGetAllWishlists();
     const wl_locked = await sbGet('wishlists_locked');
     wlLocked = wl_locked === true;
     showSyncStatus('ok');
@@ -5390,7 +5435,7 @@ function wlToggleReceived(memberId, idx) {
   }
 
   wlData[String(memberId)] = list;
-  wlSave();
+  wlSave(memberId);
   wlRenderItems(memberId);
   wlRenderPlayerList();
 }
@@ -5468,7 +5513,7 @@ function wlAddItem() {
 
   list.push({ ...wlLookupResult, prio, addedAt: new Date().toISOString() });
   wlData[wlKey] = list;
-  wlSave();
+  wlSave(wlSelectedId);
 
   // Reset form
   document.getElementById('wl-url-input').value = '';
@@ -5486,9 +5531,14 @@ function wlRemoveItem(memberId, idx) {
   const wlKey = String(memberId);
   const list = wlData[wlKey] || [];
   list.splice(idx, 1);
-  if (!list.length) delete wlData[wlKey];
-  else wlData[wlKey] = list;
-  wlSave();
+  if (!list.length) {
+    delete wlData[wlKey];
+    // Delete the Supabase row entirely rather than saving an empty array
+    sbDeleteMemberWishlist(memberId).catch(() => {});
+  } else {
+    wlData[wlKey] = list;
+    wlSave(memberId);
+  }
   wlShowPanel(memberId);
   wlRenderPlayerList();
 }
@@ -5497,7 +5547,7 @@ function wlChangePrio(memberId, idx, prio) {
   if (wlLocked) { showToast('🔒 Wishlists are locked.'); return; }
   const wlKey = String(memberId);
   const list = wlData[wlKey] || [];
-  if (list[idx]) { list[idx].prio = prio; wlData[wlKey] = list; wlSave(); wlRenderItems(memberId); }
+  if (list[idx]) { list[idx].prio = prio; wlData[wlKey] = list; wlSave(memberId); wlRenderItems(memberId); }
 }
 
 // ── Drag to reorder ───────────────────────────────────────
@@ -5520,10 +5570,13 @@ function wlDrop(e, idx, memberId) {
   const wlKey = String(memberId);
   const list = wlData[wlKey] || [];
   const item = list.splice(wlDragIdx, 1)[0];
-  list.splice(idx, 0, item);
+  // When dragging downward, removing the item shifts all subsequent indices
+  // by -1, so the effective insertion point is idx-1 to land in the correct slot.
+  const insertAt = idx > wlDragIdx ? idx - 1 : idx;
+  list.splice(insertAt, 0, item);
   wlData[wlKey] = list;
   wlDragIdx = null;
-  wlSave();
+  wlSave(memberId);
   wlRenderItems(memberId);
 }
 function wlDragEnd() {
