@@ -3695,7 +3695,10 @@ async function sbGet(key) {
 
 async function sbSet(key, value) {
   const { error } = await _sb.from('guild_data').upsert({ key, data: value, updated_at: new Date().toISOString() });
-  if (error) console.warn('sbSet error', key, error.message);
+  if (error) {
+    console.warn('sbSet error', key, error.message);
+    throw new Error(error.message); // let callers (cloudSaveWishlists retry logic) know it failed
+  }
 }
 
 // ── Members ──────────────────────────────────────────────
