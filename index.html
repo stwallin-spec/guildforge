@@ -1837,6 +1837,9 @@ function renderBench() {
         <span class="bench-name" style="color:${cc.color}">${m.name}</span>
         <span class="bench-cls">${m.spec || m.cls}</span>
         ${highlight ? '<span style="font-size:9px;color:#80d080;margin-left:auto;flex-shrink:0">✓ Signed</span>' : ''}
+        <button onclick="event.stopPropagation();bench(${m.id})" title="Move to benched"
+          style="margin-left:auto;flex-shrink:0;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 2px;line-height:1"
+          onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'">⊖</button>
       </div>`;
     };
 
@@ -1872,6 +1875,9 @@ function renderBench() {
         <img src="${icon}" class="spec-icon" alt="${m.spec||m.cls}" onerror="this.style.display='none'">
         <span class="bench-name" style="color:${cc.color}">${m.name}</span>
         <span class="bench-cls">${m.spec || m.cls}</span>
+        <button onclick="event.stopPropagation();bench(${m.id})" title="Move to benched"
+          style="margin-left:auto;flex-shrink:0;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 2px;line-height:1"
+          onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'">⊖</button>
       </div>`;
     }).join('');
   }
@@ -1917,6 +1923,12 @@ function benchRemaining() {
     .filter(m => !assigned.has(m.id) && !benchedIds.includes(m.id))
     .map(m => m.id);
   benchedIds = [...benchedIds, ...newBenched];
+  renderBench();
+}
+
+function bench(id) {
+  if (benchedIds.includes(id)) return;
+  benchedIds.push(id);
   renderBench();
 }
 
