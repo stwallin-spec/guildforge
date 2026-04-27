@@ -1479,10 +1479,11 @@ function renderRoster() {
   });
 
   // stats
-  const activeClasses = CLASSES.filter(c => members.some(m => m.cls === c.name));
+  const activeMembers = members.filter(m => !m.inactive);
+  const activeClasses = CLASSES.filter(c => activeMembers.some(m => m.cls === c.name));
 
   const classCards = activeClasses.map(c => {
-    const classMembers = members.filter(m => m.cls === c.name);
+    const classMembers = activeMembers.filter(m => m.cls === c.name);
     const total = classMembers.length;
     const specRows = CLASS_SPECS[c.name].map(spec => {
       const count = classMembers.filter(m => canonicalSpec(m.cls, m.spec) === spec).length;
@@ -1508,7 +1509,8 @@ function renderRoster() {
 
   document.getElementById('stats').innerHTML = `
     <div class="stats-top">
-      <div class="stat-card"><div class="lbl">Total</div><div class="val">${members.length}</div></div>
+      <div class="stat-card"><div class="lbl">Active</div><div class="val">${members.filter(m=>!m.inactive).length}</div></div>
+      <div class="stat-card"><div class="lbl">Inactive</div><div class="val" style="color:var(--text3)">${members.filter(m=>m.inactive).length}</div></div>
       <div class="stat-card"><div class="lbl">Officers+</div><div class="val">${members.filter(m=>m.rank==='Guild Master'||m.rank==='Officer').length}</div></div>
       <div class="stat-card"><div class="lbl">In Raid</div><div class="val">${groups.flat().filter(Boolean).length}</div></div>
     </div>
@@ -1518,7 +1520,7 @@ function renderRoster() {
   // filters
   document.getElementById('filters').innerHTML = ['All', ...CLASSES.map(c=>c.name)].map(r => {
     const cc = CM[r];
-    const cnt = r === 'All' ? '' : ` (${members.filter(m=>m.cls===r).length})`;
+    const cnt = r === 'All' ? '' : ` (${members.filter(m=>m.cls===r&&!m.inactive).length})`;
     const isActive = activeFilter === r;
     let style = '';
     if (isActive && cc) style = `background:${clsBg(r)};color:${cc.color};border-color:${cc.color}`;
@@ -1526,16 +1528,23 @@ function renderRoster() {
     return `<button class="pill" style="${style}" onclick="setFilter('${r}')">${r}${cnt}</button>`;
   }).join('');
 
-  if (!filtered.length) {
+  const filteredActive   = filtered.filter(m => !m.inactive);
+  const filteredInactive = filtered.filter(m =>  m.inactive);
+
+  if (!filteredActive.length && !filteredInactive.length) {
     document.getElementById('member-list').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)">No members found.</div>';
     return;
   }
-  document.getElementById('member-list').innerHTML = filtered.map(m => {
+
+  function memberRowHtml(m, inactive) {
     const cc = CM[m.cls] || { color: '#888' };
     const sub = [m.spec, m.notes].filter(Boolean).join(' · ');
     const inRaid = groups.flat().some(s => s && s.id === m.id);
     const icon = specIcon(m.cls, m.spec);
-    return `<div class="member-row">
+    const rowStyle = inactive ? 'opacity:0.55;' : '';
+    const toggleTitle = inactive ? 'Move to active roster' : 'Move to inactive';
+    const toggleIcon = inactive ? '↑' : '⏸';
+    return `<div class="member-row" style="${rowStyle}">
       <div class="avatar" style="background:${clsBg(m.cls)};border-color:${cc.color};padding:0;overflow:hidden">
         <img src="${icon}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" alt="${m.cls}" onerror="this.parentNode.textContent='${m.name.slice(0,2).toUpperCase()}'">
       </div>
@@ -1546,11 +1555,36 @@ function renderRoster() {
       <span class="class-tag" style="background:${clsBg(m.cls)};color:${cc.color}">${m.cls}</span>
       <span class="rank-tag">${m.rank}</span>
       <div class="row-actions">
+        <button class="icon-btn" onclick="toggleInactive(${m.id})" title="${toggleTitle}" style="font-size:13px">${toggleIcon}</button>
         <button class="icon-btn" onclick="openEdit(${m.id})" title="Edit">✎</button>
         <button class="icon-btn del" onclick="removeMember(${m.id})" title="Remove">✕</button>
       </div>
     </div>`;
-  }).join('');
+  }
+
+  let html = filteredActive.map(m => memberRowHtml(m, false)).join('');
+
+  if (filteredInactive.length) {
+    html += `
+    <div style="margin-top:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px">
+      <span style="font-family:'Cinzel',serif;font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Inactive Members</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:11px;color:var(--text3)">${filteredInactive.length}</span>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Not counted in recruitment or ideal roster calculations.</div>
+    ${filteredInactive.map(m => memberRowHtml(m, true)).join('')}`;
+  }
+
+  document.getElementById('member-list').innerHTML = html;
+}
+
+function toggleInactive(id) {
+  const m = members.find(x => x.id === id);
+  if (!m) return;
+  m.inactive = !m.inactive;
+  save();
+  renderRoster();
+  renderRecruit();
 }
 
 function setFilter(r) { activeFilter = r; renderRoster(); }
@@ -1641,7 +1675,7 @@ function renderRecruit() {
   // Build data for all classes
   const classData = CLASSES.map(c => {
     const specs = specsForClass(c.name);
-    const have = members.filter(m => m.cls === c.name).length;
+    const have = members.filter(m => m.cls === c.name && !m.inactive).length;
     const want = specs.reduce((sum, spec) => sum + (ideal[c.name + ':' + spec] || 0), 0);
     const diff = want - have;
     return { c, have, want, diff, specs };
@@ -1658,7 +1692,7 @@ function renderRecruit() {
   const needCards = classData.filter(d => d.want > 0).flatMap(({c, specs}) =>
     specs.flatMap(spec => {
       const key = c.name + ':' + spec;
-      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec).length;
+      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec && !m.inactive).length;
       const wantSpec = ideal[key] || 0;
       const diffSpec = wantSpec - haveSpec;
       if (diffSpec <= 0 || wantSpec === 0) return [];
@@ -1677,7 +1711,7 @@ function renderRecruit() {
   const overCards = classData.filter(d => d.want > 0).flatMap(({c, specs}) =>
     specs.flatMap(spec => {
       const key = c.name + ':' + spec;
-      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec).length;
+      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec && !m.inactive).length;
       const wantSpec = ideal[key] || 0;
       const diffSpec = wantSpec - haveSpec;
       if (diffSpec >= 0 || wantSpec === 0) return [];
@@ -1732,7 +1766,7 @@ function renderRecruit() {
 
     const specRows = specs.map(spec => {
       const key = c.name + ':' + spec;
-      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec).length;
+      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec && !m.inactive).length;
       const wantSpec = ideal[key] || 0;
       const diffSpec = wantSpec - haveSpec;
       const sicon = specIcon(c.name, spec);
