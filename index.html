@@ -2685,6 +2685,9 @@ function loadBossBackground(encounterId) {
     // Size canvas to match image aspect ratio within the container
     const wrap = document.getElementById('assign-canvas-wrap');
     if (wrap) {
+      // Remember previous canvas size before we resize
+      const prevW = canvasW;
+      const prevH = canvasH;
       const wrapW = wrap.clientWidth;
       const wrapH = wrap.clientHeight;
       const imgAR = bgImage.naturalWidth / bgImage.naturalHeight;
@@ -2701,6 +2704,27 @@ function loadBossBackground(encounterId) {
       aCanvas.style.position = 'absolute';
       aCanvas.style.left = Math.round((wrapW - canvasW) / 2) + 'px';
       aCanvas.style.top = Math.round((wrapH - canvasH) / 2) + 'px';
+
+      // Rescale element coordinates if the canvas changed size.
+      // Use the canvas size saved with the plan as the authoritative reference;
+      // fall back to prevW/H if the plan predates this feature.
+      const plan = currentPlanId ? assignPlans[currentPlanId] : null;
+      const savedW = (plan && plan.canvasW) ? plan.canvasW : prevW;
+      const savedH = (plan && plan.canvasH) ? plan.canvasH : prevH;
+      if (savedW && savedH && (savedW !== canvasW || savedH !== canvasH)) {
+        const scaleX = canvasW / savedW;
+        const scaleY = canvasH / savedH;
+        for (const el of elements) {
+          if (el.type === 'arrow') {
+            el.x1 = Math.round(el.x1 * scaleX); el.y1 = Math.round(el.y1 * scaleY);
+            el.x2 = Math.round(el.x2 * scaleX); el.y2 = Math.round(el.y2 * scaleY);
+          } else {
+            el.x = Math.round(el.x * scaleX); el.y = Math.round(el.y * scaleY);
+          }
+        }
+        // Update plan's stored canvas size so subsequent saves use the new dimensions
+        if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
+      }
     }
     renderCanvas();
   };
@@ -2817,6 +2841,17 @@ function drawElement(el) {
   // Token or marker or bossicon
   const size = el.size || 44;
   const half = size / 2;
+
+  // Re-resolve bossicon src from BOSS_ICONS_DATA if missing/corrupted
+  if (el.type === 'bossicon' && (!el.src || el.src.length < 100)) {
+    if (el.bossIconId && BOSS_ICONS_DATA[el.bossIconId]) {
+      el.src = BOSS_ICONS_DATA[el.bossIconId];
+    } else if (el.label) {
+      const matchId = Object.keys(BOSS_ICON_NAMES).find(k => BOSS_ICON_NAMES[k] === el.label);
+      if (matchId && BOSS_ICONS_DATA[matchId]) { el.src = BOSS_ICONS_DATA[matchId]; el.bossIconId = matchId; }
+    }
+  }
+
   const img = loadImg(el.src);
 
   if (img.complete && img.naturalWidth) {
@@ -3118,7 +3153,18 @@ function aCanvasDropHandler(e) {
 // ── Plans ─────────────────────────────────────────────────
 function savePlanState() {
   if (!currentPlanId) return;
-  assignPlans[currentPlanId].elements = JSON.parse(JSON.stringify(elements));
+  // Strip large base64 src from bossicons before saving - we can re-resolve from BOSS_ICONS_DATA
+  const elemsToSave = elements.map(el => {
+    if (el.type === 'bossicon') {
+      const { src, ...rest } = el; // eslint-disable-line no-unused-vars
+      return rest; // save without src, bossIconId is preserved for re-resolution
+    }
+    return el;
+  });
+  assignPlans[currentPlanId].elements = JSON.parse(JSON.stringify(elemsToSave));
+  // Save canvas dimensions so we can rescale coords correctly when loading on a different screen
+  assignPlans[currentPlanId].canvasW = canvasW;
+  assignPlans[currentPlanId].canvasH = canvasH;
   saveAssignData();
   updateCurrentPlanBar();
 }
@@ -3128,6 +3174,25 @@ function loadPlan(planId) {
   const plan = assignPlans[planId];
   if (!plan) return;
   elements = JSON.parse(JSON.stringify(plan.elements || []));
+
+  // Re-resolve bossicon srcs from BOSS_ICONS_DATA (prevents issues if base64 got
+  // corrupted/truncated in storage, and avoids storing large base64 in saved plans)
+  for (const el of elements) {
+    if (el.type === 'bossicon') {
+      // Try bossIconId first, then fall back to matching by label
+      if (el.bossIconId && BOSS_ICONS_DATA[el.bossIconId]) {
+        el.src = BOSS_ICONS_DATA[el.bossIconId];
+      } else if (el.label) {
+        // Fallback: find by label
+        const matchId = Object.keys(BOSS_ICON_NAMES).find(k => BOSS_ICON_NAMES[k] === el.label);
+        if (matchId && BOSS_ICONS_DATA[matchId]) {
+          el.src = BOSS_ICONS_DATA[matchId];
+          el.bossIconId = matchId;
+        }
+      }
+    }
+  }
+
   undoStack = [];
   currentEncounterId = plan.encounterId;
   const enc = RAIDS.flatMap(r => r.encounters).find(e => e.id === plan.encounterId);
@@ -3403,14 +3468,36 @@ function renderBossIconPalette() {
     const id = div.id.replace('bossicon_','');
     const src = BOSS_ICONS_DATA[id];
     const name = BOSS_ICON_NAMES[id] || id;
-    const elemData = { type: 'bossicon', src, size: 50, label: name };
+    const elemData = { type: 'bossicon', src, bossIconId: id, size: 50, label: name };
     div.ondragstart = (e) => startDragToCanvas(e, elemData);
   });
 }
 
 // ── Undo ──────────────────────────────────────────────────
-function pushUndo() { undoStack.push(JSON.stringify(elements)); if (undoStack.length > 30) undoStack.shift(); }
-function undoAssign() { if (!undoStack.length) return; elements = JSON.parse(undoStack.pop()); savePlanState(); renderCanvas(); }
+function pushUndo() {
+  const elemsToStore = elements.map(el => {
+    if (el.type === 'bossicon') { const { src, ...rest } = el; return rest; } // eslint-disable-line no-unused-vars
+    return el;
+  });
+  undoStack.push(JSON.stringify(elemsToStore));
+  if (undoStack.length > 30) undoStack.shift();
+}
+function undoAssign() {
+  if (!undoStack.length) return;
+  elements = JSON.parse(undoStack.pop());
+  // Re-resolve bossicon srcs after undo
+  for (const el of elements) {
+    if (el.type === 'bossicon' && (!el.src || el.src.length < 100)) {
+      if (el.bossIconId && BOSS_ICONS_DATA[el.bossIconId]) {
+        el.src = BOSS_ICONS_DATA[el.bossIconId];
+      } else if (el.label) {
+        const matchId = Object.keys(BOSS_ICON_NAMES).find(k => BOSS_ICON_NAMES[k] === el.label);
+        if (matchId && BOSS_ICONS_DATA[matchId]) { el.src = BOSS_ICONS_DATA[matchId]; el.bossIconId = matchId; }
+      }
+    }
+  }
+  savePlanState(); renderCanvas();
+}
 function clearCanvas() { if (!confirm('Clear all elements from canvas?')) return; pushUndo(); elements = []; savePlanState(); renderCanvas(); }
 
 // ── Export ────────────────────────────────────────────────
