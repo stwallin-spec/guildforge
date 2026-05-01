@@ -2705,24 +2705,14 @@ function loadBossBackground(encounterId) {
       aCanvas.style.left = Math.round((wrapW - canvasW) / 2) + 'px';
       aCanvas.style.top = Math.round((wrapH - canvasH) / 2) + 'px';
 
-      // Rescale element coordinates if the canvas changed size.
-      // Use the canvas size saved with the plan as the authoritative reference;
-      // fall back to prevW/H if the plan predates this feature.
-      const plan = currentPlanId ? assignPlans[currentPlanId] : null;
-      const savedW = (plan && plan.canvasW) ? plan.canvasW : prevW;
-      const savedH = (plan && plan.canvasH) ? plan.canvasH : prevH;
-      if (savedW && savedH && (savedW !== canvasW || savedH !== canvasH)) {
-        const scaleX = canvasW / savedW;
-        const scaleY = canvasH / savedH;
-        for (const el of elements) {
-          if (el.type === 'arrow') {
-            el.x1 = Math.round(el.x1 * scaleX); el.y1 = Math.round(el.y1 * scaleY);
-            el.x2 = Math.round(el.x2 * scaleX); el.y2 = Math.round(el.y2 * scaleY);
-          } else {
-            el.x = Math.round(el.x * scaleX); el.y = Math.round(el.y * scaleY);
-          }
-        }
+      // Rescale element coordinates if the background image caused the canvas to
+      // change size from what it was just before this load (prevW/prevH).
+      // Note: cross-screen rescaling is already handled in loadPlan(), so we only
+      // need to account for the aspect-ratio resize that happens here.
+      if (prevW && prevH && (prevW !== canvasW || prevH !== canvasH)) {
+        rescaleElements(elements, prevW, prevH, canvasW, canvasH);
         // Update plan's stored canvas size so subsequent saves use the new dimensions
+        const plan = currentPlanId ? assignPlans[currentPlanId] : null;
         if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
       }
     }
@@ -3169,6 +3159,21 @@ function savePlanState() {
   updateCurrentPlanBar();
 }
 
+function rescaleElements(elems, fromW, fromH, toW, toH) {
+  if (!fromW || !fromH || !toW || !toH) return;
+  if (fromW === toW && fromH === toH) return;
+  const scaleX = toW / fromW;
+  const scaleY = toH / fromH;
+  for (const el of elems) {
+    if (el.type === 'arrow') {
+      el.x1 = Math.round(el.x1 * scaleX); el.y1 = Math.round(el.y1 * scaleY);
+      el.x2 = Math.round(el.x2 * scaleX); el.y2 = Math.round(el.y2 * scaleY);
+    } else {
+      el.x = Math.round(el.x * scaleX); el.y = Math.round(el.y * scaleY);
+    }
+  }
+}
+
 function loadPlan(planId) {
   currentPlanId = planId;
   const plan = assignPlans[planId];
@@ -3191,6 +3196,16 @@ function loadPlan(planId) {
         }
       }
     }
+  }
+
+  // If the plan was saved at a different canvas size (different screen), rescale all
+  // element coordinates NOW — before loadBossBackground potentially resizes the canvas
+  // further. This ensures positions are always relative to the current canvas.
+  if (plan.canvasW && plan.canvasH && canvasW && canvasH) {
+    rescaleElements(elements, plan.canvasW, plan.canvasH, canvasW, canvasH);
+    // Update the plan's stored size so subsequent saves use the current dimensions
+    plan.canvasW = canvasW;
+    plan.canvasH = canvasH;
   }
 
   undoStack = [];
