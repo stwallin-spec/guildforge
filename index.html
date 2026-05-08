@@ -712,8 +712,51 @@ body {
 .plan-item:hover { border-color:var(--border2); }
 .plan-item.active { border-color:var(--gold);color:var(--gold2); }
 
+/* ROLE PIPS */
+.role-pip {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  display: inline-block; margin-right: 1px;
+}
+.role-pip-tank   { background: #4fc3f7; }
+.role-pip-healer { background: #81c784; }
+.role-pip-rdps   { background: #ffb74d; }
+.role-pip-mdps   { background: #f06292; }
+
+/* ROLE SUMMARY BAR */
+.role-summary-bar {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+}
+.role-summary-cards {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.role-summary-card {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 6px 12px;
+  flex: 1; min-width: 100px;
+}
+.role-summary-icon {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.role-summary-label {
+  font-size: 11px; color: var(--text2); flex: 1; white-space: nowrap;
+}
+.role-summary-count {
+  font-size: 20px; font-weight: 700; font-family: 'Cinzel', serif;
+  min-width: 24px; text-align: right;
+}
+.role-bar-wrap {
+  display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--bg4);
+}
+.role-bar-seg {
+  transition: flex .3s ease;
+}
+
 </style>
-<script src="https://wow.zamimg.com/widgets/power.js" async></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -831,6 +874,7 @@ body {
         </div>
       </div>
       <div class="groups-sticky">
+        <div id="raid-role-summary"></div>
         <div class="groups-grid" id="groups-grid"></div>
         <div id="benched-group"></div>
       </div>
@@ -1285,6 +1329,8 @@ const SPEC_ICONS = {
   // Druid
   'Druid:Balance':        BASE+'spell_nature_starfall.jpg',
   'Druid:Feral':          BASE+'ability_druid_catform.jpg',
+  'Druid:Feral Combat':   BASE+'ability_druid_catform.jpg',
+  'Druid:Feral Tank':     BASE+'ability_racial_bearform.jpg',
   'Druid:Restoration':    BASE+'spell_nature_healingtouch.jpg',
 };
 
@@ -1298,7 +1344,7 @@ const CLASS_SPECS = {
   Shaman:   ['Elemental', 'Enhancement', 'Restoration'],
   Mage:     ['Arcane', 'Fire', 'Frost'],
   Warlock:  ['Affliction', 'Demonology', 'Destruction'],
-  Druid:    ['Balance', 'Feral', 'Restoration'],
+  Druid:    ['Balance', 'Feral Combat', 'Feral Tank', 'Restoration'],
 };
 
 // Shorthand aliases → canonical names (for matching member specs to icons)
@@ -1375,7 +1421,7 @@ const DEFAULT_MEMBERS = [
   {id:23, name:'Tryllebue',    cls:'Hunter',  spec:'Beast Mastery',rank:'Member', notes:''},
   {id:24, name:'Cuppatea',     cls:'Hunter',  spec:'Survival',     rank:'Member', notes:''},
   {id:25, name:'Bowhard',      cls:'Hunter',  spec:'Beast Mastery',rank:'Member', notes:''},
-  {id:26, name:'Johnpaw',      cls:'Druid',   spec:'Feral',        rank:'Member', notes:'OS: Balance'},
+  {id:26, name:'Johnpaw',      cls:'Druid',   spec:'Feral Combat', rank:'Member', notes:'OS: Balance'},
   {id:27, name:'Fanmoo',       cls:'Druid',   spec:'Balance',      rank:'Member', notes:'OS: Restoration'},
 ];
 
@@ -1385,10 +1431,12 @@ const DEFAULT_IDEAL = {};
 const DEFAULT_GROUPS = Array.from({length:8}, () => Array(5).fill(null));
 
 function migrateMembers(arr) {
-  return arr.map(m => ({
-    ...m,
-    spec: m.cls && m.spec ? (canonicalSpec(m.cls, m.spec) || m.spec) : (m.spec || '')
-  }));
+  return arr.map(m => {
+    let spec = m.cls && m.spec ? (canonicalSpec(m.cls, m.spec) || m.spec) : (m.spec || '');
+    // Migrate bare "Feral" druid to "Feral Combat"
+    if (m.cls === 'Druid' && spec === 'Feral') spec = 'Feral Combat';
+    return { ...m, spec };
+  });
 }
 
 function load() {
@@ -1796,6 +1844,59 @@ function renderRecruit() {
 }
 function var_gold() { return '#c8a84b'; }
 
+// ── ROLE CLASSIFICATION ───────────────────────────────────────────────────────
+// Maps class:spec → role category
+const SPEC_ROLES = {
+  // Tanks
+  'Warrior:Protection':  'tank',
+  'Paladin:Protection':  'tank',
+  'Druid:Feral Tank':    'tank',
+  // Healers
+  'Paladin:Holy':        'healer',
+  'Priest:Discipline':   'healer',
+  'Priest:Holy':         'healer',
+  'Shaman:Restoration':  'healer',
+  'Druid:Restoration':   'healer',
+  // Ranged DPS
+  'Hunter:Beast Mastery':'rdps',
+  'Hunter:Marksmanship': 'rdps',
+  'Hunter:Survival':     'rdps',
+  'Mage:Arcane':         'rdps',
+  'Mage:Fire':           'rdps',
+  'Mage:Frost':          'rdps',
+  'Warlock:Affliction':  'rdps',
+  'Warlock:Demonology':  'rdps',
+  'Warlock:Destruction': 'rdps',
+  'Priest:Shadow':       'rdps',
+  'Shaman:Elemental':    'rdps',
+  'Druid:Balance':       'rdps',
+  // Melee DPS
+  'Warrior:Arms':        'mdps',
+  'Warrior:Fury':        'mdps',
+  'Paladin:Retribution': 'mdps',
+  'Rogue:Assassination': 'mdps',
+  'Rogue:Combat':        'mdps',
+  'Rogue:Subtlety':      'mdps',
+  'Shaman:Enhancement':  'mdps',
+  'Druid:Feral Combat':  'mdps',
+};
+
+function getMemberRole(m) {
+  const key = m.cls + ':' + (m.spec || '');
+  return SPEC_ROLES[key] || null;
+}
+
+function getRaidRoleCounts() {
+  const inRaid = groups.flat().filter(Boolean).map(s => getMemberById(s.id)).filter(Boolean);
+  return {
+    tank:   inRaid.filter(m => getMemberRole(m) === 'tank').length,
+    healer: inRaid.filter(m => getMemberRole(m) === 'healer').length,
+    rdps:   inRaid.filter(m => getMemberRole(m) === 'rdps').length,
+    mdps:   inRaid.filter(m => getMemberRole(m) === 'mdps').length,
+    total:  inRaid.length,
+  };
+}
+
 // ── RAID PLANNER ──────────────────────────────────────────────────────────────
 let dragSource = null; // { type: 'bench'|'slot', memberId, groupIdx, slotIdx }
 
@@ -1959,13 +2060,15 @@ function renderGroups() {
         if (!m) return slotEmpty(gi, si);
         const cc = CM[m.cls] || { color: '#888' };
         const icon = specIcon(m.cls, m.spec);
+        const role = getMemberRole(m);
+        const rolePip = role ? `<span class="role-pip role-pip-${role}" title="${{tank:'Tank',healer:'Healer',rdps:'Ranged DPS',mdps:'Melee DPS'}[role]}"></span>` : '';
         return `<div class="slot filled" draggable="true"
           data-group="${gi}" data-slot="${si}"
           ondragstart="onSlotDragStart(event,${gi},${si})"
           ondragend="onDragEnd(event)"
           ondragover="event.preventDefault()"
           ondrop="onSlotDrop(event,${gi},${si})">
-          <img src="${icon}" class="spec-icon" alt="${m.spec||m.cls}" onerror="this.style.display='none'">
+          ${rolePip}<img src="${icon}" class="spec-icon" alt="${m.spec||m.cls}" onerror="this.style.display='none'">
           <span class="slot-name" style="color:${cc.color}">${m.name}</span>
           <span class="slot-cls">${m.spec || m.cls}</span>
           <button class="slot-remove" onclick="event.stopPropagation();removeFromSlot(${gi},${si})" title="Remove">✕</button>
@@ -1984,6 +2087,9 @@ function renderGroups() {
       <div class="group-slots">${slots}</div>
     </div>`;
   }).join('');
+
+  // Render role summary
+  renderRolesSummary();
 }
 
 function slotEmpty(gi, si) {
@@ -1992,6 +2098,45 @@ function slotEmpty(gi, si) {
     ondrop="onSlotDrop(event,${gi},${si})">
     <span style="font-size:11px;color:var(--text3)">Empty slot</span>
   </div>`;
+}
+
+function renderRolesSummary() {
+  const el = document.getElementById('raid-role-summary');
+  if (!el) return;
+  const { tank, healer, rdps, mdps, total } = getRaidRoleCounts();
+  const inRaid = groups.flat().filter(Boolean).length;
+
+  const roleBox = (label, count, color, icon) => {
+    const ideal = {tank:2,healer:5,rdps:8,mdps:10}[icon] || 0;
+    const diff = count - ideal;
+    const statusColor = count === 0 ? 'var(--text3)' : color;
+    return `<div class="role-summary-card">
+      <div class="role-summary-icon role-pip-${icon}"></div>
+      <div class="role-summary-label">${label}</div>
+      <div class="role-summary-count" style="color:${statusColor}">${count}</div>
+    </div>`;
+  };
+
+  el.innerHTML = `
+    <div class="role-summary-bar">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;font-weight:600">Raid Composition — ${inRaid}/25</div>
+      <div class="role-summary-cards">
+        ${roleBox('Tanks', tank, '#4fc3f7', 'tank')}
+        ${roleBox('Healers', healer, '#81c784', 'healer')}
+        ${roleBox('Ranged DPS', rdps, '#ffb74d', 'rdps')}
+        ${roleBox('Melee DPS', mdps, '#f06292', 'mdps')}
+      </div>
+      <div class="role-summary-breakdown">
+        <div class="role-bar-wrap">
+          ${tank   > 0 ? `<div class="role-bar-seg" style="flex:${tank};background:#4fc3f7" title="${tank} Tank${tank!==1?'s':''}"></div>` : ''}
+          ${healer > 0 ? `<div class="role-bar-seg" style="flex:${healer};background:#81c784" title="${healer} Healer${healer!==1?'s':''}"></div>` : ''}
+          ${rdps   > 0 ? `<div class="role-bar-seg" style="flex:${rdps};background:#ffb74d" title="${rdps} Ranged DPS"></div>` : ''}
+          ${mdps   > 0 ? `<div class="role-bar-seg" style="flex:${mdps};background:#f06292" title="${mdps} Melee DPS"></div>` : ''}
+          ${inRaid < 25 ? `<div class="role-bar-seg" style="flex:${25-inRaid};background:var(--bg4)" title="${25-inRaid} empty slots"></div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function renderRaid() { renderBench(); renderGroups(); }
@@ -2005,7 +2150,7 @@ const RH_SPEC_MAP = {
   'Restoration1':'Restoration','Restoration2':'Restoration',
   'Beastmastery':'Beast Mastery',
   'Feral1':      'Feral Combat','Feral2':     'Feral Combat',
-  'Guardian':    'Feral Combat',
+  'Guardian':    'Feral Tank',
   'Demonology':  'Demonology',
   'Destruction': 'Destruction',
   'Affliction':  'Affliction',
