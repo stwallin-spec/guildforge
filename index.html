@@ -758,6 +758,8 @@ body {
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>const whTooltips = { colorLinks: true, iconizeLinks: true, renameLinks: false };</script>
+<script src="https://wow.zamimg.com/widgets/power.js"></script>
 </head>
 <body>
 
@@ -3965,7 +3967,7 @@ function renderProfessions() {
     out += '</div></div>';
   }
   el.innerHTML = out;
-
+  if (window.WH && WH.Tooltips) WH.Tooltips.refreshLinks();
 }
 
 function hexToRgb(hex) {
@@ -4548,6 +4550,8 @@ function renderCurrentLootView() {
   if (_lootView === 'perplayer') renderLootPerPlayer();
   if (_lootView === 'stats')     renderLootStats();
   if (_lootView === 'manage')    renderLootManage();
+  // Re-process data-wowhead attributes on dynamically rendered item links
+  if (window.WH && WH.Tooltips) WH.Tooltips.refreshLinks();
 }
 
 // ── Overview view ─────────────────────────────────────────────────────────────
@@ -5449,6 +5453,7 @@ function wlRenderHotItems() {
       </div>
     </div>
   `;
+  if (window.WH && WH.Tooltips) WH.Tooltips.refreshLinks();
 }
 
 function wlRenderPlayerList() {
@@ -5715,6 +5720,7 @@ function wlRenderItems(memberId) {
   }
 
   el.innerHTML = html;
+  if (window.WH && WH.Tooltips) WH.Tooltips.refreshLinks();
 }
 
 function wlToggleReceived(memberId, idx) {
@@ -5998,6 +6004,7 @@ function wlRenderCompetition() {
       }).join('')}
     </div>
   `;
+  if (window.WH && WH.Tooltips) WH.Tooltips.refreshLinks();
 }
 
 // ── Wishlist WeakAura Export ──────────────────────────────
