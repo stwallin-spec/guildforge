@@ -1161,7 +1161,6 @@ body {
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
           <button id="wl-fmt-addon" onclick="wlSetExportFormat('addon')" class="btn" style="font-size:11px;padding:4px 12px;background:rgba(200,168,75,0.2);border-color:var(--gold);color:var(--gold)">🎮 Addon Import</button>
           <button id="wl-fmt-full" onclick="wlSetExportFormat('full')" class="btn" style="font-size:11px;padding:4px 12px">Full List</button>
-          <button id="wl-fmt-bis" onclick="wlSetExportFormat('bis')" class="btn" style="font-size:11px;padding:4px 12px">BiS Only</button>
           <button id="wl-fmt-short" onclick="wlSetExportFormat('short')" class="btn" style="font-size:11px;padding:4px 12px">Short (names only)</button>
           <button id="wl-fmt-macro" onclick="wlSetExportFormat('macro')" class="btn" style="font-size:11px;padding:4px 12px">WoW /macro</button>
         </div>
@@ -1226,11 +1225,6 @@ body {
                   <div id="wl-preview-name" style="font-size:13px;font-weight:600"></div>
                   <div id="wl-preview-meta" style="font-size:11px;color:var(--text3)"></div>
                 </div>
-                <select id="wl-prio-sel" style="padding:5px 8px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:12px">
-                  <option value="bis">BiS</option>
-                  <option value="upgrade">Upgrade</option>
-                  <option value="offspec">Off Spec</option>
-                </select>
                 <button class="btn btn-gold" onclick="wlAddItem()" id="wl-add-btn">+ Add</button>
               </div>
               <div id="wl-status" style="font-size:12px;color:var(--text3);margin-top:6px;min-height:16px"></div>
@@ -5642,7 +5636,6 @@ function wlRenderItems(memberId) {
           <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:line-through;font-size:12px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
           <div style="font-size:10px;color:#80d080;margin-top:1px">✓ ${receivedSource || 'Received'}</div>
         </div>
-        <span style="font-size:10px;padding:1px 7px;border-radius:8px;border:1px solid ${pc.border};background:${pc.bg};color:${pc.color};flex-shrink:0;opacity:0.7">${WL_PRIO_LABELS[item.prio]}</span>
         <button onclick="wlToggleReceived(${memberId},${i})"
           title="${btnTitle}"
           style="background:${btnBg};border:1px solid ${btnBorder};color:${btnColor};
@@ -5672,12 +5665,6 @@ function wlRenderItems(memberId) {
         <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:none;font-size:13px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
         ${othersHtml}
       </div>
-      <span style="font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid ${pc.border};background:${pc.bg};color:${pc.color};flex-shrink:0;white-space:nowrap">${WL_PRIO_LABELS[item.prio]}</span>
-      <select onchange="wlChangePrio(${memberId},${i},this.value)" style="padding:3px 6px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:11px;flex-shrink:0">
-        <option value="bis" ${item.prio==='bis'?'selected':''}>BiS</option>
-        <option value="upgrade" ${item.prio==='upgrade'?'selected':''}>Upgrade</option>
-        <option value="offspec" ${item.prio==='offspec'?'selected':''}>Off Spec</option>
-      </select>
       <button onclick="wlToggleReceived(${memberId},${i})"
         title="${btnTitle}"
         style="background:${btnBg};border:1px solid ${btnBorder};color:${btnColor};
@@ -5812,7 +5799,7 @@ async function wlLookup() {
 function wlAddItem() {
   if (wlLocked) { showToast('🔒 Wishlists are locked. Unlock to make changes.'); return; }
   if (!wlLookupResult || wlSelectedId === null) return;
-  const prio = document.getElementById('wl-prio-sel').value;
+  const prio = 'bis';
   const wlKey = String(wlSelectedId);
   const list = wlData[wlKey] || [];
 
