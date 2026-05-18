@@ -779,15 +779,6 @@ body {
 }
 .sa-icon-chip:hover { border-color: var(--gold); }
 .sa-icon-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.sa-palette-break {
-  width: 100%; height: 0; flex-basis: 100%; margin: 1px 0;
-  border-top: 1px solid var(--border);
-}
-.sa-palette-label {
-  font-size: 8px; font-weight: 700; text-transform: uppercase;
-  color: var(--text3); letter-spacing: 0.06em;
-  align-self: center; white-space: nowrap; padding: 0 2px;
-}
 .sa-section { border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .sa-section-header {
   padding: 4px 8px 4px 10px; font-size: 10px; font-weight: 700;
@@ -3154,9 +3145,7 @@ function renderSpecialAssignments() {
   ];
 
   html += '<div class="sa-icon-palette" id="sa-icon-palette">';
-  SA_ICON_GROUPS.forEach((group, gi) => {
-    if (gi > 0) html += '<div class="sa-palette-break"></div>';
-    html += `<span class="sa-palette-label">${group.label}</span>`;
+  SA_ICON_GROUPS.forEach(group => {
     group.icons.forEach(name => {
       if (!SA_ICONS[name]) return;
       const safeId = 'sa-chip-' + name.replace(/[^a-zA-Z0-9]/g,'_');
@@ -3166,8 +3155,6 @@ function renderSpecialAssignments() {
     });
   });
   // Raid marker icons (base64 inline)
-  html += '<div class="sa-palette-break"></div>';
-  html += '<span class="sa-palette-label">Marks</span>';
   const SA_MARKER_LABELS = {star:'Star',circle:'Circle',diamond:'Diamond',triangle:'Triangle',moon:'Moon',square:'Square',cross:'Cross',skull:'Skull',tank:'Tank',healer:'Healer',mdps:'Melee',rdps:'Ranged'};
   for (const [key, label] of Object.entries(SA_MARKER_LABELS)) {
     if (!MARKER_ICONS[key]) continue;
