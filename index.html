@@ -808,7 +808,9 @@ body {
 .sa-row-icons {
   display: flex; gap: 2px; flex-shrink: 0; padding: 2px 3px;
   align-items: center; flex-wrap: wrap; min-width: 24px;
+  border-radius: 3px; transition: background .1s;
 }
+.sa-row-icons.sa-drop-over { background: rgba(200,168,75,0.12); outline: 1px solid rgba(200,168,75,0.5); }
 .sa-row-icon {
   width: 20px; height: 20px; border-radius: 3px; flex-shrink: 0;
   border: 1px solid var(--border); overflow: hidden; cursor: pointer;
@@ -823,7 +825,7 @@ body {
 }
 .sa-row-icon-drop.sa-drop-over { border-color: var(--gold); background: rgba(200,168,75,0.1); color: var(--gold2); }
 .sa-row-player {
-  width: 60px; flex-shrink: 0; padding: 0 3px;
+  width: 80px; flex-shrink: 0; padding: 0 3px;
   font-size: 11px; font-weight: 600;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   border-radius: 3px; height: 30px; line-height: 30px;
@@ -1101,7 +1103,7 @@ body {
 
   <!-- ASSIGNMENTS -->
   <div class="page" id="page-assign" style="overflow:hidden">
-    <div style="display:grid;grid-template-columns:220px 220px 1fr 200px;gap:0;height:calc(100vh - 56px);width:100vw;overflow:hidden">
+    <div style="display:grid;grid-template-columns:220px 280px 1fr 200px;gap:0;height:calc(100vh - 56px);width:100vw;overflow:hidden">
 
       <!-- COL 1: Plans + Raids -->
       <div style="background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-width:0">
@@ -3059,11 +3061,11 @@ function renderSpecialAssignments() {
   let html = '';
 
   // Icon palette
-  html += '<div class="sa-icon-palette">';
+  html += '<div class="sa-icon-palette" id="sa-icon-palette">';
   for (const [name, icon] of Object.entries(SA_ICONS)) {
     const safeId = 'sa-chip-' + name.replace(/[^a-zA-Z0-9]/g,'_');
-    html += `<div class="sa-icon-chip" draggable="true" id="${safeId}" title="${name}">
-      <img src="${BASE_ICON}${icon}.jpg" onerror="this.src='${BASE_ICON}inv_misc_questionmark.jpg'" alt="${name}">
+    html += `<div class="sa-icon-chip" draggable="true" id="${safeId}" data-icon-name="${name}" title="${name}">
+      <img src="${BASE_ICON}${icon}.jpg" onerror="this.src='${BASE_ICON}inv_misc_questionmark.jpg'" alt="${name}" draggable="false" style="pointer-events:none">
     </div>`;
   }
   html += '</div>';
@@ -3089,17 +3091,18 @@ function renderSpecialAssignments() {
         let iconSlots = icons.map((ic, ii) => {
           const iconFile = SA_ICONS[ic] || 'inv_misc_questionmark';
           return `<div class="sa-row-icon" title="${ic} (click to remove)" onclick="saRemoveIcon(${si},${ri},${ii})">
-            <img src="${BASE_ICON}${iconFile}.jpg" onerror="this.src='${BASE_ICON}inv_misc_questionmark.jpg'">
+            <img src="${BASE_ICON}${iconFile}.jpg" onerror="this.src='${BASE_ICON}inv_misc_questionmark.jpg'" draggable="false" style="pointer-events:none">
           </div>`;
         }).join('');
-        iconSlots += `<div class="sa-row-icon-drop" id="sa-idrop-${si}-${ri}"
-          ondragover="event.preventDefault();document.getElementById('sa-idrop-${si}-${ri}').classList.add('sa-drop-over')"
-          ondragleave="document.getElementById('sa-idrop-${si}-${ri}').classList.remove('sa-drop-over')"
-          ondrop="saOnIconDrop(event,${si},${ri})" title="Drop icon here">+</div>`;
+        iconSlots += `<div class="sa-row-icon-drop" id="sa-idrop-${si}-${ri}" title="Drop icon here">+</div>`;
 
         html += `<div class="sa-assign-row">
           <div class="sa-row-label">${lbl}</div>
-          <div class="sa-row-icons">${iconSlots}</div>
+          <div class="sa-row-icons" id="sa-icons-wrap-${si}-${ri}"
+            ondragover="event.preventDefault();document.getElementById('sa-icons-wrap-${si}-${ri}').classList.add('sa-drop-over')"
+            ondragleave="document.getElementById('sa-icons-wrap-${si}-${ri}').classList.remove('sa-drop-over')"
+            ondrop="saOnIconDrop(event,${si},${ri})"
+            style="cursor:copy;min-width:26px">${iconSlots}</div>
           <div class="sa-row-player" id="sa-pslot-${si}-${ri}" style="color:${nameColor}"
             ondragover="event.preventDefault();document.getElementById('sa-pslot-${si}-${ri}').classList.add('sa-drop-over')"
             ondragleave="document.getElementById('sa-pslot-${si}-${ri}').classList.remove('sa-drop-over')"
@@ -3124,12 +3127,13 @@ function renderSpecialAssignments() {
 
   body.innerHTML = html;
 
-  // Wire icon chip drag starts after innerHTML is set
-  for (const name of Object.keys(SA_ICONS)) {
-    const safeId = 'sa-chip-' + name.replace(/[^a-zA-Z0-9]/g,'_');
-    const el = document.getElementById(safeId);
-    if (el) el.ondragstart = (e) => {
-      e.dataTransfer.setData('saIcon', name);
+  // Single delegated dragstart on the palette — far more reliable than per-element wiring
+  const palette = document.getElementById('sa-icon-palette');
+  if (palette) {
+    palette.ondragstart = (e) => {
+      const chip = e.target.closest('[data-icon-name]');
+      if (!chip) { e.preventDefault(); return; }
+      e.dataTransfer.setData('saIcon', chip.dataset.iconName);
       e.dataTransfer.effectAllowed = 'copy';
     };
   }
@@ -3174,6 +3178,7 @@ function saOnPlayerDrop(e, si, ri) {
 
 function saOnIconDrop(e, si, ri) {
   e.preventDefault(); e.stopPropagation();
+  document.getElementById(`sa-icons-wrap-${si}-${ri}`)?.classList.remove('sa-drop-over');
   document.getElementById(`sa-idrop-${si}-${ri}`)?.classList.remove('sa-drop-over');
   const iconName = e.dataTransfer.getData('saIcon');
   if (!iconName) return;
