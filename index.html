@@ -756,6 +756,126 @@ body {
   transition: flex .3s ease;
 }
 
+/* SPECIAL ASSIGNMENTS PANEL */
+.sa-panel {
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+.sa-panel-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.sa-section {
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sa-section-header {
+  padding: 7px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: color .15s;
+}
+.sa-section-header:hover { color: var(--text2); }
+.sa-section-body {
+  padding: 0 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sa-slot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 8px;
+  min-height: 30px;
+  transition: border-color .15s;
+  cursor: pointer;
+  position: relative;
+}
+.sa-slot:hover { border-color: var(--border2); }
+.sa-slot.sa-drop-over { border-color: var(--gold); background: rgba(200,168,75,0.08); }
+.sa-slot-label {
+  font-size: 10px;
+  color: var(--text3);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+  max-width: 68px;
+}
+.sa-slot-value {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sa-slot-clear {
+  width: 14px; height: 14px;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  flex-shrink: 0;
+  transition: all .15s;
+  line-height: 1;
+}
+.sa-slot-clear:hover { background: rgba(200,60,60,0.25); color: #e06060; }
+.sa-empty-state {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--text3);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.sa-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text3);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all .15s;
+  width: 100%;
+  font-family: 'Exo 2', sans-serif;
+}
+.sa-add-btn:hover { border-color: var(--gold); color: var(--gold2); }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>const whTooltips = { colorLinks: true, iconizeLinks: false, renameLinks: false };</script>
@@ -1010,7 +1130,7 @@ body {
 
   <!-- ASSIGNMENTS -->
   <div class="page" id="page-assign" style="overflow:hidden">
-    <div style="display:grid;grid-template-columns:220px 1fr 180px;gap:0;height:calc(100vh - 56px);width:100vw;overflow:hidden">
+    <div style="display:grid;grid-template-columns:220px 1fr 200px 220px;gap:0;height:calc(100vh - 56px);width:100vw;overflow:hidden">
 
       <!-- LEFT: Plans + Raids -->
       <div style="background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-width:0">
@@ -1081,6 +1201,23 @@ body {
           <div id="assign-member-list" style="display:flex;flex-direction:column;gap:4px"></div>
         </div>
       </div>
+
+      <!-- FAR RIGHT: Special Assignments -->
+      <div class="sa-panel" id="sa-panel">
+        <div class="sa-panel-header">
+          <span>⚔ Special Assignments</span>
+          <button id="sa-add-section-btn" onclick="saAddCustomSection()" title="Add custom section"
+            style="background:transparent;border:1px dashed rgba(200,168,75,0.3);color:var(--text3);cursor:pointer;font-size:10px;padding:2px 7px;border-radius:4px;font-family:'Exo 2',sans-serif;transition:all .15s"
+            onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold2)'"
+            onmouseout="this.style.borderColor='rgba(200,168,75,0.3)';this.style.color='var(--text3)'">+ Section</button>
+        </div>
+        <div id="sa-body" style="flex:1;overflow-y:auto;overflow-x:hidden">
+          <div class="sa-empty-state" id="sa-empty">
+            Select or create a plan<br>to set up special assignments.
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -2673,6 +2810,28 @@ const RAIDS = [
       { id: 'magtheridon', name: 'Magtheridon', bg: 'IMG_BG_MAGTHERIDON' },
     ]
   },
+  {
+    id: 'serpentshrine_cavern',
+    name: "Serpentshrine Cavern",
+    encounters: [
+      { id: 'hydross', name: 'Hydross the Unstable' },
+      { id: 'lurker', name: 'The Lurker Below' },
+      { id: 'leotheras', name: 'Leotheras the Blind' },
+      { id: 'karathress', name: 'Fathom-Lord Karathress' },
+      { id: 'morogrim', name: 'Morogrim Tidewalker' },
+      { id: 'vashj', name: "Lady Vashj" },
+    ]
+  },
+  {
+    id: 'the_eye',
+    name: "The Eye (Tempest Keep)",
+    encounters: [
+      { id: 'alar', name: "Al'ar" },
+      { id: 'voidreaver', name: 'Void Reaver' },
+      { id: 'solarian', name: 'High Astromancer Solarian' },
+      { id: 'kaelthas', name: "Kael'thas Sunstrider" },
+    ]
+  },
 ];
 
 // Map encounter id -> background image data
@@ -2802,6 +2961,7 @@ function initAssign() {
     bgImage = null;
     bgLoaded = false;
     renderCanvas();
+    renderSpecialAssignments();
   }
 }
 
@@ -2810,6 +2970,318 @@ function saveAssignData() {
   localStorage.setItem('gm_assign', JSON.stringify(assignData));
   cloudSaveAssign(assignData);
 }
+
+// ══════════════════════════════════════════════════════════
+// SPECIAL ASSIGNMENTS PANEL
+// ══════════════════════════════════════════════════════════
+
+// Default section templates per encounter
+// Each section: { id, label, slots: [{id, label, color?}] }
+const BOSS_SA_TEMPLATES = {
+  // ── T4 ────────────────────────────────────────────────
+  gruul: [
+    { id:'tanks',   label:'Tanks',           slots:[{id:'mt',label:'Main Tank'},{id:'ot',label:'Off Tank'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'kicks',   label:'Kick Rotation',    slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'},{id:'k3',label:'Kick 3'}] },
+    { id:'groundslam', label:'Groundslam Duty', slots:[{id:'gs1',label:'Call Out'}] },
+  ],
+  highking: [
+    { id:'tanks',   label:'Tank Assignments', slots:[{id:'t-maulgar',label:'Maulgar (MT)'},{id:'t-krosh',label:'Krosh (Mage Tank)'},{id:'t-olm',label:'Olm'},{id:'t-kiggler',label:'Kiggler'},{id:'t-blindeye',label:'Blindeye'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'mds',     label:'Misdirections',    slots:[{id:'md-krosh',label:'MD → Krosh'},{id:'md-kiggler',label:'MD → Kiggler'}] },
+    { id:'banish',  label:'Banish / CC',      slots:[{id:'banish1',label:'Banish'},{id:'sap',label:'Sap/Sheep'}] },
+  ],
+  magtheridon: [
+    { id:'cubes',   label:'Cube Clickers',    slots:[{id:'c1',label:'Cube 1'},{id:'c2',label:'Cube 2'},{id:'c3',label:'Cube 3'},{id:'c4',label:'Cube 4'},{id:'c5',label:'Cube 5'}] },
+    { id:'tanks',   label:'Tanks',            slots:[{id:'mt',label:'Main Tank'},{id:'ot1',label:'Off Tank 1'},{id:'ot2',label:'Off Tank 2'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'kicks',   label:'Channeler Kicks',  slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'},{id:'k3',label:'Kick 3'},{id:'k4',label:'Kick 4'},{id:'k5',label:'Kick 5'}] },
+  ],
+  // ── SSC ──────────────────────────────────────────────
+  hydross: [
+    { id:'tanks',   label:'Tank Assignments', slots:[{id:'mt',label:'Nature Tank'},{id:'ot',label:'Frost Tank'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'transitions', label:'Transition Duty', slots:[{id:'tr1',label:'Purge/Dispel 1'},{id:'tr2',label:'Purge/Dispel 2'}] },
+    { id:'groups',  label:'Transition Groups', slots:[{id:'grp-n',label:'North Group'},{id:'grp-s',label:'South Group'}] },
+  ],
+  lurker: [
+    { id:'tanks',   label:'Tanks',            slots:[{id:'mt',label:'Main Tank'},{id:'ot-spout',label:'Spout Tank'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'platform', label:'Platform Groups', slots:[{id:'p1',label:'Platform 1'},{id:'p2',label:'Platform 2'},{id:'p3',label:'Platform 3'}] },
+    { id:'adds',    label:'Add Tanks',        slots:[{id:'a1',label:'Add Tank 1'},{id:'a2',label:'Add Tank 2'},{id:'a3',label:'Add Tank 3'}] },
+    { id:'spout',   label:'Spout Jump Lead',  slots:[{id:'call',label:'Call Spout'}] },
+  ],
+  leotheras: [
+    { id:'tanks',   label:'Tank Assignments', slots:[{id:'mt',label:'Warrior Phase'},{id:'dt',label:'Demon Phase'},{id:'ot',label:'Off Tank'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'kicks',   label:'Kick Rotation',    slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'},{id:'k3',label:'Kick 3'},{id:'k4',label:'Kick 4'}] },
+    { id:'demon',   label:'Demon Inner Fire', slots:[{id:'df1',label:'Inner Fire 1'},{id:'df2',label:'Inner Fire 2'},{id:'df3',label:'Inner Fire 3'},{id:'df4',label:'Inner Fire 4'},{id:'df5',label:'Inner Fire 5'}] },
+  ],
+  karathress: [
+    { id:'tanks',   label:'Tank Assignments', slots:[{id:'t-kara',label:'Karathress (MT)'},{id:'t-sharkkis',label:'Sharkkis'},{id:'t-tidalvess',label:'Tidalvess'},{id:'t-caribdis',label:'Caribdis'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'mds',     label:'Misdirections',    slots:[{id:'md1',label:'MD → Sharkkis'},{id:'md2',label:'MD → Tidalvess'}] },
+    { id:'kicks',   label:'Spitfire Totem Kick',  slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'}] },
+  ],
+  morogrim: [
+    { id:'tanks',   label:'Tanks',            slots:[{id:'mt',label:'Main Tank'},{id:'ot',label:'Off Tank'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'murloc',  label:'Murloc AoE Group', slots:[{id:'aoe1',label:'AoE 1'},{id:'aoe2',label:'AoE 2'},{id:'aoe3',label:'AoE 3'}] },
+    { id:'wg',      label:'Warlock Gates',    slots:[{id:'wg1',label:'Gate 1'},{id:'wg2',label:'Gate 2'}] },
+  ],
+  vashj: [
+    { id:'tanks',   label:'Tank Assignments', slots:[{id:'mt',label:'Vashj (MT)'},{id:'ot1',label:'Coilfang Elite 1'},{id:'ot2',label:'Coilfang Elite 2'},{id:'ot3',label:'Coilfang Elite 3'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'shields', label:'Shield Handlers',  slots:[{id:'sh1',label:'Shield 1'},{id:'sh2',label:'Shield 2'},{id:'sh3',label:'Shield 3'},{id:'sh4',label:'Shield 4'},{id:'sh5',label:'Shield 5'}] },
+    { id:'mds',     label:'Misdirections',    slots:[{id:'md1',label:'MD 1'},{id:'md2',label:'MD 2'}] },
+    { id:'p3',      label:'Phase 3 Kick',     slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'},{id:'k3',label:'Kick 3'}] },
+  ],
+  // ── TK ───────────────────────────────────────────────
+  alar: [
+    { id:'tanks',   label:'Tank Assignments', slots:[{id:'p1t',label:'P1 Tank'},{id:'p2mt',label:'P2 Main Tank'},{id:'p2ot',label:'P2 Off Tank'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'adds',    label:'P1 Add Tanks',     slots:[{id:'a1',label:'Add 1'},{id:'a2',label:'Add 2'},{id:'a3',label:'Add 3'},{id:'a4',label:'Add 4'}] },
+    { id:'mds',     label:'Misdirections',    slots:[{id:'md1',label:'MD P1'},{id:'md2',label:'MD P2'}] },
+  ],
+  voidreaver: [
+    { id:'tanks',   label:'Tank Swap',        slots:[{id:'mt',label:'Main Tank'},{id:'ot',label:'Off Tank (swap at 2 stacks)'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'pounding',label:'Pounding Call Out',slots:[{id:'call',label:'Call Pounding'}] },
+  ],
+  solarian: [
+    { id:'tanks',   label:'Tanks',            slots:[{id:'mt',label:'Main Tank'},{id:'ot',label:'Off Tank'}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'kicks',   label:'Wrath Kick Rotation', slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'},{id:'k3',label:'Kick 3'}] },
+    { id:'bomb',    label:'Arcane Bomb Group', slots:[{id:'bgrp',label:'Bomb Group'}] },
+  ],
+  kaelthas: [
+    { id:'tanks',   label:'Tank Assignments', slots:[{id:'t-advisor',label:'Advisor Tank'},{id:'t-thaladred',label:'Thaladred'},{id:'t-lord',label:'Lord Sanguinar'},{id:'t-capernian',label:'Capernian'},{id:'t-telonicus',label:'Telonicus'},{id:'t-kael',label:"Kael'thas (P3/4)"}] },
+    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
+    { id:'kicks',   label:'Gravity Lapse Kick', slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'}] },
+    { id:'weapons', label:'Legendary Weapons', slots:[{id:'w-pheonix',label:"Pheonix's Egg"},{id:'w-scepter',label:'Scepter Kicker'},{id:'w-staff',label:'Staff Puller'},{id:'w-warglaive',label:'Warglaive'},{id:'w-shield',label:'Shield'},{id:'w-bow',label:'Bow Kicker'}] },
+    { id:'mc',      label:'MC Breakers',      slots:[{id:'mc1',label:'MC Break 1'},{id:'mc2',label:'MC Break 2'}] },
+  ],
+};
+
+// Next ID counter for custom sections/slots
+let saNextId = 1;
+
+function getSaData() {
+  if (!currentPlanId || !assignPlans[currentPlanId]) return null;
+  return assignPlans[currentPlanId].specialAssignments || null;
+}
+
+function ensureSaData(encounterId) {
+  if (!currentPlanId || !assignPlans[currentPlanId]) return null;
+  const plan = assignPlans[currentPlanId];
+  if (!plan.specialAssignments) {
+    // Initialise from template, preserving empty slot values
+    const template = BOSS_SA_TEMPLATES[encounterId] || [];
+    plan.specialAssignments = {
+      sections: template.map(sec => ({
+        id: sec.id,
+        label: sec.label,
+        collapsed: false,
+        slots: sec.slots.map(s => ({ id: s.id, label: s.label, value: '' }))
+      }))
+    };
+  }
+  return plan.specialAssignments;
+}
+
+function renderSpecialAssignments() {
+  const body = document.getElementById('sa-body');
+  const emptyState = document.getElementById('sa-empty');
+  if (!body) return;
+
+  if (!currentPlanId || !assignPlans[currentPlanId]) {
+    body.innerHTML = '<div class="sa-empty-state" id="sa-empty">Select or create a plan<br>to set up special assignments.</div>';
+    return;
+  }
+
+  const encounterId = assignPlans[currentPlanId].encounterId;
+  const sa = ensureSaData(encounterId);
+  if (!sa || !sa.sections.length) {
+    body.innerHTML = `<div class="sa-empty-state" id="sa-empty">No assignments defined for this boss yet.<br><span style="color:var(--gold2);cursor:pointer" onclick="saAddCustomSection()">+ Add a section</span></div>`;
+    return;
+  }
+
+  body.innerHTML = sa.sections.map((sec, si) => {
+    const slots = sec.collapsed ? '' : sec.slots.map((slot, li) => {
+      const cc = slot.value ? _saGetMemberColor(slot.value) : '';
+      return `<div class="sa-slot" id="sa-slot-${si}-${li}"
+        ondragover="event.preventDefault();document.getElementById('sa-slot-${si}-${li}').classList.add('sa-drop-over')"
+        ondragleave="document.getElementById('sa-slot-${si}-${li}').classList.remove('sa-drop-over')"
+        ondrop="saOnDrop(event,${si},${li})"
+        onclick="saSlotClick(${si},${li})">
+        <span class="sa-slot-label" title="${slot.label}">${slot.label}</span>
+        <span class="sa-slot-value" style="color:${cc||'var(--text3)'}">${slot.value || '—'}</span>
+        ${slot.value ? `<button class="sa-slot-clear" onclick="event.stopPropagation();saClearSlot(${si},${li})" title="Clear">✕</button>` : ''}
+      </div>`;
+    }).join('') + `
+      <button class="sa-add-btn" onclick="saAddSlot(${si})">+ Add slot</button>`;
+
+    return `<div class="sa-section">
+      <div class="sa-section-header" onclick="saToggleSection(${si})">
+        <span>${sec.label}</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:9px">${sec.collapsed ? '▶' : '▼'}</span>
+          <button onclick="event.stopPropagation();saDeleteSection(${si})"
+            style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0;line-height:1"
+            onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'"
+            title="Remove section">✕</button>
+        </div>
+      </div>
+      ${sec.collapsed ? '' : `<div class="sa-section-body">${slots}</div>`}
+    </div>`;
+  }).join('') + `<div style="padding:8px 12px 10px">
+    <button class="sa-add-btn" onclick="saAddCustomSection()" style="justify-content:center">+ Add Section</button>
+  </div>`;
+
+  // Wire up drag-start from member list tokens to SA slots
+  _saWireMemberDrags();
+}
+
+function _saGetMemberColor(name) {
+  const m = members.find(x => x.name === name);
+  if (!m) return '';
+  return (CM[m.cls] || {}).color || '';
+}
+
+function _saWireMemberDrags() {
+  // Already wired via ondrop on each slot — member tokens in the right panel use startDragToCanvas
+  // but SA slots listen to 'assignElem' data. We need to also handle simple name drops.
+  // We'll use a separate dataTransfer key 'saMember' set in the SA-specific drag start.
+}
+
+// Drag from member list in SA context
+function saStartMemberDrag(e, name) {
+  e.dataTransfer.setData('saMember', name);
+  e.dataTransfer.setData('assignElem', JSON.stringify({ type: 'token', label: name }));
+}
+
+function saOnDrop(e, si, li) {
+  e.preventDefault();
+  e.stopPropagation();
+  const el = document.getElementById(`sa-slot-${si}-${li}`);
+  if (el) el.classList.remove('sa-drop-over');
+
+  // Try saMember first, then parse assignElem label
+  let name = e.dataTransfer.getData('saMember');
+  if (!name) {
+    try {
+      const d = JSON.parse(e.dataTransfer.getData('assignElem'));
+      if (d && d.label) name = d.label;
+    } catch(_) {}
+  }
+  if (!name) return;
+
+  const sa = getSaData();
+  if (!sa || !sa.sections[si] || !sa.sections[si].slots[li]) return;
+  sa.sections[si].slots[li].value = name;
+  savePlanState();
+  renderSpecialAssignments();
+}
+
+function saClearSlot(si, li) {
+  const sa = getSaData();
+  if (!sa) return;
+  sa.sections[si].slots[li].value = '';
+  savePlanState();
+  renderSpecialAssignments();
+}
+
+function saSlotClick(si, li) {
+  // Show a quick-pick dropdown of members
+  const sa = getSaData();
+  if (!sa) return;
+
+  // Build and show a floating member picker
+  const existing = document.getElementById('sa-picker');
+  if (existing) existing.remove();
+
+  const slotEl = document.getElementById(`sa-slot-${si}-${li}`);
+  if (!slotEl) return;
+  const r = slotEl.getBoundingClientRect();
+  const panelEl = document.getElementById('sa-panel');
+  const pr = panelEl.getBoundingClientRect();
+
+  const picker = document.createElement('div');
+  picker.id = 'sa-picker';
+  picker.style.cssText = `position:fixed;z-index:500;background:var(--bg2);border:1px solid rgba(200,168,75,0.4);border-radius:6px;padding:4px;min-width:160px;max-height:220px;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.5);left:${pr.left - 166}px;top:${Math.min(r.top, window.innerHeight - 240)}px`;
+
+  const options = [{ name: '— Clear —', cls: '' }, ...members];
+  picker.innerHTML = options.map(m => {
+    const cc = m.cls ? ((CM[m.cls] || {}).color || '#888') : '#e06060';
+    return `<div onclick="saPickMember(${si},${li},'${m.name === '— Clear —' ? '' : m.name}')" style="padding:5px 10px;font-size:12px;cursor:pointer;border-radius:4px;color:${cc};transition:background .1s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">${m.name}</div>`;
+  }).join('');
+
+  document.body.appendChild(picker);
+  setTimeout(() => document.addEventListener('click', _saPickerClose, { once: true }), 10);
+}
+
+function _saPickerClose(e) {
+  const p = document.getElementById('sa-picker');
+  if (p && !p.contains(e.target)) p.remove();
+}
+
+function saPickMember(si, li, name) {
+  const p = document.getElementById('sa-picker');
+  if (p) p.remove();
+  const sa = getSaData();
+  if (!sa) return;
+  sa.sections[si].slots[li].value = name;
+  savePlanState();
+  renderSpecialAssignments();
+}
+
+function saToggleSection(si) {
+  const sa = getSaData();
+  if (!sa) return;
+  sa.sections[si].collapsed = !sa.sections[si].collapsed;
+  savePlanState();
+  renderSpecialAssignments();
+}
+
+function saDeleteSection(si) {
+  const sa = getSaData();
+  if (!sa) return;
+  if (!confirm('Remove this section?')) return;
+  sa.sections.splice(si, 1);
+  savePlanState();
+  renderSpecialAssignments();
+}
+
+function saAddSlot(si) {
+  const sa = getSaData();
+  if (!sa) return;
+  const label = prompt('Slot label (e.g. "Tank 3"):');
+  if (!label || !label.trim()) return;
+  sa.sections[si].slots.push({ id: 'custom_' + (saNextId++), label: label.trim(), value: '' });
+  savePlanState();
+  renderSpecialAssignments();
+}
+
+function saAddCustomSection() {
+  if (!currentPlanId || !assignPlans[currentPlanId]) {
+    alert('Please create a plan first.');
+    return;
+  }
+  const encounterId = assignPlans[currentPlanId].encounterId;
+  const sa = ensureSaData(encounterId);
+  if (!sa) return;
+  const label = prompt('Section name (e.g. "Kick Rotation"):');
+  if (!label || !label.trim()) return;
+  sa.sections.push({
+    id: 'custom_' + (saNextId++),
+    label: label.trim(),
+    collapsed: false,
+    slots: [{ id: 'custom_' + (saNextId++), label: 'Slot 1', value: '' }]
+  });
+  savePlanState();
+  renderSpecialAssignments();
+}
+
 
 // ── Background ─────────────────────────────────────────────
 function loadBossBackground(encounterId) {
@@ -3358,6 +3830,7 @@ function loadPlan(planId) {
   renderPlansLibrary();
   updateCurrentPlanBar();
   renderCanvas();
+  renderSpecialAssignments();
 }
 
 
@@ -3430,6 +3903,7 @@ function selectWizardEncounter(encId, encName, raidId) {
   renderBossIconPalette();
   renderPlansLibrary();
   updateCurrentPlanBar();
+  renderSpecialAssignments();
 }
 
 function startNewPlan() {
@@ -3556,7 +4030,7 @@ function renderAssignMemberList() {
   el.innerHTML = filtered.map(m => {
     const cc = CM[m.cls] || {color:'#888'};
     const icon = specIcon(m.cls, m.spec);
-    return `<div style="display:flex;align-items:center;gap:8px;padding:4px 2px;cursor:grab" draggable="true" data-mid="${m.id}">
+    return `<div style="display:flex;align-items:center;gap:8px;padding:4px 2px;cursor:grab" draggable="true" data-mid="${m.id}" data-mname="${m.name}">
       <div class="drag-token" style="border-color:${cc.color}40;width:38px;height:38px;border-radius:50%;overflow:hidden;border:2px solid ${cc.color}40;flex-shrink:0">
         <img src="${icon}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">
       </div>
@@ -3574,7 +4048,10 @@ function renderAssignMemberList() {
     const cc = CM[m.cls] || {color:'#888'};
     const icon = specIcon(m.cls, m.spec);
     const elemData = { type: 'token', src: icon, label: m.name, labelColor: cc.color, borderColor: cc.color, size: 44 };
-    row.ondragstart = (e) => startDragToCanvas(e, elemData);
+    row.ondragstart = (e) => {
+      startDragToCanvas(e, elemData);
+      e.dataTransfer.setData('saMember', m.name);
+    };
   });
 }
 
