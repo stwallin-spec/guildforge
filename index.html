@@ -1687,8 +1687,17 @@ function renderRoster() {
     return `<button class="pill" style="${style}" onclick="setFilter('${r}')">${r}${cnt}</button>`;
   }).join('');
 
-  const filteredActive   = filtered.filter(m => !m.inactive);
-  const filteredInactive = filtered.filter(m =>  m.inactive);
+  const CLASS_ORDER = CLASSES.map(c => c.name);
+  function sortMembers(arr) {
+    return arr.slice().sort((a, b) => {
+      const ci = CLASS_ORDER.indexOf(a.cls) - CLASS_ORDER.indexOf(b.cls);
+      if (ci !== 0) return ci;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  const filteredActive   = sortMembers(filtered.filter(m => !m.inactive));
+  const filteredInactive = sortMembers(filtered.filter(m =>  m.inactive));
 
   if (!filteredActive.length && !filteredInactive.length) {
     document.getElementById('member-list').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)">No members found.</div>';
@@ -2971,7 +2980,7 @@ const SA_ICONS = {
   // Paladin
   'HoJ':            'spell_holy_sealofmight',
   // Priest
-  'Fear Ward':      'spell_holy_excorcism_01',
+  'Fear Ward':      'spell_holy_prayerofprotection',
   'Silence':        'spell_shadow_impphaseshift',
   // Rogue
   'Kick':           'ability_kick',
