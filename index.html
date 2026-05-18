@@ -712,156 +712,9 @@ body {
 .plan-item:hover { border-color:var(--border2); }
 .plan-item.active { border-color:var(--gold);color:var(--gold2); }
 
-/* ROLE PIPS */
-.role-pip {
-  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-  display: inline-block; margin-right: 1px;
-}
-.role-pip-tank   { background: #4fc3f7; }
-.role-pip-healer { background: #81c784; }
-.role-pip-rdps   { background: #ffb74d; }
-.role-pip-mdps   { background: #f06292; }
-
-/* ROLE SUMMARY BAR */
-.role-summary-bar {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius2);
-  padding: 12px 16px;
-  margin-bottom: 14px;
-}
-.role-summary-cards {
-  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
-}
-.role-summary-card {
-  display: flex; align-items: center; gap: 7px;
-  background: var(--bg3); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 6px 12px;
-  flex: 1; min-width: 100px;
-}
-.role-summary-icon {
-  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-}
-.role-summary-label {
-  font-size: 11px; color: var(--text2); flex: 1; white-space: nowrap;
-}
-.role-summary-count {
-  font-size: 20px; font-weight: 700; font-family: 'Cinzel', serif;
-  min-width: 24px; text-align: right;
-}
-.role-bar-wrap {
-  display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--bg4);
-}
-.role-bar-seg {
-  transition: flex .3s ease;
-}
-
-/* SPECIAL ASSIGNMENTS PANEL */
-.sa-panel {
-  background: var(--bg2); border-right: 1px solid var(--border);
-  display: flex; flex-direction: column; overflow: hidden; min-width: 0;
-}
-.sa-panel-header {
-  padding: 8px 10px; border-bottom: 1px solid var(--border);
-  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 600;
-  color: var(--gold); letter-spacing: 0.04em;
-  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
-}
-.sa-icon-palette {
-  padding: 5px 8px; border-bottom: 1px solid var(--border);
-  display: flex; flex-wrap: wrap; gap: 3px; flex-shrink: 0;
-  background: var(--bg3);
-}
-.sa-icon-chip {
-  width: 24px; height: 24px; border-radius: 3px; cursor: grab;
-  border: 1px solid var(--border); overflow: hidden; flex-shrink: 0;
-  transition: border-color .15s;
-}
-.sa-icon-chip:hover { border-color: var(--gold); }
-.sa-icon-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.sa-section { border-bottom: 1px solid var(--border); flex-shrink: 0; }
-.sa-section-header {
-  padding: 4px 8px 4px 10px; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.07em;
-  display: flex; align-items: center; gap: 6px;
-  cursor: pointer; user-select: none;
-}
-.sa-section-body { }
-.sa-section-drop {
-  min-height: 26px; border: 1px dashed var(--border);
-  margin: 3px 8px; border-radius: 4px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; color: var(--text3); transition: all .15s;
-}
-.sa-section-drop.sa-drop-over {
-  border-color: var(--gold); background: rgba(200,168,75,0.08); color: var(--gold2);
-}
-.sa-assign-row {
-  display: flex; flex-direction: column;
-  border-top: 1px solid var(--border); position: relative;
-}
-.sa-assign-row:hover .sa-row-del { opacity: 1; }
-.sa-row-top {
-  display: flex; align-items: center; min-height: 30px;
-}
-.sa-row-label {
-  width: 28px; flex-shrink: 0; font-size: 9px; font-weight: 700;
-  color: var(--text3); text-align: center; text-transform: uppercase; letter-spacing: 0.03em;
-  padding-top: 2px;
-}
-.sa-row-icons {
-  display: flex; gap: 3px; flex-wrap: wrap; align-items: center;
-  padding: 3px 6px; min-height: 28px;
-  background: rgba(0,0,0,0.15);
-  border-top: 1px solid var(--border);
-  border-radius: 0 0 3px 3px;
-  transition: background .1s, border-color .15s;
-  cursor: copy;
-}
-.sa-row-icons.sa-drop-over {
-  background: rgba(200,168,75,0.12);
-  border-color: rgba(200,168,75,0.5);
-  outline: 1px dashed rgba(200,168,75,0.6);
-}
-.sa-row-icon {
-  width: 22px; height: 22px; border-radius: 3px; flex-shrink: 0;
-  border: 1px solid var(--border); overflow: hidden; cursor: pointer;
-}
-.sa-row-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.sa-row-icon:hover { border-color: #e06060; outline: 1px solid #e06060; }
-.sa-row-icon-hint {
-  font-size: 10px; color: var(--text3); font-style: italic;
-  padding: 0 2px; user-select: none;
-}
-.sa-row-player {
-  width: 80px; flex-shrink: 0; padding: 0 3px;
-  font-size: 11px; font-weight: 600;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  border-radius: 3px; height: 30px; line-height: 30px;
-}
-.sa-row-player.sa-drop-over { background: rgba(200,168,75,0.1); outline: 1px solid rgba(200,168,75,0.4); }
-.sa-row-text {
-  flex: 1; min-width: 0; background: transparent; border: none;
-  color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 11px;
-  padding: 0 4px; height: 30px;
-}
-.sa-row-text:focus { outline: none; background: rgba(200,168,75,0.05); }
-.sa-row-text::placeholder { color: var(--text3); font-size: 10px; }
-.sa-row-del {
-  opacity: 0; width: 16px; height: 16px; flex-shrink: 0;
-  background: transparent; border: none; color: var(--text3);
-  cursor: pointer; font-size: 10px; padding: 0; line-height: 1;
-  transition: opacity .15s, color .15s; margin-right: 4px;
-}
-.sa-row-del:hover { color: #e06060; }
-.sa-empty-state {
-  padding: 24px 10px; text-align: center;
-  color: var(--text3); font-size: 11px; line-height: 1.6;
-}
 </style>
+<script src="https://wow.zamimg.com/widgets/power.js" async></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>const whTooltips = { colorLinks: true, iconizeLinks: false, renameLinks: false };</script>
-<script src="https://wow.zamimg.com/widgets/power.js"></script>
 </head>
 <body>
 
@@ -878,7 +731,6 @@ body {
     <button class="nav-btn" onclick="showPage('raid',this)">Raid Planner</button>
     <button class="nav-btn" onclick="showPage('assign',this)">Assignments</button>
     <button class="nav-btn" onclick="showPage('loot',this)">Loot Tracker</button>
-    <button class="nav-btn" onclick="showPage('wishlist',this)">🎯 Wishlists</button>
   </nav>
   <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
     <span id="sync-status" style="font-size:11px;color:#9896a4">⟳ Connecting...</span>
@@ -978,7 +830,6 @@ body {
         </div>
       </div>
       <div class="groups-sticky">
-        <div id="raid-role-summary"></div>
         <div class="groups-grid" id="groups-grid"></div>
         <div id="benched-group"></div>
       </div>
@@ -994,7 +845,6 @@ body {
         <h2 style="font-family:'Cinzel',serif;color:var(--gold);margin:0">Loot Tracker</h2>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn-gold" onclick="showLootPasteModal()">⬆ Import Loot</button>
-          <button class="btn" onclick="showManualLootModal()">✏ Add Entry</button>
           <button class="btn" onclick="clearLootData()" style="color:#e07070;border-color:#e07070">🗑 Clear All</button>
         </div>
       </div>
@@ -1041,65 +891,6 @@ body {
         </div>
       </div>
 
-      <!-- Manual Loot Entry Modal -->
-      <div id="loot-manual-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
-        <div style="background:var(--bg2);border:1px solid var(--gold);border-radius:var(--radius2);padding:24px;width:460px;max-width:95vw">
-          <h3 style="font-family:'Cinzel',serif;color:var(--gold);margin:0 0 6px">✏ Add Manual Loot Entry</h3>
-          <p style="font-size:11px;color:var(--text3);margin:0 0 16px">Use this for items awarded without a roll — boss loot given directly, crafted BiS, etc.</p>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-            <div>
-              <label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Character</label>
-              <select id="manual-loot-character" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px">
-                <option value="">— Select player —</option>
-              </select>
-            </div>
-            <div>
-              <label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Date</label>
-              <input id="manual-loot-date" type="date" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px">
-            </div>
-          </div>
-
-          <div style="margin-bottom:10px">
-            <label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Item ID or WoWHead URL</label>
-            <div style="display:flex;gap:8px">
-              <input id="manual-loot-item" placeholder="e.g. 28789 or wowhead.com/tbc/item=28789" style="flex:1;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px" onkeydown="if(event.key==='Enter')manualLootLookup()">
-              <button class="btn" onclick="manualLootLookup()" style="flex-shrink:0">🔍 Look up</button>
-            </div>
-          </div>
-
-          <!-- Item preview -->
-          <div id="manual-loot-preview" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:10px;display:none;align-items:center;gap:10px">
-            <img id="manual-loot-icon" style="width:36px;height:36px;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'">
-            <div style="flex:1;min-width:0">
-              <div id="manual-loot-name" style="font-size:13px;font-weight:600"></div>
-              <div id="manual-loot-meta" style="font-size:11px;color:var(--text3)"></div>
-            </div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-            <div>
-              <label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Spec</label>
-              <select id="manual-loot-offspec" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px">
-                <option value="0">Main Spec</option>
-                <option value="1">Off Spec</option>
-              </select>
-            </div>
-            <div>
-              <label style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Note (optional)</label>
-              <input id="manual-loot-note" placeholder="e.g. No roll, given directly" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px">
-            </div>
-          </div>
-
-          <div id="manual-loot-status" style="font-size:12px;min-height:18px;margin-bottom:12px;color:var(--text3)"></div>
-
-          <div style="display:flex;gap:8px;justify-content:flex-end">
-            <button class="btn" onclick="closeManualLootModal()">Cancel</button>
-            <button class="btn btn-gold" onclick="submitManualLootEntry()">+ Add Entry</button>
-          </div>
-        </div>
-      </div>
-
       <!-- Empty state -->
       <div id="loot-empty-state" style="text-align:center;padding:60px 20px;color:var(--text3)">
         <div style="font-size:48px;margin-bottom:16px">⚔</div>
@@ -1112,9 +903,9 @@ body {
 
   <!-- ASSIGNMENTS -->
   <div class="page" id="page-assign" style="overflow:hidden">
-    <div style="display:grid;grid-template-columns:220px 280px 1fr 200px;gap:0;height:calc(100vh - 56px);width:100vw;overflow:hidden">
+    <div style="display:grid;grid-template-columns:220px 1fr 180px;gap:0;height:calc(100vh - 56px);width:100vw;overflow:hidden">
 
-      <!-- COL 1: Plans + Raids -->
+      <!-- LEFT: Plans + Raids -->
       <div style="background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-width:0">
 
         <!-- Top: New Plan + wizard -->
@@ -1149,19 +940,7 @@ body {
 
       </div>
 
-      <!-- COL 2: Special Assignments -->
-      <div class="sa-panel" id="sa-panel">
-        <div class="sa-panel-header">
-          <span style="flex:1">⚔ Special Assignments</span>
-        </div>
-        <div id="sa-body" style="flex:1;overflow-y:auto;overflow-x:hidden">
-          <div class="sa-empty-state" id="sa-empty">
-            Select or create a plan<br>to set up special assignments.
-          </div>
-        </div>
-      </div>
-
-      <!-- COL 3: Canvas -->
+      <!-- CENTER: Canvas -->
       <div style="position:relative;overflow:hidden;background:#0a0a0e" id="assign-canvas-wrap">
         <canvas id="assign-canvas" style="display:block"></canvas>
         <div id="assign-text-input" style="display:none;position:absolute;z-index:10">
@@ -1179,7 +958,7 @@ body {
         </div>
       </div>
 
-      <!-- COL 4: Markers + Boss Icons + Members -->
+      <!-- RIGHT: Markers + Boss Icons + Members -->
       <div style="background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden">
         <div style="padding:10px 12px;border-bottom:1px solid var(--border)">
           <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Markers</div>
@@ -1195,7 +974,6 @@ body {
           <div id="assign-member-list" style="display:flex;flex-direction:column;gap:4px"></div>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -1239,132 +1017,6 @@ body {
     </div>
     </div>
   </div>
-
-<!-- WISHLIST -->
-<div class="page" id="page-wishlist">
-  <div style="max-width:1300px;margin:0 auto">
-
-    <!-- Header + view toggle -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
-      <h2 style="font-family:'Cinzel',serif;color:var(--gold);margin:0;flex:1">🎯 Item Wishlists</h2>
-      <!-- View tabs -->
-      <div style="display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:3px">
-        <button id="wl-tab-player" onclick="wlSetView('player')"
-          style="padding:5px 14px;border-radius:4px;border:none;font-family:'Exo 2',sans-serif;font-size:12px;cursor:pointer;background:var(--gold);color:#0e0e12;font-weight:600">
-          👤 Player Wishlists
-        </button>
-        <button id="wl-tab-competition" onclick="wlSetView('competition')"
-          style="padding:5px 14px;border-radius:4px;border:none;font-family:'Exo 2',sans-serif;font-size:12px;cursor:pointer;background:transparent;color:var(--text2)">
-          ⚔ Item Competition
-        </button>
-      </div>
-      <button id="wl-lock-btn" onclick="wlToggleLock()" style="font-size:12px;padding:6px 14px" class="btn">🔓 Unlocked</button>
-      <button id="wl-clear-btn" onclick="wlClearAll()" style="font-size:12px;padding:6px 14px;display:none" class="btn btn-danger">🗑 Clear All</button>
-      <button class="btn btn-gold" onclick="wlShowExportModal()" style="font-size:12px;padding:6px 14px">🎮 Addon Export</button>
-      <input id="wl-search" class="search" placeholder="Search..." oninput="wlRender()" style="width:180px">
-    </div>
-
-    <!-- WeakAura Export Modal -->
-    <div id="wl-export-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center">
-      <div style="background:var(--bg2);border:1px solid var(--gold);border-radius:var(--radius2);padding:24px;width:600px;max-width:95vw;max-height:90vh;overflow-y:auto">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-          <span style="font-family:'Cinzel',serif;font-size:15px;color:var(--gold);flex:1">🎮 Wishlist Export</span>
-          <button onclick="wlCloseExportModal()" style="background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;line-height:1">✕</button>
-        </div>
-
-        <!-- Format selector -->
-        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-          <button id="wl-fmt-addon" onclick="wlSetExportFormat('addon')" class="btn" style="font-size:11px;padding:4px 12px;background:rgba(200,168,75,0.2);border-color:var(--gold);color:var(--gold)">🎮 Addon Import</button>
-          <button id="wl-fmt-full" onclick="wlSetExportFormat('full')" class="btn" style="font-size:11px;padding:4px 12px">Full List</button>
-          <button id="wl-fmt-short" onclick="wlSetExportFormat('short')" class="btn" style="font-size:11px;padding:4px 12px">Short (names only)</button>
-          <button id="wl-fmt-macro" onclick="wlSetExportFormat('macro')" class="btn" style="font-size:11px;padding:4px 12px">WoW /macro</button>
-        </div>
-
-        <p style="font-size:11px;color:var(--text3);margin-bottom:10px" id="wl-export-hint">
-          Copy this into a WeakAura → Custom Text display. Each player's wishlist on one line.
-        </p>
-
-        <textarea id="wl-export-text" readonly
-          style="width:100%;height:240px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:monospace;font-size:11px;padding:10px;resize:vertical;line-height:1.6"
-        ></textarea>
-
-        <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
-          <button class="btn" onclick="wlCloseExportModal()">Close</button>
-          <button class="btn btn-gold" onclick="wlCopyExport()" id="wl-copy-btn">📋 Copy to Clipboard</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── VIEW: PLAYER WISHLISTS ── -->
-    <div id="wl-view-player">
-      <div style="display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start">
-
-        <!-- LEFT: Player picker -->
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;position:sticky;top:72px">
-          <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-            <span style="font-family:'Cinzel',serif;font-size:12px;color:var(--gold)">Players</span>
-            <button id="wl-home-btn" onclick="wlGoHome()" title="Back to overview" style="display:none;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:11px;padding:0;line-height:1;font-family:'Exo 2',sans-serif"
-              onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text3)'">✕ Deselect</button>
-          </div>
-          <div id="wl-player-list" style="display:flex;flex-direction:column"></div>
-        </div>
-
-        <!-- RIGHT: Selected player's wishlist -->
-        <div>
-          <div id="wl-empty-state">
-            <div id="wl-hot-items"></div>
-          </div>
-
-          <!-- Player wishlist panel -->
-          <div id="wl-panel" style="display:none">
-            <!-- Header -->
-            <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px">
-              <img id="wl-panel-icon" style="width:36px;height:36px;border-radius:50%;flex-shrink:0">
-              <div style="flex:1;min-width:0">
-                <div id="wl-panel-name" style="font-family:'Cinzel',serif;font-size:15px;font-weight:700"></div>
-                <div id="wl-panel-sub" style="font-size:11px;color:var(--text3)"></div>
-              </div>
-              <span id="wl-panel-count" style="font-size:11px;color:var(--text3)"></span>
-            </div>
-
-            <!-- Add item form -->
-            <div id="wl-add-form" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;margin-bottom:12px">
-              <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Add Item</div>
-              <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
-                <input id="wl-url-input" placeholder="Paste WoWHead item URL..." style="flex:1;min-width:200px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:12px" onkeydown="if(event.key==='Enter')wlLookup()">
-                <button class="btn" onclick="wlLookup()" style="flex-shrink:0">🔍 Look up</button>
-              </div>
-              <div id="wl-preview" style="display:none;margin-top:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;align-items:center;gap:10px">
-                <img id="wl-preview-icon" style="width:36px;height:36px;border-radius:4px;flex-shrink:0">
-                <div style="flex:1;min-width:0">
-                  <div id="wl-preview-name" style="font-size:13px;font-weight:600"></div>
-                  <div id="wl-preview-meta" style="font-size:11px;color:var(--text3)"></div>
-                </div>
-                <button class="btn btn-gold" onclick="wlAddItem()" id="wl-add-btn">+ Add</button>
-              </div>
-              <div id="wl-status" style="font-size:12px;color:var(--text3);margin-top:6px;min-height:16px"></div>
-            </div>
-
-            <!-- Wishlist items -->
-            <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden">
-              <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-                <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;flex:1">Priority List</span>
-                <span style="font-size:10px;color:var(--text3)">Drag to reorder</span>
-              </div>
-              <div id="wl-items" style="min-height:60px"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── VIEW: ITEM COMPETITION ── -->
-    <div id="wl-view-competition" style="display:none">
-      <div id="wl-competition-content"></div>
-    </div>
-
-  </div>
-</div>
 
 <!-- MODAL -->
 <div class="modal-bg" id="modal-bg">
@@ -1440,8 +1092,6 @@ const SPEC_ICONS = {
   // Druid
   'Druid:Balance':        BASE+'spell_nature_starfall.jpg',
   'Druid:Feral':          BASE+'ability_druid_catform.jpg',
-  'Druid:Feral Combat':   BASE+'ability_druid_catform.jpg',
-  'Druid:Feral Tank':     BASE+'ability_racial_bearform.jpg',
   'Druid:Restoration':    BASE+'spell_nature_healingtouch.jpg',
 };
 
@@ -1455,13 +1105,44 @@ const CLASS_SPECS = {
   Shaman:   ['Elemental', 'Enhancement', 'Restoration'],
   Mage:     ['Arcane', 'Fire', 'Frost'],
   Warlock:  ['Affliction', 'Demonology', 'Destruction'],
-  Druid:    ['Balance', 'Feral Combat', 'Feral Tank', 'Restoration'],
+  Druid:    ['Balance', 'Feral', 'Restoration'],
 };
 
 // Shorthand aliases → canonical names (for matching member specs to icons)
-const SPEC_ALIASES = {};
 
 // Class fallback icons (no spec)
+
+function canonicalSpec(cls, spec) {
+  if (!spec) return null;
+  // Try direct match first
+  const direct = cls + ':' + spec;
+  if (SPEC_ICONS[direct]) return spec;
+  // Try alias
+  const alias = SPEC_ALIASES[spec.toLowerCase()];
+  if (alias && SPEC_ICONS[cls + ':' + alias]) return alias;
+  return spec;
+}
+
+function specIcon(cls, spec) {
+  if (spec) {
+    const canonical = canonicalSpec(cls, spec);
+    const key = cls + ':' + canonical;
+    if (SPEC_ICONS[key]) return SPEC_ICONS[key];
+    // fallback: try original
+    if (SPEC_ICONS[cls + ':' + spec]) return SPEC_ICONS[cls + ':' + spec];
+  }
+  return CLASS_ICONS[cls] || BASE+'inv_misc_questionmark.jpg';
+}
+
+function clsBg(cls) {
+  const c = CM[cls];
+  if (!c) return 'rgba(128,128,128,0.15)';
+  const h = c.color;
+  const r = parseInt(h.slice(1,3),16), g = parseInt(h.slice(3,5),16), b = parseInt(h.slice(5,7),16);
+  return `rgba(${r},${g},${b},0.15)`;
+}
+
+
 
 // Class fallback icons (no spec)
 const CLASS_ICONS = {
@@ -1532,7 +1213,7 @@ const DEFAULT_MEMBERS = [
   {id:23, name:'Tryllebue',    cls:'Hunter',  spec:'Beast Mastery',rank:'Member', notes:''},
   {id:24, name:'Cuppatea',     cls:'Hunter',  spec:'Survival',     rank:'Member', notes:''},
   {id:25, name:'Bowhard',      cls:'Hunter',  spec:'Beast Mastery',rank:'Member', notes:''},
-  {id:26, name:'Johnpaw',      cls:'Druid',   spec:'Feral Combat', rank:'Member', notes:'OS: Balance'},
+  {id:26, name:'Johnpaw',      cls:'Druid',   spec:'Feral',        rank:'Member', notes:'OS: Balance'},
   {id:27, name:'Fanmoo',       cls:'Druid',   spec:'Balance',      rank:'Member', notes:'OS: Restoration'},
 ];
 
@@ -1542,12 +1223,10 @@ const DEFAULT_IDEAL = {};
 const DEFAULT_GROUPS = Array.from({length:8}, () => Array(5).fill(null));
 
 function migrateMembers(arr) {
-  return arr.map(m => {
-    let spec = m.cls && m.spec ? (canonicalSpec(m.cls, m.spec) || m.spec) : (m.spec || '');
-    // Migrate bare "Feral" druid to "Feral Combat"
-    if (m.cls === 'Druid' && spec === 'Feral') spec = 'Feral Combat';
-    return { ...m, spec };
-  });
+  return arr.map(m => ({
+    ...m,
+    spec: m.cls && m.spec ? (canonicalSpec(m.cls, m.spec) || m.spec) : (m.spec || '')
+  }));
 }
 
 function load() {
@@ -1593,7 +1272,7 @@ function closeMobileNav() {
   if (btn) btn.classList.remove('open');
 }
 
-async function showPage(name, btn) {
+function showPage(name, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
@@ -1604,7 +1283,6 @@ async function showPage(name, btn) {
   if (name === 'assign') initAssign();
   if (name === 'prof') initProfessions();
   if (name === 'loot') initLoot();
-  if (name === 'wishlist') await initWishlist();
   closeMobileNav();
   localStorage.setItem('gm_activetab', name);
 }
@@ -1638,11 +1316,10 @@ function renderRoster() {
   });
 
   // stats
-  const activeMembers = members.filter(m => !m.inactive);
-  const activeClasses = CLASSES.filter(c => activeMembers.some(m => m.cls === c.name));
+  const activeClasses = CLASSES.filter(c => members.some(m => m.cls === c.name));
 
   const classCards = activeClasses.map(c => {
-    const classMembers = activeMembers.filter(m => m.cls === c.name);
+    const classMembers = members.filter(m => m.cls === c.name);
     const total = classMembers.length;
     const specRows = CLASS_SPECS[c.name].map(spec => {
       const count = classMembers.filter(m => canonicalSpec(m.cls, m.spec) === spec).length;
@@ -1668,8 +1345,7 @@ function renderRoster() {
 
   document.getElementById('stats').innerHTML = `
     <div class="stats-top">
-      <div class="stat-card"><div class="lbl">Active</div><div class="val">${members.filter(m=>!m.inactive).length}</div></div>
-      <div class="stat-card"><div class="lbl">Inactive</div><div class="val" style="color:var(--text3)">${members.filter(m=>m.inactive).length}</div></div>
+      <div class="stat-card"><div class="lbl">Total</div><div class="val">${members.length}</div></div>
       <div class="stat-card"><div class="lbl">Officers+</div><div class="val">${members.filter(m=>m.rank==='Guild Master'||m.rank==='Officer').length}</div></div>
       <div class="stat-card"><div class="lbl">In Raid</div><div class="val">${groups.flat().filter(Boolean).length}</div></div>
     </div>
@@ -1679,7 +1355,7 @@ function renderRoster() {
   // filters
   document.getElementById('filters').innerHTML = ['All', ...CLASSES.map(c=>c.name)].map(r => {
     const cc = CM[r];
-    const cnt = r === 'All' ? '' : ` (${members.filter(m=>m.cls===r&&!m.inactive).length})`;
+    const cnt = r === 'All' ? '' : ` (${members.filter(m=>m.cls===r).length})`;
     const isActive = activeFilter === r;
     let style = '';
     if (isActive && cc) style = `background:${clsBg(r)};color:${cc.color};border-color:${cc.color}`;
@@ -1687,32 +1363,16 @@ function renderRoster() {
     return `<button class="pill" style="${style}" onclick="setFilter('${r}')">${r}${cnt}</button>`;
   }).join('');
 
-  const CLASS_ORDER = CLASSES.map(c => c.name);
-  function sortMembers(arr) {
-    return arr.slice().sort((a, b) => {
-      const ci = CLASS_ORDER.indexOf(a.cls) - CLASS_ORDER.indexOf(b.cls);
-      if (ci !== 0) return ci;
-      return a.name.localeCompare(b.name);
-    });
-  }
-
-  const filteredActive   = sortMembers(filtered.filter(m => !m.inactive));
-  const filteredInactive = sortMembers(filtered.filter(m =>  m.inactive));
-
-  if (!filteredActive.length && !filteredInactive.length) {
+  if (!filtered.length) {
     document.getElementById('member-list').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)">No members found.</div>';
     return;
   }
-
-  function memberRowHtml(m, inactive) {
+  document.getElementById('member-list').innerHTML = filtered.map(m => {
     const cc = CM[m.cls] || { color: '#888' };
     const sub = [m.spec, m.notes].filter(Boolean).join(' · ');
     const inRaid = groups.flat().some(s => s && s.id === m.id);
     const icon = specIcon(m.cls, m.spec);
-    const rowStyle = inactive ? 'opacity:0.55;' : '';
-    const toggleTitle = inactive ? 'Move to active roster' : 'Move to inactive';
-    const toggleIcon = inactive ? '↑' : '⏸';
-    return `<div class="member-row" style="${rowStyle}">
+    return `<div class="member-row">
       <div class="avatar" style="background:${clsBg(m.cls)};border-color:${cc.color};padding:0;overflow:hidden">
         <img src="${icon}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" alt="${m.cls}" onerror="this.parentNode.textContent='${m.name.slice(0,2).toUpperCase()}'">
       </div>
@@ -1723,36 +1383,11 @@ function renderRoster() {
       <span class="class-tag" style="background:${clsBg(m.cls)};color:${cc.color}">${m.cls}</span>
       <span class="rank-tag">${m.rank}</span>
       <div class="row-actions">
-        <button class="icon-btn" onclick="toggleInactive(${m.id})" title="${toggleTitle}" style="font-size:13px">${toggleIcon}</button>
         <button class="icon-btn" onclick="openEdit(${m.id})" title="Edit">✎</button>
         <button class="icon-btn del" onclick="removeMember(${m.id})" title="Remove">✕</button>
       </div>
     </div>`;
-  }
-
-  let html = filteredActive.map(m => memberRowHtml(m, false)).join('');
-
-  if (filteredInactive.length) {
-    html += `
-    <div style="margin-top:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px">
-      <span style="font-family:'Cinzel',serif;font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Inactive Members</span>
-      <div style="flex:1;height:1px;background:var(--border)"></div>
-      <span style="font-size:11px;color:var(--text3)">${filteredInactive.length}</span>
-    </div>
-    <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Not counted in recruitment or ideal roster calculations.</div>
-    ${filteredInactive.map(m => memberRowHtml(m, true)).join('')}`;
-  }
-
-  document.getElementById('member-list').innerHTML = html;
-}
-
-function toggleInactive(id) {
-  const m = members.find(x => x.id === id);
-  if (!m) return;
-  m.inactive = !m.inactive;
-  save();
-  renderRoster();
-  renderRecruit();
+  }).join('');
 }
 
 function setFilter(r) { activeFilter = r; renderRoster(); }
@@ -1796,11 +1431,6 @@ function removeMember(id) {
   members = members.filter(x => x.id !== id);
   // also remove from raid groups
   groups = groups.map(g => g.map(s => (s && s.id === id) ? null : s));
-  // also clean up their wishlist data
-  if (wlData[String(id)]) {
-    delete wlData[String(id)];
-    sbDeleteMemberWishlist(id).catch(() => {});
-  }
   save(); renderRoster();
 }
 
@@ -1843,7 +1473,7 @@ function renderRecruit() {
   // Build data for all classes
   const classData = CLASSES.map(c => {
     const specs = specsForClass(c.name);
-    const have = members.filter(m => m.cls === c.name && !m.inactive).length;
+    const have = members.filter(m => m.cls === c.name).length;
     const want = specs.reduce((sum, spec) => sum + (ideal[c.name + ':' + spec] || 0), 0);
     const diff = want - have;
     return { c, have, want, diff, specs };
@@ -1860,7 +1490,7 @@ function renderRecruit() {
   const needCards = classData.filter(d => d.want > 0).flatMap(({c, specs}) =>
     specs.flatMap(spec => {
       const key = c.name + ':' + spec;
-      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec && !m.inactive).length;
+      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec).length;
       const wantSpec = ideal[key] || 0;
       const diffSpec = wantSpec - haveSpec;
       if (diffSpec <= 0 || wantSpec === 0) return [];
@@ -1879,7 +1509,7 @@ function renderRecruit() {
   const overCards = classData.filter(d => d.want > 0).flatMap(({c, specs}) =>
     specs.flatMap(spec => {
       const key = c.name + ':' + spec;
-      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec && !m.inactive).length;
+      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec).length;
       const wantSpec = ideal[key] || 0;
       const diffSpec = wantSpec - haveSpec;
       if (diffSpec >= 0 || wantSpec === 0) return [];
@@ -1934,7 +1564,7 @@ function renderRecruit() {
 
     const specRows = specs.map(spec => {
       const key = c.name + ':' + spec;
-      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec && !m.inactive).length;
+      const haveSpec = members.filter(m => m.cls === c.name && canonicalSpec(m.cls, m.spec) === spec).length;
       const wantSpec = ideal[key] || 0;
       const diffSpec = wantSpec - haveSpec;
       const sicon = specIcon(c.name, spec);
@@ -1963,59 +1593,6 @@ function renderRecruit() {
   }).join('');
 }
 function var_gold() { return '#c8a84b'; }
-
-// ── ROLE CLASSIFICATION ───────────────────────────────────────────────────────
-// Maps class:spec → role category
-const SPEC_ROLES = {
-  // Tanks
-  'Warrior:Protection':  'tank',
-  'Paladin:Protection':  'tank',
-  'Druid:Feral Tank':    'tank',
-  // Healers
-  'Paladin:Holy':        'healer',
-  'Priest:Discipline':   'healer',
-  'Priest:Holy':         'healer',
-  'Shaman:Restoration':  'healer',
-  'Druid:Restoration':   'healer',
-  // Ranged DPS
-  'Hunter:Beast Mastery':'rdps',
-  'Hunter:Marksmanship': 'rdps',
-  'Hunter:Survival':     'rdps',
-  'Mage:Arcane':         'rdps',
-  'Mage:Fire':           'rdps',
-  'Mage:Frost':          'rdps',
-  'Warlock:Affliction':  'rdps',
-  'Warlock:Demonology':  'rdps',
-  'Warlock:Destruction': 'rdps',
-  'Priest:Shadow':       'rdps',
-  'Shaman:Elemental':    'rdps',
-  'Druid:Balance':       'rdps',
-  // Melee DPS
-  'Warrior:Arms':        'mdps',
-  'Warrior:Fury':        'mdps',
-  'Paladin:Retribution': 'mdps',
-  'Rogue:Assassination': 'mdps',
-  'Rogue:Combat':        'mdps',
-  'Rogue:Subtlety':      'mdps',
-  'Shaman:Enhancement':  'mdps',
-  'Druid:Feral Combat':  'mdps',
-};
-
-function getMemberRole(m) {
-  const key = m.cls + ':' + (m.spec || '');
-  return SPEC_ROLES[key] || null;
-}
-
-function getRaidRoleCounts() {
-  const inRaid = groups.flat().filter(Boolean).map(s => getMemberById(s.id)).filter(Boolean);
-  return {
-    tank:   inRaid.filter(m => getMemberRole(m) === 'tank').length,
-    healer: inRaid.filter(m => getMemberRole(m) === 'healer').length,
-    rdps:   inRaid.filter(m => getMemberRole(m) === 'rdps').length,
-    mdps:   inRaid.filter(m => getMemberRole(m) === 'mdps').length,
-    total:  inRaid.length,
-  };
-}
 
 // ── RAID PLANNER ──────────────────────────────────────────────────────────────
 let dragSource = null; // { type: 'bench'|'slot', memberId, groupIdx, slotIdx }
@@ -2058,9 +1635,6 @@ function renderBench() {
         <span class="bench-name" style="color:${cc.color}">${m.name}</span>
         <span class="bench-cls">${m.spec || m.cls}</span>
         ${highlight ? '<span style="font-size:9px;color:#80d080;margin-left:auto;flex-shrink:0">✓ Signed</span>' : ''}
-        <button onclick="event.stopPropagation();bench(${m.id})" title="Move to benched"
-          style="margin-left:auto;flex-shrink:0;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 2px;line-height:1"
-          onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'">⊖</button>
       </div>`;
     };
 
@@ -2096,9 +1670,6 @@ function renderBench() {
         <img src="${icon}" class="spec-icon" alt="${m.spec||m.cls}" onerror="this.style.display='none'">
         <span class="bench-name" style="color:${cc.color}">${m.name}</span>
         <span class="bench-cls">${m.spec || m.cls}</span>
-        <button onclick="event.stopPropagation();bench(${m.id})" title="Move to benched"
-          style="margin-left:auto;flex-shrink:0;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 2px;line-height:1"
-          onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'">⊖</button>
       </div>`;
     }).join('');
   }
@@ -2147,12 +1718,6 @@ function benchRemaining() {
   renderBench();
 }
 
-function bench(id) {
-  if (benchedIds.includes(id)) return;
-  benchedIds.push(id);
-  renderBench();
-}
-
 function unbench(id) {
   if (!_li) return;
   benchedIds = benchedIds.filter(x => x !== id);
@@ -2180,15 +1745,13 @@ function renderGroups() {
         if (!m) return slotEmpty(gi, si);
         const cc = CM[m.cls] || { color: '#888' };
         const icon = specIcon(m.cls, m.spec);
-        const role = getMemberRole(m);
-        const rolePip = role ? `<span class="role-pip role-pip-${role}" title="${{tank:'Tank',healer:'Healer',rdps:'Ranged DPS',mdps:'Melee DPS'}[role]}"></span>` : '';
         return `<div class="slot filled" draggable="true"
           data-group="${gi}" data-slot="${si}"
           ondragstart="onSlotDragStart(event,${gi},${si})"
           ondragend="onDragEnd(event)"
           ondragover="event.preventDefault()"
           ondrop="onSlotDrop(event,${gi},${si})">
-          ${rolePip}<img src="${icon}" class="spec-icon" alt="${m.spec||m.cls}" onerror="this.style.display='none'">
+          <img src="${icon}" class="spec-icon" alt="${m.spec||m.cls}" onerror="this.style.display='none'">
           <span class="slot-name" style="color:${cc.color}">${m.name}</span>
           <span class="slot-cls">${m.spec || m.cls}</span>
           <button class="slot-remove" onclick="event.stopPropagation();removeFromSlot(${gi},${si})" title="Remove">✕</button>
@@ -2207,9 +1770,6 @@ function renderGroups() {
       <div class="group-slots">${slots}</div>
     </div>`;
   }).join('');
-
-  // Render role summary
-  renderRolesSummary();
 }
 
 function slotEmpty(gi, si) {
@@ -2218,45 +1778,6 @@ function slotEmpty(gi, si) {
     ondrop="onSlotDrop(event,${gi},${si})">
     <span style="font-size:11px;color:var(--text3)">Empty slot</span>
   </div>`;
-}
-
-function renderRolesSummary() {
-  const el = document.getElementById('raid-role-summary');
-  if (!el) return;
-  const { tank, healer, rdps, mdps, total } = getRaidRoleCounts();
-  const inRaid = groups.flat().filter(Boolean).length;
-
-  const roleBox = (label, count, color, icon) => {
-    const ideal = {tank:2,healer:5,rdps:8,mdps:10}[icon] || 0;
-    const diff = count - ideal;
-    const statusColor = count === 0 ? 'var(--text3)' : color;
-    return `<div class="role-summary-card">
-      <div class="role-summary-icon role-pip-${icon}"></div>
-      <div class="role-summary-label">${label}</div>
-      <div class="role-summary-count" style="color:${statusColor}">${count}</div>
-    </div>`;
-  };
-
-  el.innerHTML = `
-    <div class="role-summary-bar">
-      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;font-weight:600">Raid Composition — ${inRaid}/25</div>
-      <div class="role-summary-cards">
-        ${roleBox('Tanks', tank, '#4fc3f7', 'tank')}
-        ${roleBox('Healers', healer, '#81c784', 'healer')}
-        ${roleBox('Ranged DPS', rdps, '#ffb74d', 'rdps')}
-        ${roleBox('Melee DPS', mdps, '#f06292', 'mdps')}
-      </div>
-      <div class="role-summary-breakdown">
-        <div class="role-bar-wrap">
-          ${tank   > 0 ? `<div class="role-bar-seg" style="flex:${tank};background:#4fc3f7" title="${tank} Tank${tank!==1?'s':''}"></div>` : ''}
-          ${healer > 0 ? `<div class="role-bar-seg" style="flex:${healer};background:#81c784" title="${healer} Healer${healer!==1?'s':''}"></div>` : ''}
-          ${rdps   > 0 ? `<div class="role-bar-seg" style="flex:${rdps};background:#ffb74d" title="${rdps} Ranged DPS"></div>` : ''}
-          ${mdps   > 0 ? `<div class="role-bar-seg" style="flex:${mdps};background:#f06292" title="${mdps} Melee DPS"></div>` : ''}
-          ${inRaid < 25 ? `<div class="role-bar-seg" style="flex:${25-inRaid};background:var(--bg4)" title="${25-inRaid} empty slots"></div>` : ''}
-        </div>
-      </div>
-    </div>
-  `;
 }
 
 function renderRaid() { renderBench(); renderGroups(); }
@@ -2270,7 +1791,7 @@ const RH_SPEC_MAP = {
   'Restoration1':'Restoration','Restoration2':'Restoration',
   'Beastmastery':'Beast Mastery',
   'Feral1':      'Feral Combat','Feral2':     'Feral Combat',
-  'Guardian':    'Feral Tank',
+  'Guardian':    'Feral Combat',
   'Demonology':  'Demonology',
   'Destruction': 'Destruction',
   'Affliction':  'Affliction',
@@ -2797,28 +2318,6 @@ const RAIDS = [
       { id: 'magtheridon', name: 'Magtheridon', bg: 'IMG_BG_MAGTHERIDON' },
     ]
   },
-  {
-    id: 'serpentshrine_cavern',
-    name: "Serpentshrine Cavern",
-    encounters: [
-      { id: 'hydross', name: 'Hydross the Unstable' },
-      { id: 'lurker', name: 'The Lurker Below' },
-      { id: 'leotheras', name: 'Leotheras the Blind' },
-      { id: 'karathress', name: 'Fathom-Lord Karathress' },
-      { id: 'morogrim', name: 'Morogrim Tidewalker' },
-      { id: 'vashj', name: "Lady Vashj" },
-    ]
-  },
-  {
-    id: 'the_eye',
-    name: "The Eye (Tempest Keep)",
-    encounters: [
-      { id: 'alar', name: "Al'ar" },
-      { id: 'voidreaver', name: 'Void Reaver' },
-      { id: 'solarian', name: 'High Astromancer Solarian' },
-      { id: 'kaelthas', name: "Kael'thas Sunstrider" },
-    ]
-  },
 ];
 
 // Map encounter id -> background image data
@@ -2948,7 +2447,6 @@ function initAssign() {
     bgImage = null;
     bgLoaded = false;
     renderCanvas();
-    renderSpecialAssignments();
   }
 }
 
@@ -2956,276 +2454,6 @@ function saveAssignData() {
   const assignData = { plans: assignPlans, nextPlanId, nextElemId };
   localStorage.setItem('gm_assign', JSON.stringify(assignData));
   cloudSaveAssign(assignData);
-}
-
-// ══════════════════════════════════════════════════════════
-// ══════════════════════════════════════════════════════════
-// SPECIAL ASSIGNMENTS PANEL  — icon + player + text model
-// ══════════════════════════════════════════════════════════
-
-const BASE_ICON = 'https://wow.zamimg.com/images/wow/icons/medium/';
-const SA_ICONS = {
-  // Druid
-  'Innervate':      'spell_nature_lightning',
-  'Faerie Fire':    'spell_nature_faeriefire',
-  'Abolish Poison': 'spell_nature_nullifypoison',
-  'Insect Swarm':   'spell_nature_insectswarm',
-  // Hunter
-  'MD':             'ability_hunter_misdirection',
-  'Frost Trap':     'spell_frost_freezingbreath',
-  'Freezing Trap':  'spell_frost_chainsofice',
-  // Mage
-  'Sheep':          'spell_nature_polymorph',
-  'CS':             'spell_frost_iceshock',
-  // Paladin
-  'HoJ':            'spell_holy_sealofmight',
-  // Priest
-  'Fear Ward':      'spell_holy_excorcism',
-  'Silence':        'spell_shadow_impphaseshift',
-  // Rogue
-  'Kick':           'ability_kick',
-  'Kidney Shot':    'ability_rogue_kidneyshot',
-  // Shaman
-  'Earth Shock':    'spell_nature_earthshock',
-  // Warrior
-  'Disarm':         'ability_warrior_disarm',
-  'Pummel':         'inv_gauntlets_04',
-  // Warlock
-  'CoT':            'spell_shadow_curseoftounges',
-  'CoR':            'spell_shadow_unholyfrenzy',
-  'CoS/CoShadow':   'spell_shadow_curseofachimonde',
-  'Searing Pain':   'spell_fire_soulburn',
-};
-
-const SA_SECTION_DEFS = [
-  { role: 'tank',   label: 'Tanks',      color: '#4fc3f7' },
-  { role: 'healer', label: 'Healers',    color: '#81c784' },
-  { role: 'mdps',   label: 'Melee DPS',  color: '#f06292' },
-  { role: 'rdps',   label: 'Ranged DPS', color: '#ffb74d' },
-];
-
-let saNextRowId = 1;
-
-function saGetOrInitSections() {
-  if (!currentPlanId || !assignPlans[currentPlanId]) return null;
-  const plan = assignPlans[currentPlanId];
-  if (!plan.specialAssignments || !Array.isArray(plan.specialAssignments.sections)) {
-    plan.specialAssignments = {
-      sections: SA_SECTION_DEFS.map(def => ({ role: def.role, collapsed: false, rows: [] }))
-    };
-  }
-  // Ensure all 4 sections exist (backward compat)
-  SA_SECTION_DEFS.forEach(def => {
-    if (!plan.specialAssignments.sections.find(s => s.role === def.role)) {
-      plan.specialAssignments.sections.push({ role: def.role, collapsed: false, rows: [] });
-    }
-  });
-  return plan.specialAssignments.sections;
-}
-
-function saRowLabel(role, idx) {
-  if (role === 'tank')   return idx === 0 ? 'MT' : 'OT' + idx;
-  if (role === 'healer') return 'HE' + (idx + 1);
-  if (role === 'mdps')   return 'M' + (idx + 1);
-  if (role === 'rdps')   return 'R' + (idx + 1);
-  return '' + (idx + 1);
-}
-
-function renderSpecialAssignments() {
-  const body = document.getElementById('sa-body');
-  if (!body) return;
-
-  if (!currentPlanId || !assignPlans[currentPlanId]) {
-    body.innerHTML = '<div class="sa-empty-state">Select or create a plan<br>to set up special assignments.</div>';
-    return;
-  }
-
-  const sections = saGetOrInitSections();
-  let html = '';
-
-  // Icon palette — flat list, all kept icons
-  const SA_ICON_GROUPS = [
-    { icons: ['Innervate','Faerie Fire','Abolish Poison','Insect Swarm',
-               'MD','Frost Trap','Freezing Trap',
-               'Sheep','CS',
-               'HoJ',
-               'Fear Ward','Silence',
-               'Kick','Kidney Shot',
-               'Earth Shock',
-               'Disarm','Pummel',
-               'CoT','CoR','CoS/CoShadow','Searing Pain'] },
-  ];
-
-  html += '<div class="sa-icon-palette" id="sa-icon-palette">';
-  SA_ICON_GROUPS.forEach(group => {
-    group.icons.forEach(name => {
-      if (!SA_ICONS[name]) return;
-      const safeId = 'sa-chip-' + name.replace(/[^a-zA-Z0-9]/g,'_');
-      html += `<div class="sa-icon-chip" draggable="true" id="${safeId}" data-icon-name="${name}" title="${name}">
-        <img src="${BASE_ICON}${SA_ICONS[name]}.jpg" onerror="this.src='${BASE_ICON}inv_misc_questionmark.jpg'" alt="${name}" draggable="false" style="pointer-events:none">
-      </div>`;
-    });
-  });
-  // Raid marker icons (base64 inline)
-  const SA_MARKER_LABELS = {star:'Star',circle:'Circle',diamond:'Diamond',triangle:'Triangle',moon:'Moon',square:'Square',cross:'Cross',skull:'Skull',tank:'Tank',healer:'Healer',mdps:'Melee',rdps:'Ranged'};
-  for (const [key, label] of Object.entries(SA_MARKER_LABELS)) {
-    if (!MARKER_ICONS[key]) continue;
-    html += `<div class="sa-icon-chip" draggable="true" id="sa-chip-marker_${key}" data-icon-name="__marker__${key}" title="${label}">
-      <img src="${MARKER_ICONS[key]}" alt="${label}" draggable="false" style="pointer-events:none">
-    </div>`;
-  }
-  html += '</div>';
-
-  // Sections
-  sections.forEach((sec, si) => {
-    const def = SA_SECTION_DEFS.find(d => d.role === sec.role) || SA_SECTION_DEFS[0];
-    const collapsed = sec.collapsed;
-    html += `<div class="sa-section">
-      <div class="sa-section-header" onclick="saToggleSection(${si})" style="color:${def.color}">
-        <span style="flex:1">${def.label} <span style="color:var(--text3);font-weight:400;font-family:'Exo 2',sans-serif">(${sec.rows.length})</span></span>
-        <span style="font-size:8px;color:var(--text3)">${collapsed ? '\u25B6' : '\u25BC'}</span>
-      </div>`;
-
-    if (!collapsed) {
-      html += '<div class="sa-section-body">';
-      sec.rows.forEach((row, ri) => {
-        const lbl = saRowLabel(sec.role, ri);
-        const m = row.memberId ? members.find(x => x.id === row.memberId) : null;
-        const nameColor = m ? ((CM[m.cls]||{}).color || 'var(--text)') : 'var(--text2)';
-        const icons = row.icons || [];
-
-        const iconHint = icons.length === 0 ? '<span class="sa-row-icon-hint">drop icons here</span>' : '';
-        let iconSlots = icons.map((ic, ii) => {
-          let imgSrc;
-          if (ic.startsWith('__marker__')) {
-            const mkey = ic.replace('__marker__', '');
-            imgSrc = MARKER_ICONS[mkey] || (BASE_ICON + 'inv_misc_questionmark.jpg');
-          } else {
-            const iconFile = SA_ICONS[ic] || 'inv_misc_questionmark';
-            imgSrc = BASE_ICON + iconFile + '.jpg';
-          }
-          return `<div class="sa-row-icon" title="${ic.replace('__marker__','')} — click to remove" onclick="saRemoveIcon(${si},${ri},${ii})">
-            <img src="${imgSrc}" draggable="false" style="pointer-events:none">
-          </div>`;
-        }).join('');
-
-        html += `<div class="sa-assign-row">
-          <div class="sa-row-top">
-            <div class="sa-row-label">${lbl}</div>
-            <div class="sa-row-player" id="sa-pslot-${si}-${ri}" style="color:${nameColor}"
-              ondragover="event.preventDefault();document.getElementById('sa-pslot-${si}-${ri}').classList.add('sa-drop-over')"
-              ondragleave="document.getElementById('sa-pslot-${si}-${ri}').classList.remove('sa-drop-over')"
-              ondrop="saOnPlayerDrop(event,${si},${ri})"
-              title="Drop player to replace">${row.memberName || '\u2014'}</div>
-            <input class="sa-row-text" value="${(row.text||'').replace(/"/g,'&quot;')}"
-              placeholder="notes..."
-              onchange="saSetRowText(${si},${ri},this.value)"
-              onblur="saSetRowText(${si},${ri},this.value)">
-            <button class="sa-row-del" onclick="saDeleteRow(${si},${ri})" title="Remove">\u2715</button>
-          </div>
-          <div class="sa-row-icons" id="sa-icons-wrap-${si}-${ri}"
-            ondragover="event.preventDefault();document.getElementById('sa-icons-wrap-${si}-${ri}').classList.add('sa-drop-over')"
-            ondragleave="document.getElementById('sa-icons-wrap-${si}-${ri}').classList.remove('sa-drop-over')"
-            ondrop="saOnIconDrop(event,${si},${ri})">${iconSlots}${iconHint}</div>
-        </div>`;
-      });
-      // Drop zone
-      html += `<div class="sa-section-drop" id="sa-sdrop-${si}"
-        ondragover="event.preventDefault();document.getElementById('sa-sdrop-${si}').classList.add('sa-drop-over')"
-        ondragleave="document.getElementById('sa-sdrop-${si}').classList.remove('sa-drop-over')"
-        ondrop="saOnSectionDrop(event,${si})">drag player here</div>`;
-      html += '</div>';
-    }
-    html += '</div>';
-  });
-
-  body.innerHTML = html;
-
-  // Single delegated dragstart on the palette — far more reliable than per-element wiring
-  const palette = document.getElementById('sa-icon-palette');
-  if (palette) {
-    palette.ondragstart = (e) => {
-      const chip = e.target.closest('[data-icon-name]');
-      if (!chip) { e.preventDefault(); return; }
-      e.dataTransfer.setData('saIcon', chip.dataset.iconName);
-      e.dataTransfer.effectAllowed = 'copy';
-    };
-  }
-}
-
-function saToggleSection(si) {
-  const sections = saGetOrInitSections();
-  if (!sections) return;
-  sections[si].collapsed = !sections[si].collapsed;
-  savePlanState();
-  renderSpecialAssignments();
-}
-
-function saOnSectionDrop(e, si) {
-  e.preventDefault(); e.stopPropagation();
-  document.getElementById('sa-sdrop-' + si)?.classList.remove('sa-drop-over');
-  let name = e.dataTransfer.getData('saMember');
-  if (!name) { try { const d = JSON.parse(e.dataTransfer.getData('assignElem')); if (d?.label) name = d.label; } catch(_){} }
-  if (!name) return;
-  const m = members.find(x => x.name === name);
-  const sections = saGetOrInitSections();
-  if (!sections) return;
-  sections[si].rows.push({ id: 'r'+(saNextRowId++), memberId: m?m.id:null, memberName: name, icons: [], text: '' });
-  savePlanState();
-  renderSpecialAssignments();
-}
-
-function saOnPlayerDrop(e, si, ri) {
-  e.preventDefault(); e.stopPropagation();
-  document.getElementById(`sa-pslot-${si}-${ri}`)?.classList.remove('sa-drop-over');
-  let name = e.dataTransfer.getData('saMember');
-  if (!name) { try { const d = JSON.parse(e.dataTransfer.getData('assignElem')); if (d?.label) name = d.label; } catch(_){} }
-  if (!name) return;
-  const m = members.find(x => x.name === name);
-  const sections = saGetOrInitSections();
-  if (!sections) return;
-  sections[si].rows[ri].memberId   = m ? m.id : null;
-  sections[si].rows[ri].memberName = name;
-  savePlanState();
-  renderSpecialAssignments();
-}
-
-function saOnIconDrop(e, si, ri) {
-  e.preventDefault(); e.stopPropagation();
-  document.getElementById(`sa-icons-wrap-${si}-${ri}`)?.classList.remove('sa-drop-over');
-  document.getElementById(`sa-idrop-${si}-${ri}`)?.classList.remove('sa-drop-over');
-  const iconName = e.dataTransfer.getData('saIcon');
-  if (!iconName) return;
-  const sections = saGetOrInitSections();
-  if (!sections) return;
-  const row = sections[si].rows[ri];
-  if (!row.icons) row.icons = [];
-  if (!row.icons.includes(iconName)) row.icons.push(iconName);
-  savePlanState();
-  renderSpecialAssignments();
-}
-
-function saRemoveIcon(si, ri, ii) {
-  const sections = saGetOrInitSections();
-  if (!sections) return;
-  sections[si].rows[ri].icons.splice(ii, 1);
-  savePlanState();
-  renderSpecialAssignments();
-}
-
-function saSetRowText(si, ri, value) {
-  const sections = saGetOrInitSections();
-  if (!sections) return;
-  sections[si].rows[ri].text = value;
-  savePlanState();
-}
-
-function saDeleteRow(si, ri) {
-  const sections = saGetOrInitSections();
-  if (!sections) return;
-  sections[si].rows.splice(ri, 1);
-  savePlanState();
-  renderSpecialAssignments();
 }
 
 // ── Background ─────────────────────────────────────────────
@@ -3243,9 +2471,6 @@ function loadBossBackground(encounterId) {
     // Size canvas to match image aspect ratio within the container
     const wrap = document.getElementById('assign-canvas-wrap');
     if (wrap) {
-      // Remember previous canvas size before we resize
-      const prevW = canvasW;
-      const prevH = canvasH;
       const wrapW = wrap.clientWidth;
       const wrapH = wrap.clientHeight;
       const imgAR = bgImage.naturalWidth / bgImage.naturalHeight;
@@ -3262,17 +2487,6 @@ function loadBossBackground(encounterId) {
       aCanvas.style.position = 'absolute';
       aCanvas.style.left = Math.round((wrapW - canvasW) / 2) + 'px';
       aCanvas.style.top = Math.round((wrapH - canvasH) / 2) + 'px';
-
-      // Rescale element coordinates if the background image caused the canvas to
-      // change size from what it was just before this load (prevW/prevH).
-      // Note: cross-screen rescaling is already handled in loadPlan(), so we only
-      // need to account for the aspect-ratio resize that happens here.
-      if (prevW && prevH && (prevW !== canvasW || prevH !== canvasH)) {
-        rescaleElements(elements, prevW, prevH, canvasW, canvasH);
-        // Update plan's stored canvas size so subsequent saves use the new dimensions
-        const plan = currentPlanId ? assignPlans[currentPlanId] : null;
-        if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
-      }
     }
     renderCanvas();
   };
@@ -3389,17 +2603,6 @@ function drawElement(el) {
   // Token or marker or bossicon
   const size = el.size || 44;
   const half = size / 2;
-
-  // Re-resolve bossicon src from BOSS_ICONS_DATA if missing/corrupted
-  if (el.type === 'bossicon' && (!el.src || el.src.length < 100)) {
-    if (el.bossIconId && BOSS_ICONS_DATA[el.bossIconId]) {
-      el.src = BOSS_ICONS_DATA[el.bossIconId];
-    } else if (el.label) {
-      const matchId = Object.keys(BOSS_ICON_NAMES).find(k => BOSS_ICON_NAMES[k] === el.label);
-      if (matchId && BOSS_ICONS_DATA[matchId]) { el.src = BOSS_ICONS_DATA[matchId]; el.bossIconId = matchId; }
-    }
-  }
-
   const img = loadImg(el.src);
 
   if (img.complete && img.naturalWidth) {
@@ -3701,35 +2904,9 @@ function aCanvasDropHandler(e) {
 // ── Plans ─────────────────────────────────────────────────
 function savePlanState() {
   if (!currentPlanId) return;
-  // Strip large base64 src from bossicons before saving - we can re-resolve from BOSS_ICONS_DATA
-  const elemsToSave = elements.map(el => {
-    if (el.type === 'bossicon') {
-      const { src, ...rest } = el; // eslint-disable-line no-unused-vars
-      return rest; // save without src, bossIconId is preserved for re-resolution
-    }
-    return el;
-  });
-  assignPlans[currentPlanId].elements = JSON.parse(JSON.stringify(elemsToSave));
-  // Save canvas dimensions so we can rescale coords correctly when loading on a different screen
-  assignPlans[currentPlanId].canvasW = canvasW;
-  assignPlans[currentPlanId].canvasH = canvasH;
+  assignPlans[currentPlanId].elements = JSON.parse(JSON.stringify(elements));
   saveAssignData();
   updateCurrentPlanBar();
-}
-
-function rescaleElements(elems, fromW, fromH, toW, toH) {
-  if (!fromW || !fromH || !toW || !toH) return;
-  if (fromW === toW && fromH === toH) return;
-  const scaleX = toW / fromW;
-  const scaleY = toH / fromH;
-  for (const el of elems) {
-    if (el.type === 'arrow') {
-      el.x1 = Math.round(el.x1 * scaleX); el.y1 = Math.round(el.y1 * scaleY);
-      el.x2 = Math.round(el.x2 * scaleX); el.y2 = Math.round(el.y2 * scaleY);
-    } else {
-      el.x = Math.round(el.x * scaleX); el.y = Math.round(el.y * scaleY);
-    }
-  }
 }
 
 function loadPlan(planId) {
@@ -3737,35 +2914,6 @@ function loadPlan(planId) {
   const plan = assignPlans[planId];
   if (!plan) return;
   elements = JSON.parse(JSON.stringify(plan.elements || []));
-
-  // Re-resolve bossicon srcs from BOSS_ICONS_DATA (prevents issues if base64 got
-  // corrupted/truncated in storage, and avoids storing large base64 in saved plans)
-  for (const el of elements) {
-    if (el.type === 'bossicon') {
-      // Try bossIconId first, then fall back to matching by label
-      if (el.bossIconId && BOSS_ICONS_DATA[el.bossIconId]) {
-        el.src = BOSS_ICONS_DATA[el.bossIconId];
-      } else if (el.label) {
-        // Fallback: find by label
-        const matchId = Object.keys(BOSS_ICON_NAMES).find(k => BOSS_ICON_NAMES[k] === el.label);
-        if (matchId && BOSS_ICONS_DATA[matchId]) {
-          el.src = BOSS_ICONS_DATA[matchId];
-          el.bossIconId = matchId;
-        }
-      }
-    }
-  }
-
-  // If the plan was saved at a different canvas size (different screen), rescale all
-  // element coordinates NOW — before loadBossBackground potentially resizes the canvas
-  // further. This ensures positions are always relative to the current canvas.
-  if (plan.canvasW && plan.canvasH && canvasW && canvasH) {
-    rescaleElements(elements, plan.canvasW, plan.canvasH, canvasW, canvasH);
-    // Update the plan's stored size so subsequent saves use the current dimensions
-    plan.canvasW = canvasW;
-    plan.canvasH = canvasH;
-  }
-
   undoStack = [];
   currentEncounterId = plan.encounterId;
   const enc = RAIDS.flatMap(r => r.encounters).find(e => e.id === plan.encounterId);
@@ -3775,10 +2923,30 @@ function loadPlan(planId) {
   renderPlansLibrary();
   updateCurrentPlanBar();
   renderCanvas();
-  renderSpecialAssignments();
 }
 
+function addPlan() {
+  if (!currentEncounterId) { alert('Select an encounter first.'); return; }
+  const name = prompt('Plan name (e.g. "Phase 1", "Tank positions"):');
+  if (!name) return;
+  const id = 'plan_' + (nextPlanId++);
+  assignPlans[id] = { id, name, encounterId: currentEncounterId, elements: [] };
+  saveAssignData();
+  renderPlansList();
+  loadPlan(id);
+}
 
+function renderPlansList() {
+  const container = document.getElementById('boss-plans-list');
+  if (!container) return;
+  const plans = Object.values(assignPlans).filter(p => p.encounterId === currentEncounterId);
+  if (!plans.length) { container.innerHTML = '<div style="font-size:11px;color:var(--text3)">No plans yet</div>'; return; }
+  container.innerHTML = plans.map(p => `
+    <div class="plan-item ${p.id === currentPlanId ? 'active' : ''}" onclick="loadPlan('${p.id}')">
+      <span style="flex:1">${p.name}</span>
+      <button onclick="event.stopPropagation();deletePlan('${p.id}')" style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:11px">✕</button>
+    </div>`).join('');
+}
 
 function deletePlan(id) {
   if (!confirm('Delete this plan?')) return;
@@ -3848,7 +3016,6 @@ function selectWizardEncounter(encId, encName, raidId) {
   renderBossIconPalette();
   renderPlansLibrary();
   updateCurrentPlanBar();
-  renderSpecialAssignments();
 }
 
 function startNewPlan() {
@@ -3975,7 +3142,7 @@ function renderAssignMemberList() {
   el.innerHTML = filtered.map(m => {
     const cc = CM[m.cls] || {color:'#888'};
     const icon = specIcon(m.cls, m.spec);
-    return `<div style="display:flex;align-items:center;gap:8px;padding:4px 2px;cursor:grab" draggable="true" data-mid="${m.id}" data-mname="${m.name}">
+    return `<div style="display:flex;align-items:center;gap:8px;padding:4px 2px;cursor:grab" draggable="true" data-mid="${m.id}">
       <div class="drag-token" style="border-color:${cc.color}40;width:38px;height:38px;border-radius:50%;overflow:hidden;border:2px solid ${cc.color}40;flex-shrink:0">
         <img src="${icon}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">
       </div>
@@ -3993,10 +3160,7 @@ function renderAssignMemberList() {
     const cc = CM[m.cls] || {color:'#888'};
     const icon = specIcon(m.cls, m.spec);
     const elemData = { type: 'token', src: icon, label: m.name, labelColor: cc.color, borderColor: cc.color, size: 44 };
-    row.ondragstart = (e) => {
-      startDragToCanvas(e, elemData);
-      e.dataTransfer.setData('saMember', m.name);
-    };
+    row.ondragstart = (e) => startDragToCanvas(e, elemData);
   });
 }
 
@@ -4046,40 +3210,18 @@ function renderBossIconPalette() {
     const id = div.id.replace('bossicon_','');
     const src = BOSS_ICONS_DATA[id];
     const name = BOSS_ICON_NAMES[id] || id;
-    const elemData = { type: 'bossicon', src, bossIconId: id, size: 50, label: name };
+    const elemData = { type: 'bossicon', src, size: 50, label: name };
     div.ondragstart = (e) => startDragToCanvas(e, elemData);
   });
 }
 
 // ── Undo ──────────────────────────────────────────────────
-function pushUndo() {
-  const elemsToStore = elements.map(el => {
-    if (el.type === 'bossicon') { const { src, ...rest } = el; return rest; } // eslint-disable-line no-unused-vars
-    return el;
-  });
-  undoStack.push(JSON.stringify(elemsToStore));
-  if (undoStack.length > 30) undoStack.shift();
-}
-function undoAssign() {
-  if (!undoStack.length) return;
-  elements = JSON.parse(undoStack.pop());
-  // Re-resolve bossicon srcs after undo
-  for (const el of elements) {
-    if (el.type === 'bossicon' && (!el.src || el.src.length < 100)) {
-      if (el.bossIconId && BOSS_ICONS_DATA[el.bossIconId]) {
-        el.src = BOSS_ICONS_DATA[el.bossIconId];
-      } else if (el.label) {
-        const matchId = Object.keys(BOSS_ICON_NAMES).find(k => BOSS_ICON_NAMES[k] === el.label);
-        if (matchId && BOSS_ICONS_DATA[matchId]) { el.src = BOSS_ICONS_DATA[matchId]; el.bossIconId = matchId; }
-      }
-    }
-  }
-  savePlanState(); renderCanvas();
-}
+function pushUndo() { undoStack.push(JSON.stringify(elements)); if (undoStack.length > 30) undoStack.shift(); }
+function undoAssign() { if (!undoStack.length) return; elements = JSON.parse(undoStack.pop()); savePlanState(); renderCanvas(); }
 function clearCanvas() { if (!confirm('Clear all elements from canvas?')) return; pushUndo(); elements = []; savePlanState(); renderCanvas(); }
 
 // ── Export ────────────────────────────────────────────────
-function exportAssignImage() {
+async function exportAssignImage() {
   if (!aCanvas || !aCtx) { alert('Canvas not ready — open the Assignments tab first.'); return; }
 
   const btn = document.getElementById('assign-export-btn');
@@ -4088,111 +3230,105 @@ function exportAssignImage() {
   try {
     const W = canvasW || aCanvas.width;
     const H = canvasH || aCanvas.height;
-
-    // ── Build Special Assignments block ──────────────────────────────────
-    const sections = saGetOrInitSections() || [];
-    const activeSections = sections.filter(s => s.rows && s.rows.length > 0);
-    const ICON_SIZE = 18;
-    const ROW_H = 24;
-    const SA_PAD = 10;
-    const SA_COL_W = Math.floor((W - SA_PAD * 2) / Math.max(activeSections.length, 1));
-    const maxRows = activeSections.reduce((m, s) => Math.max(m, s.rows.length), 0);
-    const SA_H = activeSections.length > 0
-      ? SA_PAD * 2 + 22 + maxRows * ROW_H  // header + rows
-      : 0;
-
     const out = document.createElement('canvas');
     out.width = W;
-    out.height = H + SA_H;
+    out.height = H;
     const ctx = out.getContext('2d', { willReadFrequently: false });
 
-    // Draw main canvas background + elements
-    if (bgLoaded && bgImage && bgImage.complete && bgImage.naturalWidth) {
-      ctx.drawImage(bgImage, 0, 0, W, H);
+    // Helper: load an image fresh with crossOrigin=anonymous to avoid canvas taint
+    function loadCorsImg(src) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null); // resolve null so we don't block export on one bad image
+        img.src = src;
+      });
+    }
+
+    // Preload background
+    let exportBg = null;
+    if (bgImage && bgImage.src) {
+      exportBg = await loadCorsImg(bgImage.src);
+    }
+
+    // Collect unique image srcs from elements
+    const srcs = [...new Set(elements.filter(el => el.src).map(el => el.src))];
+    const exportImgs = {};
+    await Promise.all(srcs.map(async src => {
+      exportImgs[src] = await loadCorsImg(src);
+    }));
+
+    // Draw background
+    if (exportBg && exportBg.naturalWidth) {
+      ctx.drawImage(exportBg, 0, 0, W, H);
     } else {
       ctx.fillStyle = '#0a0a14';
       ctx.fillRect(0, 0, W, H);
     }
-    const savedCtx = aCtx;
-    aCtx = ctx;
-    for (const el of elements) drawElement(el);
-    aCtx = savedCtx;
 
-    // ── Draw SA block below canvas ──────────────────────────────────────
-    if (SA_H > 0) {
-      ctx.fillStyle = '#0d0d1a';
-      ctx.fillRect(0, H, W, SA_H);
-      ctx.strokeStyle = '#2a2a4a';
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(0, H); ctx.lineTo(W, H); ctx.stroke();
-
-      const roleColors = { tank:'#4fc3f7', healer:'#81c784', mdps:'#f06292', rdps:'#ffb74d' };
-      const roleLabels = { tank:'Tanks', healer:'Healers', mdps:'Melee DPS', rdps:'Ranged DPS' };
-
-      activeSections.forEach((sec, ci) => {
-        const sx = SA_PAD + ci * SA_COL_W;
-        const def = SA_SECTION_DEFS.find(d => d.role === sec.role) || SA_SECTION_DEFS[0];
-
-        // Column header
-        ctx.fillStyle = roleColors[sec.role] || '#aaa';
-        ctx.font = 'bold 10px "Exo 2", sans-serif';
-        ctx.fillText((roleLabels[sec.role] || sec.role).toUpperCase(), sx, H + SA_PAD + 12);
-
-        sec.rows.forEach((row, ri) => {
-          const ry = H + SA_PAD + 20 + ri * ROW_H;
-          const lbl = saRowLabel(sec.role, ri);
-
-          // Row label (MT/OT/HE/M/R)
-          ctx.fillStyle = 'rgba(255,255,255,0.35)';
-          ctx.font = 'bold 8px "Exo 2", sans-serif';
-          ctx.fillText(lbl, sx, ry + 14);
-
-          // Player name
-          const m = row.memberId ? members.find(x => x.id === row.memberId) : null;
-          const nameColor = m ? ((CM[m.cls]||{}).color || '#fff') : '#888';
-          ctx.fillStyle = nameColor;
-          ctx.font = 'bold 10px "Exo 2", sans-serif';
-          ctx.fillText(row.memberName || '—', sx + 22, ry + 13);
-
-          // Icons
-          const icons = row.icons || [];
-          icons.forEach((ic, ii) => {
-            const ix = sx + 22 + 70 + ii * (ICON_SIZE + 2);
-            if (ix + ICON_SIZE > sx + SA_COL_W - 4) return;
-            let img = null;
-            if (ic.startsWith('__marker__')) {
-              const mkey = ic.replace('__marker__', '');
-              // Use pre-loaded marker icon if available
-              const chip = document.getElementById('sa-chip-marker_' + mkey);
-              if (chip) img = chip.querySelector('img');
-            } else {
-              const chip = document.getElementById('sa-chip-' + ic.replace(/[^a-zA-Z0-9]/g,'_'));
-              if (chip) img = chip.querySelector('img');
-            }
-            if (img && img.complete && img.naturalWidth) {
-              ctx.drawImage(img, ix, ry + 2, ICON_SIZE, ICON_SIZE);
-            }
-          });
-
-          // Note text (after icons)
-          if (row.text) {
-            const noteX = sx + 22 + 70 + icons.length * (ICON_SIZE + 2) + 4;
-            ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            ctx.font = 'italic 9px "Exo 2", sans-serif';
-            ctx.fillText(row.text, noteX, ry + 13);
-          }
-        });
-
-        // Column divider
-        if (ci < activeSections.length - 1) {
-          ctx.strokeStyle = '#2a2a4a';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(sx + SA_COL_W, H + 4);
-          ctx.lineTo(sx + SA_COL_W, H + SA_H - 4);
-          ctx.stroke();
-        }
-      });
+    // Draw all elements using the preloaded CORS images
+    for (const el of elements) {
+      if (el.type === 'arrow') {
+        drawArrow(ctx, el.x1, el.y1, el.x2, el.y2, el.color || '#ffffff', false);
+        continue;
+      }
+      if (el.type === 'text') {
+        ctx.save();
+        ctx.font = `${el.fontSize||14}px "Exo 2", sans-serif`;
+        ctx.fillStyle = el.color || '#ffffff';
+        ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+        ctx.lineWidth = 3;
+        ctx.strokeText(el.text, el.x, el.y);
+        ctx.fillText(el.text, el.x, el.y);
+        ctx.restore();
+        continue;
+      }
+      // token / marker / bossicon
+      const img = exportImgs[el.src];
+      if (!img || !img.naturalWidth) continue;
+      const size = el.size || 44;
+      const half = size / 2;
+      if (el.type === 'token') {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(el.x, el.y, half, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, el.x - half, el.y - half, size, size);
+        ctx.restore();
+        ctx.beginPath();
+        ctx.arc(el.x, el.y, half, 0, Math.PI * 2);
+        ctx.strokeStyle = el.borderColor || 'rgba(255,255,255,0.7)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      } else if (el.type === 'bossicon') {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(el.x, el.y, half, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, el.x - half, el.y - half, size, size);
+        ctx.restore();
+      } else {
+        // marker
+        const iw = img.naturalWidth || size;
+        const ih = img.naturalHeight || size;
+        const scale2 = size / Math.max(iw, ih);
+        const dw = iw * scale2, dh = ih * scale2;
+        ctx.drawImage(img, el.x - dw/2, el.y - dh/2, dw, dh);
+      }
+      // Label
+      if (el.label) {
+        ctx.save();
+        ctx.font = 'bold 11px "Exo 2", sans-serif';
+        ctx.textAlign = 'center';
+        const lx = el.x, ly = el.y + half + 13;
+        ctx.strokeStyle = 'rgba(0,0,0,0.9)';
+        ctx.lineWidth = 3;
+        ctx.strokeText(el.label, lx, ly);
+        ctx.fillStyle = el.labelColor || '#ffffff';
+        ctx.fillText(el.label, lx, ly);
+        ctx.restore();
+      }
     }
 
     const planName = (currentPlanId && assignPlans[currentPlanId]?.name)
@@ -4471,7 +3607,7 @@ function renderProfessions() {
     out += '</div></div>';
   }
   el.innerHTML = out;
-  if (window.WH && WH.Tooltips) WH.Tooltips.refreshLinks();
+
 }
 
 function hexToRgb(hex) {
@@ -4498,57 +3634,7 @@ async function sbGet(key) {
 
 async function sbSet(key, value) {
   const { error } = await _sb.from('guild_data').upsert({ key, data: value, updated_at: new Date().toISOString() });
-  if (error) {
-    console.warn('sbSet error', key, error.message);
-    throw new Error(error.message); // let callers (cloudSaveWishlists retry logic) know it failed
-  }
-}
-
-// ── Per-member wishlist helpers ──────────────────────────────────────────────
-// Each member gets their own row: key = 'wl_member_<id>', data = [...items]
-// This means saves are fully isolated — two members can save simultaneously
-// without ever overwriting each other.
-
-async function sbGetAllWishlists() {
-  // Fetch all rows whose key starts with 'wl_member_'
-  const { data, error } = await _sb.from('guild_data')
-    .select('key, data')
-    .like('key', 'wl_member_%');
-  if (error) {
-    console.warn('sbGetAllWishlists error', error.message);
-    throw new Error(error.message);
-  }
-  // Reassemble into { memberId(str): [...items] }
-  const result = {};
-  (data || []).forEach(row => {
-    const id = row.key.replace('wl_member_', '');
-    result[id] = row.data || [];
-  });
-  return result;
-}
-
-async function sbSetMemberWishlist(memberId, items) {
-  const key = 'wl_member_' + String(memberId);
-  const { error } = await _sb.from('guild_data')
-    .upsert({ key, data: items, updated_at: new Date().toISOString() });
-  if (error) {
-    console.warn('sbSetMemberWishlist error', memberId, error.message);
-    throw new Error(error.message);
-  }
-}
-
-async function sbDeleteMemberWishlist(memberId) {
-  const key = 'wl_member_' + String(memberId);
-  const { error } = await _sb.from('guild_data').delete().eq('key', key);
-  if (error) console.warn('sbDeleteMemberWishlist error', memberId, error.message);
-}
-
-async function sbClearAllMemberWishlists() {
-  const { error } = await _sb.from('guild_data').delete().like('key', 'wl_member_%');
-  if (error) {
-    console.warn('sbClearAllMemberWishlists error', error.message);
-    throw new Error(error.message);
-  }
+  if (error) console.warn('sbSet error', key, error.message);
 }
 
 // ── Members ──────────────────────────────────────────────
@@ -4602,38 +3688,14 @@ async function loadFromCloud() {
     if (assign_data !== null && assign_data.plans && Object.keys(assign_data.plans).length > 0) {
       localStorage.setItem('gm_assign', JSON.stringify(assign_data));
     }
-    // Wishlists — prime in-memory state. Each member has their own isolated row.
-    // initWishlist will re-fetch on tab visit anyway; this just primes for other tabs.
-    if (Object.keys(wlData).length === 0) {
-      wlData = await sbGetAllWishlists();
-    }
-    // Wishlist lock state
-    const wl_locked = await sbGet('wishlists_locked');
-    wlLocked = wl_locked === true;
     showSyncStatus('ok');
   } catch(e) {
     console.warn('loadFromCloud error', e);
     showSyncStatus('error');
   }
 }
-async function cloudSaveWishlists(memberId, items) {
-  // Each member has their own isolated row in Supabase (key = 'wl_member_<id>').
-  // Saving one member never touches any other member's data.
-  try {
-    await sbSetMemberWishlist(memberId, items);
-    showSyncStatus('saved');
-  } catch(e) {
-    console.warn('cloudSaveWishlists failed, retrying...', e);
-    try {
-      await sbSetMemberWishlist(memberId, items);
-      showSyncStatus('saved');
-    } catch(e2) {
-      console.warn('cloudSaveWishlists retry failed:', e2);
-      showSyncStatus('error');
-      throw e2;
-    }
-  }
-}
+
+// ── Save helpers called after each mutation ──────────────
 async function cloudSaveMembers() {
   localStorage.setItem('gm_members', JSON.stringify(members));
   await sbSaveMembers();
@@ -4642,21 +3704,25 @@ async function cloudSaveMembers() {
 
 async function cloudSaveGroups() {
   localStorage.setItem('gm_groups', JSON.stringify(groups));
-  try { await sbSet('groups', groups); showSyncStatus('saved'); } catch(e) { showSyncStatus('error'); }
+  await sbSet('groups', groups);
+  showSyncStatus('saved');
 }
 
 async function cloudSaveIdeal() {
   localStorage.setItem('gm_ideal', JSON.stringify(ideal));
-  try { await sbSet('ideal', ideal); showSyncStatus('saved'); } catch(e) { showSyncStatus('error'); }
+  await sbSet('ideal', ideal);
+  showSyncStatus('saved');
 }
 
 async function cloudSaveProf() {
   localStorage.setItem('gm_profitems', JSON.stringify(profItems));
-  try { await sbSet('profitems', profItems); showSyncStatus('saved'); } catch(e) { showSyncStatus('error'); }
+  await sbSet('profitems', profItems);
+  showSyncStatus('saved');
 }
 
 async function cloudSaveAssign(assignData) {
-  try { await sbSet('assign', assignData); showSyncStatus('saved'); } catch(e) { showSyncStatus('error'); }
+  await sbSet('assign', assignData);
+  showSyncStatus('saved');
 }
 
 // ── Sync status indicator ────────────────────────────────
@@ -4704,7 +3770,7 @@ initClassSelect();
   const savedTab = localStorage.getItem('gm_activetab');
   if (savedTab && savedTab !== 'roster') {
     const btn = document.querySelector(`.nav-btn[onclick*="showPage('${savedTab}'"]`);
-    if (btn) await showPage(savedTab, btn);
+    if (btn) showPage(savedTab, btn);
   }
 })();
 
@@ -4836,114 +3902,6 @@ document.addEventListener('click', function(e) {
   if (m && e.target === m) closeLootPasteModal();
 });
 
-// ── Manual Loot Entry ─────────────────────────────────────────────────────────
-
-let _manualLootItemID = null;
-
-function showManualLootModal() {
-  if (!_li) { alert('Please login as officer to add loot entries.'); return; }
-
-  // Populate character select from roster
-  const sel = document.getElementById('manual-loot-character');
-  sel.innerHTML = '<option value="">— Select player —</option>' +
-    members.slice().sort((a,b) => a.name.localeCompare(b.name))
-      .map(m => `<option value="${m.name}">${m.name} (${m.spec || m.cls})</option>`)
-      .join('') +
-    '<option value="_disenchanted">✨ Disenchanted</option>';
-
-  // Default to today's date
-  const today = new Date().toISOString().slice(0, 10);
-  document.getElementById('manual-loot-date').value = today;
-  document.getElementById('manual-loot-item').value = '';
-  document.getElementById('manual-loot-note').value = '';
-  document.getElementById('manual-loot-status').textContent = '';
-  document.getElementById('manual-loot-offspec').value = '0';
-  document.getElementById('manual-loot-preview').style.display = 'none';
-  _manualLootItemID = null;
-
-  document.getElementById('loot-manual-modal').style.display = 'flex';
-  setTimeout(() => document.getElementById('manual-loot-item').focus(), 50);
-}
-
-function closeManualLootModal() {
-  document.getElementById('loot-manual-modal').style.display = 'none';
-}
-
-document.addEventListener('click', function(e) {
-  const m = document.getElementById('loot-manual-modal');
-  if (m && e.target === m) closeManualLootModal();
-});
-
-async function manualLootLookup() {
-  const raw = document.getElementById('manual-loot-item').value.trim();
-  const statusEl = document.getElementById('manual-loot-status');
-  if (!raw) { statusEl.style.color = '#e07070'; statusEl.textContent = 'Please enter an item ID or URL.'; return; }
-
-  // Extract numeric item ID from raw input (handles plain IDs and full WoWHead URLs)
-  const match = raw.match(/(\d{4,})/);
-  if (!match) { statusEl.style.color = '#e07070'; statusEl.textContent = '⚠ Could not find an item ID. Enter a number like 28789 or paste a WoWHead URL.'; return; }
-
-  const itemID = parseInt(match[1]);
-  statusEl.style.color = 'var(--text3)';
-  statusEl.textContent = '⟳ Fetching item info...';
-
-  try {
-    if (!_itemCache[itemID]) {
-      const r = await fetch(WOWHEAD_TOOLTIP + itemID);
-      const d = await r.json();
-      _itemCache[itemID] = { name: d.name || 'Unknown Item', quality: d.quality ?? 1, icon: d.icon || 'inv_misc_questionmark' };
-      saveItemCache();
-    }
-    const item = _itemCache[itemID];
-    const qc = QUALITY_CLASS[item.quality ?? 1];
-    const iconUrl = `${WOWHEAD_ICON}${item.icon}.jpg`;
-
-    document.getElementById('manual-loot-icon').src = iconUrl;
-    document.getElementById('manual-loot-name').innerHTML = `<span class="${qc}">${item.name}</span>`;
-    document.getElementById('manual-loot-meta').textContent = `Item ID: ${itemID} · ${QUALITY_NAME[item.quality ?? 1]}`;
-    document.getElementById('manual-loot-preview').style.display = 'flex';
-    statusEl.textContent = '';
-    _manualLootItemID = itemID;
-  } catch(e) {
-    statusEl.style.color = '#e07070';
-    statusEl.textContent = '⚠ Could not fetch item info. Check the ID and try again.';
-    _manualLootItemID = null;
-  }
-}
-
-async function submitManualLootEntry() {
-  const statusEl = document.getElementById('manual-loot-status');
-  const character = document.getElementById('manual-loot-character').value.trim();
-  const date = document.getElementById('manual-loot-date').value.trim();
-  const offspec = document.getElementById('manual-loot-offspec').value === '1';
-
-  if (!character) { statusEl.style.color = '#e07070'; statusEl.textContent = '⚠ Please select a character.'; return; }
-  if (!date)      { statusEl.style.color = '#e07070'; statusEl.textContent = '⚠ Please enter a date.'; return; }
-  if (!_manualLootItemID) {
-    // Try to look up first if user hasn't yet
-    await manualLootLookup();
-    if (!_manualLootItemID) return;
-  }
-
-  const entry = {
-    dateTime: date,
-    character,
-    itemID: _manualLootItemID,
-    offspec,
-    id: `manual-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
-    manual: true,
-  };
-
-  _lootData.push(entry);
-  _lootData.sort((a, b) => b.dateTime.localeCompare(a.dateTime));
-  saveLootData();
-  renderLootPage();
-  closeManualLootModal();
-
-  const item = _itemCache[_manualLootItemID];
-  showToast(`✓ Added ${item?.name || 'item'} → ${character === '_disenchanted' ? 'Disenchanted' : character}`);
-}
-
 function parseLootCSV(text) {
   const lines = text.trim().split('\n');
   const entries = [];
@@ -5054,8 +4012,6 @@ function renderCurrentLootView() {
   if (_lootView === 'perplayer') renderLootPerPlayer();
   if (_lootView === 'stats')     renderLootStats();
   if (_lootView === 'manage')    renderLootManage();
-  // Re-process data-wowhead attributes on dynamically rendered item links
-  if (window.WH && WH.Tooltips) WH.Tooltips.refreshLinks();
 }
 
 // ── Overview view ─────────────────────────────────────────────────────────────
@@ -5137,26 +4093,25 @@ function renderLootOverview() {
 function renderLootHistory() {
   const el = document.getElementById('loot-view-history');
 
-  // Read current filter values BEFORE rebuilding the DOM
-  const playerFilter = document.getElementById('loot-filter-player')?.value || 'All';
-  const dateFilter   = document.getElementById('loot-filter-date')?.value || 'All';
-  const msOnly       = document.getElementById('loot-filter-ms')?.checked || false;
-
   // Filter controls
   const players = ['All', ...[...new Set(_lootData.map(e => e.character))].sort().map(p => p === '_disenchanted' ? 'Disenchanted' : p)];
   const dates   = ['All', ...[...new Set(_lootData.map(e => e.dateTime))].sort().reverse()];
 
   let html = `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
     <select id="loot-filter-player" onchange="renderLootHistory()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);padding:5px 10px;font-family:'Exo 2',sans-serif;font-size:12px">
-      ${players.map(p => `<option${p === playerFilter ? ' selected' : ''}>${p}</option>`).join('')}
+      ${players.map(p => `<option>${p}</option>`).join('')}
     </select>
     <select id="loot-filter-date" onchange="renderLootHistory()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);padding:5px 10px;font-family:'Exo 2',sans-serif;font-size:12px">
-      ${dates.map(d => `<option${d === dateFilter ? ' selected' : ''}>${d}</option>`).join('')}
+      ${dates.map(d => `<option>${d}</option>`).join('')}
     </select>
     <label style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;cursor:pointer">
-      <input type="checkbox" id="loot-filter-ms" onchange="renderLootHistory()"${msOnly ? ' checked' : ''}> Main Spec only
+      <input type="checkbox" id="loot-filter-ms" onchange="renderLootHistory()"> Main Spec only
     </label>
   </div>`;
+
+  const playerFilter = document.getElementById('loot-filter-player')?.value || 'All';
+  const dateFilter   = document.getElementById('loot-filter-date')?.value || 'All';
+  const msOnly       = document.getElementById('loot-filter-ms')?.checked || false;
 
   let filtered = _lootData;
   if (playerFilter !== 'All') filtered = filtered.filter(e => (playerFilter === 'Disenchanted' ? e.character === '_disenchanted' : e.character === playerFilter));
@@ -5185,7 +4140,7 @@ function renderLootHistory() {
         : e.offspec 
           ? '<span style="font-size:10px;color:#9896a4;background:rgba(255,255,255,0.07);padding:2px 7px;border-radius:10px">Off Spec</span>'
           : '<span style="font-size:10px;color:#80d080;background:rgba(128,208,128,0.1);padding:2px 7px;border-radius:10px">Main Spec</span>'
-      }${e.manual ? ' <span style="font-size:9px;color:#a0a0d0;background:rgba(160,160,208,0.1);padding:1px 5px;border-radius:8px;border:1px solid rgba(160,160,208,0.25)" title="Added manually">✏</span>' : ''}</span>
+      }</span>
     </div>`;
   }).join('') || '<div style="color:var(--text3);font-size:12px;padding:16px">No entries match the current filters.</div>';
 
@@ -5368,29 +4323,6 @@ function renderLootStats() {
     <circle cx="190" cy="80" r="7" fill="#e0a040"/>
     <text x="202" y="85" fill="#ddd" font-size="12" font-family="Exo 2,sans-serif">DE (${deItems.length})</text>`);
 
-  // Bottom 10 (least dropped) — epic quality (4) or higher only
-  const allItemsSorted = Object.entries(itemDetail)
-    .map(([id,d]) => [id, d, d.ms+d.os+d.de])
-    .filter(([id]) => (_itemCache[id]?.quality ?? 0) >= 4)
-    .sort((a,b) => a[2]-b[2]);
-  const bottom15 = allItemsSorted.slice(0, 15);
-
-  const leastItemsHtml = bottom15.map(([id,d,total],i) => {
-    const item=_itemCache[id]||{}, qc=QUALITY_CLASS[item.quality??1];
-    const icon=item.icon?`${WOWHEAD_ICON}${item.icon}.jpg`:'';
-    const rank = i+1;
-    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-      <span style="font-size:10px;color:var(--text3);width:16px;text-align:right;flex-shrink:0">${rank}</span>
-      ${icon?`<img src="${icon}" style="width:24px;height:24px;border-radius:3px;flex-shrink:0" onerror="this.style.display='none'">` :''}
-      <a href="${WOWHEAD_ITEM}${id}" target="_blank" data-wowhead="item=${id}&domain=tbc" class="${qc}" style="text-decoration:none;font-size:12px;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.name||'Item #'+id}</a>
-      <div style="display:flex;gap:4px;align-items:center;flex-shrink:0">
-        ${d.ms?`<span style="font-size:10px;color:#80d080;background:rgba(128,208,128,0.1);padding:1px 5px;border-radius:8px">${d.ms} MS</span>`:''}
-        ${d.os?`<span style="font-size:10px;color:#9896a4;background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:8px">${d.os} OS</span>`:''}
-        ${d.de?`<span style="font-size:10px;color:#e0a040;background:rgba(224,160,64,0.1);padding:1px 5px;border-radius:8px">${d.de} DE</span>`:''}
-        <span style="font-size:12px;font-weight:700;color:#7a9ec0;margin-left:2px">${total}×</span>
-      </div></div>`;
-  }).join('');
-
   // Top 15
   const topItemsHtml = top15.map(([id,d,total]) => {
     const item=_itemCache[id]||{}, qc=QUALITY_CLASS[item.quality??1];
@@ -5440,11 +4372,6 @@ function renderLootStats() {
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px">
           <div style="font-family:Cinzel,serif;font-size:12px;color:var(--gold);margin-bottom:12px;letter-spacing:0.05em">MOST DROPPED ITEMS (TOP 15)</div>
           ${topItemsHtml||'<div style="color:var(--text3);font-size:12px">No repeat drops yet.</div>'}
-        </div>
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px">
-          <div style="font-family:Cinzel,serif;font-size:12px;color:var(--gold);margin-bottom:4px;letter-spacing:0.05em">LEAST DROPPED ITEMS (BOTTOM 15)</div>
-          <div style="font-size:10px;color:var(--text3);margin-bottom:12px">Epic+ items that have appeared the fewest times across all raids</div>
-          ${leastItemsHtml||'<div style="color:var(--text3);font-size:12px">Not enough epic+ data yet.</div>'}
         </div>
       </div>
     </div>
@@ -5547,7 +4474,6 @@ function clearLootData() {
   localStorage.removeItem('gm_loot_cache');
   sbSet('loot', {}).catch(() => {});
   renderLootPage();
-  showToast('✓ All loot history cleared.');
 }
 
 function showToast(msg) {
@@ -5595,9 +4521,6 @@ function _checkSession() {
 function _updateUI() {
   var btn = document.getElementById('login-btn');
   if (btn) { btn.textContent = _li ? '🔓 Logout' : '🔒 Login'; btn.style.color = _li ? '#80d080' : ''; }
-  // Show/hide officer-only wishlist buttons
-  var clearBtn = document.getElementById('wl-clear-btn');
-  if (clearBtn) clearBtn.style.display = _li ? 'inline-flex' : 'none';
   _applyRestrictions();
 }
 
@@ -5650,7 +4573,7 @@ function handleLoginBtn() {
 
 function doLogin() {
   var pw = document.getElementById('login-pw').value;
-  var stored = localStorage.getItem('gm_pw') || 'dvdl0l';
+  var stored = localStorage.getItem('gm_pw') || 'guild2024';
   if (pw === stored) {
     _li = true;
     sessionStorage.setItem('gm_ok', '1');
@@ -5678,972 +4601,12 @@ document.getElementById('login-bg').addEventListener('click', function(e) {
 
 // Re-apply after each page switch (content re-renders)
 var _origShowPage = showPage;
-showPage = async function(name, btn) {
-  await _origShowPage(name, btn);
+showPage = function(name, btn) {
+  _origShowPage(name, btn);
   setTimeout(_applyRestrictions, 50);
 };
 
-// ══════════════════════════════════════════════════════════════════════════════
-// WISHLIST
-// ══════════════════════════════════════════════════════════════════════════════
-// Data: { [memberId]: [ { itemId, itemName, itemIcon, itemUrl, quality, prio, addedAt }, ... ] }
-// prio: 'bis' | 'upgrade' | 'offspec'
-
-let wlData = {};           // memberId(str) -> array of wish items
-let wlSelectedId = null;   // currently selected member id (number)
-let wlLookupResult = null; // pending item from lookup
-let wlDragIdx = null;      // drag-to-reorder index
-let wlCurrentView = 'player'; // 'player' | 'competition'
-let wlLocked = false;          // when true, no edits allowed
-
-const WL_PRIO_LABELS = { bis: 'BiS', upgrade: 'Upgrade', offspec: 'Off Spec' };
-const WL_PRIO_COLORS = {
-  bis:     { color: '#f0d070', bg: 'rgba(240,208,112,0.15)', border: 'rgba(240,208,112,0.4)' },
-  upgrade: { color: '#80d0ff', bg: 'rgba(128,208,255,0.12)', border: 'rgba(128,208,255,0.35)' },
-  offspec: { color: '#9896a4', bg: 'rgba(152,150,164,0.1)',  border: 'rgba(152,150,164,0.3)' },
-};
-
-function wlLoad() {
-  // No-op: wlData is loaded from Supabase at startup (loadFromCloud)
-  // and refreshed on every tab visit (initWishlist → wlRefresh).
-  // This function is kept so any legacy call sites don't break.
-}
-
-let _wlSaveTimer = null;
-function wlSave(memberId) {
-  // memberId must always be passed explicitly — never rely on wlSelectedId,
-  // because officers can edit items for any player regardless of which player
-  // is currently "selected" in the sidebar (e.g. via the competition view).
-  if (memberId === undefined || memberId === null) return;
-  const id = String(memberId);
-  const items = wlData[id] || [];
-  clearTimeout(_wlSaveTimer);
-  _wlSaveTimer = setTimeout(() => cloudSaveWishlists(id, items), 600);
-}
-
-function wlSaveLock() {
-  // Single source of truth: lock state lives only in Supabase
-  sbSet('wishlists_locked', wlLocked).catch(() => {});
-}
-
-function wlUpdateLockBtn() {
-  const btn = document.getElementById('wl-lock-btn');
-  if (!btn) return;
-  if (wlLocked) {
-    btn.textContent = '🔒 Locked';
-    btn.style.background = 'rgba(224,96,96,0.15)';
-    btn.style.borderColor = 'rgba(224,96,96,0.5)';
-    btn.style.color = '#e06060';
-  } else {
-    btn.textContent = '🔓 Unlocked';
-    btn.style.background = 'transparent';
-    btn.style.borderColor = 'rgba(255,255,255,0.14)';
-    btn.style.color = 'var(--text2)';
-  }
-  // Show/hide the add form and locked banner
-  const addForm = document.getElementById('wl-add-form');
-  if (addForm) addForm.style.display = wlLocked ? 'none' : '';
-  let banner = document.getElementById('wl-locked-banner');
-  if (wlLocked) {
-    if (!banner) {
-      banner = document.createElement('div');
-      banner.id = 'wl-locked-banner';
-      banner.style.cssText = 'background:rgba(224,96,96,0.08);border:1px solid rgba(224,96,96,0.3);border-radius:6px;padding:10px 16px;margin-bottom:12px;font-size:12px;color:#e06060;display:flex;align-items:center;gap:8px';
-      banner.innerHTML = '🔒 Wishlists are locked — no edits can be made until an officer unlocks them.';
-      const panel = document.getElementById('wl-panel');
-      const addFormEl = document.getElementById('wl-add-form');
-      if (panel && addFormEl) panel.insertBefore(banner, addFormEl);
-    }
-    banner.style.display = 'flex';
-  } else if (banner) {
-    banner.style.display = 'none';
-  }
-}
-
-async function wlClearAll() {
-  if (!_li) return;
-  if (!confirm('Clear ALL wishlist data for every player? This cannot be undone.')) return;
-  wlData = {};
-  wlSelectedId = null;
-  wlRender();
-  try {
-    await sbClearAllMemberWishlists();
-    showToast('✓ All wishlist data cleared.');
-  } catch(e) {
-    showToast('⚠ Clear failed to sync — check connection.');
-  }
-}
-
-function wlToggleLock() {
-  if (!_li) { showToast('🔒 Login as officer to lock/unlock wishlists.'); return; }
-  wlLocked = !wlLocked;
-  wlSaveLock();
-  wlUpdateLockBtn();
-  wlRender(); // re-render to show/hide edit controls
-  showToast(wlLocked ? '🔒 Wishlists locked — no edits allowed.' : '🔓 Wishlists unlocked.');
-}
-
-async function initWishlist() {
-  loadLootData();
-  loadItemCache();
-  wlLookupResult = null;
-  // Always read fresh — each member's items come from their own isolated Supabase row
-  showSyncStatus('loading');
-  try {
-    wlData = await sbGetAllWishlists();
-    const wl_locked = await sbGet('wishlists_locked');
-    wlLocked = wl_locked === true;
-    showSyncStatus('ok');
-  } catch(e) {
-    console.warn('initWishlist fetch failed:', e);
-    showSyncStatus('error');
-    // Keep whatever is already in wlData rather than wiping it
-  }
-  wlUpdateLockBtn();
-  wlSetView(wlCurrentView);
-}
-
-function wlSetView(view) {
-  wlCurrentView = view;
-  const playerBtn = document.getElementById('wl-tab-player');
-  const compBtn   = document.getElementById('wl-tab-competition');
-  const playerView = document.getElementById('wl-view-player');
-  const compView   = document.getElementById('wl-view-competition');
-  if (!playerBtn) return;
-  if (view === 'player') {
-    playerBtn.style.background = 'var(--gold)'; playerBtn.style.color = '#0e0e12'; playerBtn.style.fontWeight = '600';
-    compBtn.style.background = 'transparent'; compBtn.style.color = 'var(--text2)'; compBtn.style.fontWeight = '400';
-    playerView.style.display = 'block';
-    compView.style.display = 'none';
-    wlRender();
-  } else {
-    compBtn.style.background = 'var(--gold)'; compBtn.style.color = '#0e0e12'; compBtn.style.fontWeight = '600';
-    playerBtn.style.background = 'transparent'; playerBtn.style.color = 'var(--text2)'; playerBtn.style.fontWeight = '400';
-    playerView.style.display = 'none';
-    compView.style.display = 'block';
-    wlRenderCompetition();
-  }
-}
-
-function wlRender() {
-  if (wlCurrentView === 'competition') { wlRenderCompetition(); return; }
-  wlRenderPlayerList();
-  if (wlSelectedId !== null) {
-    wlShowPanel(wlSelectedId);
-  } else {
-    document.getElementById('wl-panel').style.display = 'none';
-    document.getElementById('wl-empty-state').style.display = 'block';
-    wlRenderHotItems();
-  }
-}
-
-function wlRenderHotItems() {
-  const el = document.getElementById('wl-hot-items');
-  if (!el) return;
-
-  // Build item map: itemId -> { itemName, itemIcon, itemUrl, quality, wanted: [], received: [] }
-  const itemMap = {};
-  Object.entries(wlData).forEach(([mid, list]) => {
-    const member = members.find(m => m.id === parseInt(mid));
-    if (!member) return;
-    list.forEach((item, idx) => {
-      if (!itemMap[item.itemId]) {
-        itemMap[item.itemId] = { itemId: item.itemId, itemName: item.itemName, itemIcon: item.itemIcon, itemUrl: item.itemUrl, quality: item.quality, wanted: [], received: [] };
-      }
-      const isReceived = (item.manualReceived === true) ||
-        (item.manualReceived !== false && _lootData.some(e => String(e.itemID) === String(item.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid)));
-      const overridden = item.manualReceived === false;
-      const actuallyReceived = overridden ? false : isReceived;
-      if (actuallyReceived) {
-        itemMap[item.itemId].received.push({ member, prio: item.prio });
-      } else {
-        itemMap[item.itemId].wanted.push({ member, prio: item.prio, rank: idx + 1 });
-      }
-    });
-  });
-
-  // Sort by most wanted (unreceived), top 10
-  const sorted = Object.values(itemMap)
-    .filter(it => it.wanted.length > 0)
-    .sort((a, b) => b.wanted.length - a.wanted.length || a.itemName.localeCompare(b.itemName))
-    .slice(0, 10);
-
-  if (!sorted.length) {
-    el.innerHTML = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:40px;text-align:center;color:var(--text3)">
-      <div style="font-size:28px;margin-bottom:8px">🎯</div>
-      <div style="font-size:13px">Select a player to view or edit their wishlist</div>
-    </div>`;
-    return;
-  }
-
-  const maxWanted = sorted[0].wanted.length;
-
-  el.innerHTML = `
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden">
-      <!-- Header -->
-      <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-        <span style="font-size:18px">🔥</span>
-        <div>
-          <div style="font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold2)">Most Contested Items</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:1px">Top 10 most wishlisted items across all players</div>
-        </div>
-      </div>
-
-      <!-- List -->
-      <div>
-        ${sorted.map((item, rank) => {
-          const qClass = QUALITY_CLASS[item.quality ?? 4];
-          const wantCount = item.wanted.length;
-          const recvCount = item.received.length;
-          const barPct = Math.round((wantCount / maxWanted) * 100);
-          const barColor = wantCount >= 6 ? '#e06060' : wantCount >= 4 ? '#e09040' : wantCount >= 3 ? '#e0d060' : wantCount >= 2 ? '#80c8ff' : '#80d080';
-
-          // Sort wanted: BiS first then upgrade then offspec
-          const priOrder = { bis: 0, upgrade: 1, offspec: 2 };
-          const sortedWanted = [...item.wanted].sort((a, b) => (priOrder[a.prio] ?? 1) - (priOrder[b.prio] ?? 1));
-
-          // Player avatars (up to 8)
-          const avatars = sortedWanted.slice(0, 8).map(p => {
-            const cc = CM[p.member.cls] || { color: '#888' };
-            const icon = specIcon(p.member.cls, p.member.spec);
-            const pc = WL_PRIO_COLORS[p.prio] || WL_PRIO_COLORS.upgrade;
-            return `<div title="${p.member.name} — ${WL_PRIO_LABELS[p.prio]}" onclick="event.stopPropagation();wlSelectPlayer(${p.member.id})"
-              style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0;cursor:pointer;
-                     border:2px solid ${pc.color};transition:transform .12s"
-              onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
-              <img src="${icon}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">
-            </div>`;
-          }).join('');
-
-          const isTopThree = rank < 3;
-          const rankEmoji = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : '';
-
-          return `<div style="padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.04);${isTopThree ? 'background:rgba(255,255,255,0.015)' : ''}">
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-              <!-- Rank -->
-              <div style="min-width:28px;text-align:center;flex-shrink:0">
-                ${rankEmoji
-                  ? `<span style="font-size:18px">${rankEmoji}</span>`
-                  : `<span style="font-size:12px;font-weight:700;color:var(--text3)">${rank + 1}</span>`}
-              </div>
-              <!-- Icon -->
-              ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:36px;height:36px;border-radius:6px;flex-shrink:0" onerror="this.style.display='none'">` : ''}
-              <!-- Name + bar -->
-              <div style="flex:1;min-width:0">
-                <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:none;font-size:13px;font-weight:700;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
-                <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
-                  <div style="flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden">
-                    <div style="height:100%;width:${barPct}%;background:${barColor};border-radius:3px"></div>
-                  </div>
-                  <span style="font-size:11px;font-weight:700;color:${barColor};flex-shrink:0;min-width:60px">
-                    ${wantCount} want${wantCount !== 1 ? 's' : ''} it${recvCount ? ` · <span style="color:#80d080;font-weight:400">✓${recvCount}</span>` : ''}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <!-- Player avatars -->
-            <div style="display:flex;align-items:center;gap:6px;padding-left:40px;flex-wrap:wrap">
-              ${avatars}
-              ${sortedWanted.length > 8 ? `<span style="font-size:11px;color:var(--text3)">+${sortedWanted.length - 8} more</span>` : ''}
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-
-      <div style="padding:10px 20px;text-align:center;border-top:1px solid rgba(255,255,255,0.04)">
-        <span style="font-size:11px;color:var(--text3)">Click a player avatar to jump to their wishlist · Switch to </span>
-        <span onclick="wlSetView('competition')" style="font-size:11px;color:var(--gold);cursor:pointer;text-decoration:underline">⚔ Item Competition</span>
-        <span style="font-size:11px;color:var(--text3)"> for the full breakdown</span>
-      </div>
-    </div>
-  `;
-  if (window.WH && WH.Tooltips) WH.Tooltips.refreshLinks();
-}
-
-function wlRenderPlayerList() {
-  const q = (document.getElementById('wl-search')?.value || '').toLowerCase();
-  const el = document.getElementById('wl-player-list');
-  if (!el) return;
-
-  const filtered = members.filter(m =>
-    !q || m.name.toLowerCase().includes(q) ||
-    (wlData[String(m.id)] || []).some(w => w.itemName.toLowerCase().includes(q))
-  );
-
-  if (!filtered.length) {
-    el.innerHTML = '<div style="padding:12px 14px;font-size:12px;color:var(--text3)">No players found</div>';
-    return;
-  }
-
-  el.innerHTML = filtered.map(m => {
-    const cc = CM[m.cls] || { color: '#888' };
-    const icon = specIcon(m.cls, m.spec);
-    const items = wlData[String(m.id)] || [];
-    const isActive = m.id === wlSelectedId;
-
-    // Count received vs unreceived
-    let receivedCount = 0, unreceivedCount = 0;
-    items.forEach(item => {
-      const overridden = item.manualReceived === false;
-      const lootGot = _lootData.some(e => String(e.itemID) === String(item.itemId) && findMemberByLootName(e.character)?.id === m.id);
-      const isReceived = overridden ? false : (lootGot || !!item.manualReceived);
-      if (isReceived) receivedCount++; else unreceivedCount++;
-    });
-
-    const badges = items.length ? `
-      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
-        ${unreceivedCount ? `<span style="font-size:10px;background:rgba(200,168,75,0.15);color:var(--gold);padding:1px 7px;border-radius:8px">${unreceivedCount}</span>` : ''}
-        ${unreceivedCount && receivedCount ? `<span style="color:var(--text3);font-size:10px">·</span>` : ''}
-        ${receivedCount ? `<span style="font-size:10px;background:rgba(128,208,128,0.15);color:#80d080;padding:1px 7px;border-radius:8px">✓${receivedCount}</span>` : ''}
-      </div>` : '';
-
-    return `<div onclick="wlSelectPlayer(${m.id})"
-      style="display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;
-             border-left:3px solid ${isActive ? cc.color : 'transparent'};
-             background:${isActive ? 'rgba(255,255,255,0.05)' : 'transparent'};
-             transition:all .12s"
-      onmouseover="if(${m.id}!==${wlSelectedId})this.style.background='rgba(255,255,255,0.03)'"
-      onmouseout="if(${m.id}!==${wlSelectedId})this.style.background='transparent'">
-      <img src="${icon}" style="width:28px;height:28px;border-radius:50%;flex-shrink:0" onerror="this.style.display='none'">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:600;color:${cc.color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.name}</div>
-        <div style="font-size:10px;color:var(--text3)">${m.spec || m.cls}</div>
-      </div>
-      ${badges}
-    </div>`;
-  }).join('');
-}
-
-function wlGoHome() {
-  wlSelectedId = null;
-  const homeBtn = document.getElementById('wl-home-btn');
-  if (homeBtn) homeBtn.style.display = 'none';
-  wlRender();
-}
-
-function wlSelectPlayer(memberId) {
-  wlSelectedId = memberId;
-  const homeBtn = document.getElementById('wl-home-btn');
-  if (homeBtn) homeBtn.style.display = 'block';
-  wlLookupResult = null;
-  // Reset add form
-  const inp = document.getElementById('wl-url-input');
-  if (inp) inp.value = '';
-  const prev = document.getElementById('wl-preview');
-  if (prev) prev.style.display = 'none';
-  const st = document.getElementById('wl-status');
-  if (st) st.textContent = '';
-  // If we're in competition view, switch to player view first
-  if (wlCurrentView !== 'player') wlSetView('player');
-  else { wlRenderPlayerList(); wlShowPanel(memberId); }
-}
-
-function wlShowPanel(memberId) {
-  const m = members.find(x => x.id === memberId);
-  if (!m) return;
-  const cc = CM[m.cls] || { color: '#888' };
-  const icon = specIcon(m.cls, m.spec);
-  const items = wlData[String(memberId)] || [];
-
-  document.getElementById('wl-empty-state').style.display = 'none';
-  document.getElementById('wl-panel').style.display = 'block';
-  wlUpdateLockBtn();
-
-  document.getElementById('wl-panel-icon').src = icon;
-  document.getElementById('wl-panel-name').textContent = m.name;
-  document.getElementById('wl-panel-name').style.color = cc.color;
-  document.getElementById('wl-panel-sub').textContent = `${m.spec || m.cls} · ${m.rank || ''}`.replace(/ · $/, '');
-
-  // Count only unreceived items for the header
-  const unreceived = items.filter(item => {
-    const overridden = item.manualReceived === false;
-    const lootGot = _lootData.some(e => String(e.itemID) === String(item.itemId) && findMemberByLootName(e.character)?.id === memberId);
-    return overridden ? false : !(lootGot || !!item.manualReceived);
-  });
-  const total = items.length;
-  document.getElementById('wl-panel-count').textContent = total
-    ? `${unreceived.length} remaining · ${total} total`
-    : 'No items yet';
-
-  wlRenderItems(memberId);
-}
-
-function wlRenderItems(memberId) {
-  const el = document.getElementById('wl-items');
-  if (!el) return;
-  const items = wlData[String(memberId)] || [];
-
-  if (!items.length) {
-    el.innerHTML = '<div style="padding:20px 16px;text-align:center;font-size:12px;color:var(--text3)">No items yet — paste a WoWHead URL above to add the first one</div>';
-    return;
-  }
-
-  // Compute received status for each item, keeping original index for drag/toggle/remove
-  const annotated = items.map((item, i) => {
-    const lootTrackerReceived = _lootData.some(e => {
-      if (String(e.itemID) !== String(item.itemId)) return false;
-      const matched = findMemberByLootName(e.character);
-      return matched?.id === memberId;
-    });
-    const overriddenNotReceived = item.manualReceived === false;
-    const received = overriddenNotReceived ? false : (lootTrackerReceived || !!item.manualReceived);
-    const receivedSource = overriddenNotReceived ? '' :
-      lootTrackerReceived && item.manualReceived ? 'via Loot Tracker + manual' :
-      lootTrackerReceived ? 'via Loot Tracker' :
-      item.manualReceived ? 'marked manually' : '';
-    return { item, i, lootTrackerReceived, overriddenNotReceived, received, receivedSource };
-  });
-
-  const active   = annotated.filter(a => !a.received);
-  const received = annotated.filter(a =>  a.received);
-
-  // ── Helper: render a single item row ──
-  function makeRow({ item, i, lootTrackerReceived, overriddenNotReceived, received, receivedSource }, isReceivedSection) {
-    const pc = WL_PRIO_COLORS[item.prio] || WL_PRIO_COLORS.upgrade;
-    const qClass = QUALITY_CLASS[item.quality ?? 4];
-    const rank = active.indexOf(annotated[i]) + 1; // rank within active list only
-
-    // "Who else wants this" — only show in active section
-    const othersHtml = isReceivedSection ? '' : (() => {
-      const others = [];
-      Object.entries(wlData).forEach(([mid, list]) => {
-        if (parseInt(mid) === memberId) return;
-        const entry = list.find(w => w.itemId === item.itemId);
-        if (!entry) return;
-        const m2 = members.find(x => x.id === parseInt(mid));
-        if (!m2) return;
-        const received2 = (entry.manualReceived === true) || (entry.manualReceived !== false && _lootData.some(e => String(e.itemID) === String(entry.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid)));
-        others.push({ m: m2, rank: list.indexOf(entry) + 1, prio: entry.prio, received: received2 });
-      });
-      if (!others.length) return '';
-      const activeOthers = others.filter(o => !o.received);
-      const label = activeOthers.length
-        ? `<span style="color:var(--text3)">Also wanted by </span>${activeOthers.map(o => {
-            const cc2 = CM[o.m.cls] || { color: '#888' };
-            return `<span style="color:${cc2.color};font-weight:600">${o.m.name}</span><span style="color:var(--text3)"> #${o.rank}</span>`;
-          }).join('<span style="color:var(--text3)"> · </span>')}${others.length > activeOthers.length ? `<span style="color:var(--text3)"> (+${others.length - activeOthers.length} received)</span>` : ''}`
-        : `<span style="color:var(--text3)">Wanted by ${others.length} other${others.length>1?'s':''} — all received ✓</span>`;
-      return `<div style="font-size:10px;margin-top:2px;line-height:1.5">${label}</div>`;
-    })();
-
-    // Received button
-    const btnBg     = received ? 'rgba(128,208,128,0.15)' : overriddenNotReceived ? 'rgba(224,96,96,0.1)' : 'transparent';
-    const btnBorder = received ? 'rgba(128,208,128,0.4)'  : overriddenNotReceived ? 'rgba(224,96,96,0.35)' : 'rgba(255,255,255,0.12)';
-    const btnColor  = received ? '#80d080'                : overriddenNotReceived ? '#e06060' : 'var(--text3)';
-    const btnLabel  = received ? '✓ Received' : overriddenNotReceived ? '✕ Overridden' : '○ Received?';
-    const btnTitle  = overriddenNotReceived
-      ? 'Manually overridden as not received — click to restore'
-      : lootTrackerReceived && !item.manualReceived
-      ? 'Auto-detected from Loot Tracker — click to override as not received'
-      : received ? 'Mark as not received' : 'Mark as received';
-
-    if (isReceivedSection) {
-      // Simplified row — no drag handle, no rank number, no prio selector
-      return `<div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,0.04);opacity:0.6"
-        onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
-        ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:28px;height:28px;border-radius:4px;flex-shrink:0;filter:grayscale(0.6)" onerror="this.style.display='none'">` : ''}
-        <div style="flex:1;min-width:0">
-          <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:line-through;font-size:12px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
-          <div style="font-size:10px;color:#80d080;margin-top:1px">✓ ${receivedSource || 'Received'}</div>
-        </div>
-        <button onclick="wlToggleReceived(${memberId},${i})"
-          title="${btnTitle}"
-          style="background:${btnBg};border:1px solid ${btnBorder};color:${btnColor};
-                 cursor:pointer;font-size:11px;padding:3px 8px;border-radius:5px;flex-shrink:0;
-                 line-height:1;font-family:'Exo 2',sans-serif;white-space:nowrap"
-          onmouseover="this.style.borderColor='rgba(224,96,96,0.5)';this.style.color='#e06060'"
-          onmouseout="this.style.borderColor='${btnBorder}';this.style.color='${btnColor}'">✕ Received</button>
-        <button onclick="wlRemoveItem(${memberId},${i})"
-          style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0;flex-shrink:0;line-height:1"
-          onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'" title="Remove from wishlist">✕</button>
-      </div>`;
-    }
-
-    // Active wishlist row — full row with drag, rank, prio selector
-    return `<div id="wl-row-${i}" draggable="true"
-      ondragstart="wlDragStart(event,${i})"
-      ondragover="wlDragOver(event,${i})"
-      ondrop="wlDrop(event,${i},${memberId})"
-      ondragend="wlDragEnd()"
-      style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);transition:background .1s;cursor:grab"
-      onmouseover="this.style.background='rgba(255,255,255,0.03)'"
-      onmouseout="this.style.background='transparent'">
-      <span style="color:var(--text3);font-size:18px;cursor:grab;user-select:none">⠿</span>
-      <span style="font-size:11px;color:var(--text3);min-width:18px;text-align:center;font-weight:600">${rank}</span>
-      ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:32px;height:32px;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'">` : ''}
-      <div style="flex:1;min-width:0">
-        <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:none;font-size:13px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
-        ${othersHtml}
-      </div>
-      <button onclick="wlToggleReceived(${memberId},${i})"
-        title="${btnTitle}"
-        style="background:${btnBg};border:1px solid ${btnBorder};color:${btnColor};
-               cursor:pointer;font-size:11px;padding:3px 8px;border-radius:5px;flex-shrink:0;
-               line-height:1;font-family:'Exo 2',sans-serif;white-space:nowrap;transition:all .15s"
-        onmouseover="this.style.borderColor='rgba(128,208,128,0.5)';this.style.color='#80d080'"
-        onmouseout="this.style.borderColor='${btnBorder}';this.style.color='${btnColor}'">${btnLabel}</button>
-      <button onclick="wlRemoveItem(${memberId},${i})"
-        style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0;flex-shrink:0;line-height:1"
-        onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'" title="Remove from wishlist">✕</button>
-    </div>`;
-  }
-
-  // ── Build the HTML ──
-  let html = '';
-
-  // Active wishlist section
-  if (active.length) {
-    html += active.map(a => makeRow(a, false)).join('');
-  } else {
-    html += '<div style="padding:16px;text-align:center;font-size:12px;color:#80d080">🎉 All items received!</div>';
-  }
-
-  // Received section (collapsible)
-  if (received.length) {
-    const sectionId = `wl-received-section-${memberId}`;
-    html += `
-      <div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:4px">
-        <button onclick="document.getElementById('${sectionId}').style.display=document.getElementById('${sectionId}').style.display==='none'?'block':'none';this.querySelector('.wl-chevron').style.transform=document.getElementById('${sectionId}').style.display==='none'?'rotate(0deg)':'rotate(180deg)'"
-          style="width:100%;display:flex;align-items:center;gap:8px;padding:10px 16px;background:transparent;border:none;cursor:pointer;color:var(--text3);font-family:'Exo 2',sans-serif;font-size:11px;text-align:left"
-          onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
-          <span class="wl-chevron" style="font-size:10px;transition:transform .2s;display:inline-block;transform:rotate(180deg)">▼</span>
-          <span style="text-transform:uppercase;letter-spacing:.06em">Already Received</span>
-          <span style="background:rgba(128,208,128,0.15);color:#80d080;padding:1px 8px;border-radius:8px;font-size:10px">${received.length}</span>
-        </button>
-        <div id="${sectionId}">
-          ${received.map(a => makeRow(a, true)).join('')}
-        </div>
-      </div>`;
-  }
-
-  el.innerHTML = html;
-  if (window.WH && WH.Tooltips) WH.Tooltips.refreshLinks();
-}
-
-function wlToggleReceived(memberId, idx) {
-  const list = wlData[String(memberId)] || [];
-  if (!list[idx]) return;
-  const item = list[idx];
-  const lootTrackerReceived = _lootData.some(e =>
-    String(e.itemID) === String(item.itemId) &&
-    findMemberByLootName(e.character)?.id === memberId
-  );
-
-  if (lootTrackerReceived) {
-    // Loot tracker says received — toggle manualReceived as an override
-    // undefined/true -> false (override: mark as NOT received despite tracker)
-    // false -> undefined (remove override, go back to tracker)
-    if (item.manualReceived === false) {
-      delete item.manualReceived; // remove override, tracker wins again
-    } else {
-      item.manualReceived = false; // override: not received
-    }
-  } else {
-    // No loot tracker entry — simple toggle
-    item.manualReceived = !item.manualReceived;
-  }
-
-  wlData[String(memberId)] = list;
-  wlSave(memberId);
-  wlRenderItems(memberId);
-  wlRenderPlayerList();
-}
-
-// ── Lookup ────────────────────────────────────────────────
-async function wlLookup() {
-  const url = document.getElementById('wl-url-input').value.trim();
-  const status = document.getElementById('wl-status');
-  const preview = document.getElementById('wl-preview');
-
-  wlLookupResult = null;
-  preview.style.display = 'none';
-  status.textContent = '';
-
-  if (!url) { status.textContent = 'Paste a WoWHead item URL first.'; status.style.color = '#e06060'; return; }
-
-  const itemMatch = url.match(/item[=\/](\d+)/i);
-  if (!itemMatch) { status.textContent = 'Could not find an item ID in that URL.'; status.style.color = '#e06060'; return; }
-
-  const itemId = itemMatch[1];
-  status.textContent = '⟳ Looking up...'; status.style.color = 'var(--text3)';
-
-  try {
-    // Check item cache first
-    let cached = _itemCache[parseInt(itemId)];
-    if (!cached) {
-      const r = await fetch(WOWHEAD_TOOLTIP + itemId);
-      const d = await r.json();
-      cached = { name: d.name || 'Item #' + itemId, quality: d.quality ?? 4, icon: d.icon || '' };
-      _itemCache[parseInt(itemId)] = cached;
-      saveItemCache();
-    }
-
-    const slugMatch = url.match(/item[=\/]\d+[\/]([a-z0-9-]+)/i);
-    const nameFromSlug = slugMatch ? slugMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : null;
-    const itemName = cached.name !== 'Item #' + itemId ? cached.name : (nameFromSlug || 'Item #' + itemId);
-
-    wlLookupResult = {
-      itemId,
-      itemName,
-      itemIcon: cached.icon || '',
-      itemUrl: 'https://www.wowhead.com/tbc/item=' + itemId,
-      quality: cached.quality ?? 4,
-    };
-
-    const qClass = QUALITY_CLASS[cached.quality ?? 4];
-    document.getElementById('wl-preview-icon').src = cached.icon
-      ? `https://wow.zamimg.com/images/wow/icons/medium/${cached.icon}.jpg` : '';
-    document.getElementById('wl-preview-icon').style.display = cached.icon ? 'block' : 'none';
-    document.getElementById('wl-preview-name').className = qClass;
-    document.getElementById('wl-preview-name').textContent = itemName;
-    document.getElementById('wl-preview-meta').textContent = `Item #${itemId} · ${QUALITY_NAME[cached.quality ?? 4] || 'Epic'}`;
-    preview.style.display = 'flex';
-    status.textContent = '✓ Item found — choose a priority and click + Add';
-    status.style.color = '#80d080';
-  } catch(e) {
-    status.textContent = 'Lookup failed — check the URL and try again.';
-    status.style.color = '#e06060';
-  }
-}
-
-function wlAddItem() {
-  if (wlLocked) { showToast('🔒 Wishlists are locked. Unlock to make changes.'); return; }
-  if (!wlLookupResult || wlSelectedId === null) return;
-  const prio = 'bis';
-  const wlKey = String(wlSelectedId);
-  const list = wlData[wlKey] || [];
-
-  // Prevent duplicates
-  if (list.some(w => String(w.itemId) === String(wlLookupResult.itemId))) {
-    document.getElementById('wl-status').textContent = 'This item is already on the wishlist.';
-    document.getElementById('wl-status').style.color = '#e06060';
-    return;
-  }
-
-  list.push({ ...wlLookupResult, prio, addedAt: new Date().toISOString() });
-  wlData[wlKey] = list;
-  wlSave(wlSelectedId);
-
-  // Reset form
-  document.getElementById('wl-url-input').value = '';
-  document.getElementById('wl-preview').style.display = 'none';
-  document.getElementById('wl-status').textContent = `✓ ${wlLookupResult.itemName} added`;
-  document.getElementById('wl-status').style.color = '#80d080';
-  wlLookupResult = null;
-
-  wlShowPanel(wlSelectedId);
-  wlRenderPlayerList();
-}
-
-function wlRemoveItem(memberId, idx) {
-  if (wlLocked) { showToast('🔒 Wishlists are locked. Unlock to make changes.'); return; }
-  const wlKey = String(memberId);
-  const list = wlData[wlKey] || [];
-  list.splice(idx, 1);
-  if (!list.length) {
-    delete wlData[wlKey];
-    // Delete the Supabase row entirely rather than saving an empty array
-    sbDeleteMemberWishlist(memberId).catch(() => {});
-  } else {
-    wlData[wlKey] = list;
-    wlSave(memberId);
-  }
-  wlShowPanel(memberId);
-  wlRenderPlayerList();
-}
-
-function wlChangePrio(memberId, idx, prio) {
-  if (wlLocked) { showToast('🔒 Wishlists are locked.'); return; }
-  const wlKey = String(memberId);
-  const list = wlData[wlKey] || [];
-  if (list[idx]) { list[idx].prio = prio; wlData[wlKey] = list; wlSave(memberId); wlRenderItems(memberId); }
-}
-
-// ── Drag to reorder ───────────────────────────────────────
-function wlDragStart(e, idx) {
-  wlDragIdx = idx;
-  e.dataTransfer.effectAllowed = 'move';
-  setTimeout(() => { const el = document.getElementById('wl-row-' + idx); if (el) el.style.opacity = '0.4'; }, 0);
-}
-function wlDragOver(e, idx) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  document.querySelectorAll('[id^=wl-row-]').forEach(el => el.style.borderTop = '');
-  const target = document.getElementById('wl-row-' + idx);
-  if (target && idx !== wlDragIdx) target.style.borderTop = '2px solid var(--gold)';
-}
-function wlDrop(e, idx, memberId) {
-  e.preventDefault();
-  if (wlLocked) return;
-  if (wlDragIdx === null || wlDragIdx === idx) return;
-  const wlKey = String(memberId);
-  const list = wlData[wlKey] || [];
-  const item = list.splice(wlDragIdx, 1)[0];
-  // When dragging downward, removing the item shifts all subsequent indices
-  // by -1, so the effective insertion point is idx-1 to land in the correct slot.
-  const insertAt = idx > wlDragIdx ? idx - 1 : idx;
-  list.splice(insertAt, 0, item);
-  wlData[wlKey] = list;
-  wlDragIdx = null;
-  wlSave(memberId);
-  wlRenderItems(memberId);
-}
-function wlDragEnd() {
-  wlDragIdx = null;
-  document.querySelectorAll('[id^=wl-row-]').forEach(el => { el.style.opacity = '1'; el.style.borderTop = ''; });
-}
-
-// ── Item Competition View ─────────────────────────────────
-function wlRenderCompetition() {
-  const el = document.getElementById('wl-competition-content');
-  if (!el) return;
-  const q = (document.getElementById('wl-search')?.value || '').toLowerCase();
-
-  // Build item map: itemId -> { itemName, itemIcon, itemUrl, quality, players: [{member, rank, prio, received}] }
-  const itemMap = {};
-  Object.entries(wlData).forEach(([mid, list]) => {
-    const member = members.find(m => m.id === parseInt(mid));
-    if (!member) return;
-    list.forEach((item, idx) => {
-      if (!itemMap[item.itemId]) {
-        itemMap[item.itemId] = { itemId: item.itemId, itemName: item.itemName, itemIcon: item.itemIcon, itemUrl: item.itemUrl, quality: item.quality, players: [] };
-      }
-      const lootTracked = _lootData.some(e =>
-        String(e.itemID) === String(item.itemId) && findMemberByLootName(e.character)?.id === parseInt(mid)
-      );
-      const received = item.manualReceived === false ? false : (!!item.manualReceived || lootTracked);
-      itemMap[item.itemId].players.push({ member, rank: idx + 1, prio: item.prio, received });
-    });
-  });
-
-  // Filter by search
-  let items = Object.values(itemMap).filter(item =>
-    !q || item.itemName.toLowerCase().includes(q) ||
-    item.players.some(p => p.member.name.toLowerCase().includes(q))
-  );
-
-  if (!items.length) {
-    el.innerHTML = `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:40px;text-align:center;color:var(--text3)">
-      <div style="font-size:28px;margin-bottom:8px">⚔</div>
-      <div style="font-size:13px">${Object.keys(wlData).length ? 'No items match your search' : 'No wishlist data yet — add items to player wishlists first'}</div>
-    </div>`;
-    return;
-  }
-
-  // Sort: most wanted first (active players only), then alphabetical
-  items.sort((a, b) => {
-    const aActive = a.players.filter(p => !p.received).length;
-    const bActive = b.players.filter(p => !p.received).length;
-    if (bActive !== aActive) return bActive - aActive;
-    return a.itemName.localeCompare(b.itemName);
-  });
-
-  // Demand colour thresholds
-  const maxDemand = Math.max(...items.map(it => it.players.filter(p => !p.received).length), 1);
-
-  el.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px">
-      ${items.map(item => {
-        const qClass = QUALITY_CLASS[item.quality ?? 4];
-        const activePlayers = item.players.filter(p => !p.received);
-        const receivedPlayers = item.players.filter(p => p.received);
-        const demand = activePlayers.length;
-        const demandPct = Math.round((demand / maxDemand) * 100);
-
-        // Demand colour: green=1, yellow=2-3, orange=4-5, red=6+
-        const demandColor = demand >= 6 ? '#e06060' : demand >= 4 ? '#e09040' : demand >= 2 ? '#e0d060' : '#80d080';
-
-        // Sort active players: BiS first, then Upgrade, then Offspec, then by rank within that
-        const priOrder = { bis: 0, upgrade: 1, offspec: 2 };
-        const sorted = [...activePlayers].sort((a, b) => (priOrder[a.prio] ?? 1) - (priOrder[b.prio] ?? 1) || a.rank - b.rank);
-
-        return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;transition:border-color .15s"
-          onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
-
-          <!-- Item header -->
-          <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-            ${item.itemIcon ? `<img src="https://wow.zamimg.com/images/wow/icons/medium/${item.itemIcon}.jpg" style="width:32px;height:32px;border-radius:4px;flex-shrink:0" onerror="this.style.display='none'">` : ''}
-            <div style="flex:1;min-width:0">
-              <a href="${item.itemUrl}" target="_blank" class="${qClass}" style="text-decoration:none;font-size:13px;font-weight:700;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.itemName}</a>
-              <!-- Demand bar -->
-              <div style="margin-top:5px;display:flex;align-items:center;gap:6px">
-                <div style="flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden">
-                  <div style="height:100%;width:${demandPct}%;background:${demandColor};border-radius:2px;transition:width .3s"></div>
-                </div>
-                <span style="font-size:11px;font-weight:700;color:${demandColor};flex-shrink:0">${demand} want${demand === 1 ? 's' : ''} it</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Players who want it -->
-          <div style="padding:8px 0">
-            ${sorted.map((p, i) => {
-              const cc = CM[p.member.cls] || { color: '#888' };
-              const pc = WL_PRIO_COLORS[p.prio] || WL_PRIO_COLORS.upgrade;
-              const icon = specIcon(p.member.cls, p.member.spec);
-              return `<div style="display:flex;align-items:center;gap:8px;padding:6px 14px;${i < sorted.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.04)' : ''}"
-                onclick="wlSetView('player');wlSelectPlayer(${p.member.id})" style="cursor:pointer"
-                onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
-                <span style="font-size:10px;color:var(--text3);min-width:16px;text-align:center;font-weight:600">#${p.rank}</span>
-                <img src="${icon}" style="width:24px;height:24px;border-radius:50%;flex-shrink:0" onerror="this.style.display='none'">
-                <span style="flex:1;font-size:12px;font-weight:600;color:${cc.color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.member.name}</span>
-                <span style="font-size:10px;color:var(--text3)">${p.member.spec || p.member.cls}</span>
-                <span style="font-size:10px;padding:1px 7px;border-radius:8px;border:1px solid ${pc.border};background:${pc.bg};color:${pc.color};flex-shrink:0">${WL_PRIO_LABELS[p.prio]}</span>
-              </div>`;
-            }).join('')}
-            ${receivedPlayers.length ? `
-              <div style="padding:6px 14px;border-top:1px solid rgba(255,255,255,0.04);margin-top:2px">
-                <span style="font-size:10px;color:#80d080">✓ Already received: </span>
-                <span style="font-size:10px;color:var(--text3)">${receivedPlayers.map(p => p.member.name).join(', ')}</span>
-              </div>` : ''}
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
-  `;
-  if (window.WH && WH.Tooltips) WH.Tooltips.refreshLinks();
-}
-
-// ── Wishlist WeakAura Export ──────────────────────────────
-let wlExportFormat = 'addon';
-
-function wlShowExportModal() {
-  wlSetExportFormat('addon');
-  document.getElementById('wl-export-modal').style.display = 'flex';
-}
-
-function wlCloseExportModal() {
-  document.getElementById('wl-export-modal').style.display = 'none';
-}
-
-function wlSetExportFormat(fmt) {
-  wlExportFormat = fmt;
-  // Update button styles
-  ['addon','full','bis','short','macro'].forEach(f => {
-    const btn = document.getElementById('wl-fmt-' + f);
-    if (!btn) return;
-    if (f === fmt) {
-      btn.style.background = 'rgba(200,168,75,0.2)';
-      btn.style.borderColor = 'var(--gold)';
-      btn.style.color = 'var(--gold)';
-    } else {
-      btn.style.background = 'transparent';
-      btn.style.borderColor = 'rgba(255,255,255,0.14)';
-      btn.style.color = 'var(--text2)';
-    }
-  });
-
-  const hints = {
-    addon:  '🎮 For the DadsVsDragons WoW addon. Copy this string, then in-game type /dvdwl import and paste it.',
-    full:  'Copy into a WeakAura → Custom Text display. Shows each player with item names and priority.',
-    bis:   'BiS items only — useful for raid leaders to quickly see top priorities.',
-    short: 'Compact version: just player names and item names, no priority labels.',
-    macro: 'Formatted as WoW /print lines. Paste into a macro to whisper or display in-game. Note: WoW macros are limited to 255 characters — this may be truncated.',
-  };
-  document.getElementById('wl-export-hint').textContent = hints[fmt];
-  wlGenerateExport();
-}
-
-function wlGenerateExport() {
-  const fmt = wlExportFormat;
-  const lines = [];
-
-  // Sort members by name for consistent output
-  const membersSorted = [...members].sort((a, b) => a.name.localeCompare(b.name));
-
-  // ── Addon Import format ──────────────────────────────────
-  if (fmt === 'addon') {
-    // Build JSON object: { "PlayerName": [{itemId,itemName,prio,rank}, ...], ... }
-    const obj = {};
-    membersSorted.forEach(m => {
-      const list = wlData[String(m.id)] || [];
-      if (!list.length) return;
-      obj[m.name] = list.map((it, i) => ({
-        itemId:   String(it.itemId),
-        itemName: it.itemName,
-        prio:     it.prio || 'upgrade',
-        rank:     i + 1,
-      }));
-    });
-    if (!Object.keys(obj).length) {
-      document.getElementById('wl-export-text').value = '-- No wishlist data found.';
-      return;
-    }
-    document.getElementById('wl-export-text').value = 'DVDWishlist:' + JSON.stringify(obj);
-    return;
-  }
-
-  membersSorted.forEach(m => {
-    const list = (wlData[String(m.id)] || []).filter(it => {
-      if (fmt === 'bis') return it.prio === 'bis';
-      return true;
-    });
-    if (!list.length) return;
-
-    if (fmt === 'full') {
-      const itemParts = list.map((it, i) => {
-        const prioTag = it.prio === 'bis' ? '[BiS]' : it.prio === 'upgrade' ? '[Up]' : '[OS]';
-        return `${i + 1}. ${it.itemName} ${prioTag}`;
-      });
-      lines.push(`${m.name} (${m.spec || m.cls}):\n  ${itemParts.join('\n  ')}`);
-
-    } else if (fmt === 'bis') {
-      const itemParts = list.map((it, i) => `${i + 1}. ${it.itemName}`);
-      lines.push(`${m.name}: ${itemParts.join(' | ')}`);
-
-    } else if (fmt === 'short') {
-      const itemParts = list.map(it => it.itemName);
-      lines.push(`${m.name}: ${itemParts.join(', ')}`);
-
-    } else if (fmt === 'macro') {
-      // WoW macro: /print each player's list
-      list.forEach((it, i) => {
-        lines.push(`/print ${m.name} #${i + 1}: ${it.itemName}`);
-      });
-    }
-  });
-
-  if (!lines.length) {
-    document.getElementById('wl-export-text').value = '-- No wishlist data found. Add items to player wishlists first.';
-    return;
-  }
-
-  if (fmt === 'full' || fmt === 'short' || fmt === 'bis') {
-    // Add a WeakAura-friendly header
-    const header = `-- Guild Wishlist Export (${new Date().toLocaleDateString()})\n-- Paste into WeakAura → Display → Custom Text\n\n`;
-    document.getElementById('wl-export-text').value = header + lines.join('\n\n');
-  } else {
-    document.getElementById('wl-export-text').value = lines.join('\n');
-  }
-}
-
-function wlCopyExport() {
-  const ta = document.getElementById('wl-export-text');
-  ta.select();
-  ta.setSelectionRange(0, 99999);
-  navigator.clipboard.writeText(ta.value).then(() => {
-    const btn = document.getElementById('wl-copy-btn');
-    const orig = btn.textContent;
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => btn.textContent = orig, 2000);
-  }).catch(() => {
-    document.execCommand('copy');
-    const btn = document.getElementById('wl-copy-btn');
-    const orig = btn.textContent;
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => btn.textContent = orig, 2000);
-  });
-}
-
-// Close export modal on backdrop click
-document.addEventListener('click', function(e) {
-  const m = document.getElementById('wl-export-modal');
-  if (m && e.target === m) wlCloseExportModal();
-});
-
 _checkSession();
 </script>
-
-
 </body>
 </html>
