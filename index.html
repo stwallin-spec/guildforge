@@ -2956,131 +2956,36 @@ function saveAssignData() {
 
 const BASE_ICON = 'https://wow.zamimg.com/images/wow/icons/medium/';
 const SA_ICONS = {
-  // ── Druids ──────────────────────────────────────────────────────────────
+  // Druid
   'Innervate':      'spell_nature_lightning',
-  'Barkskin':       'spell_nature_stoneclawtotem',
-  'Gift/Wild':      'spell_nature_giftofthewild',
   'Faerie Fire':    'spell_nature_faeriefire',
-  'Battle Rez':     'spell_nature_reincarnation',
-  'Tranquility':    'spell_nature_tranquility',
   'Abolish Poison': 'spell_nature_nullifypoison',
-  'Cyclone':        'spell_nature_cyclone',
-  'Hibernate':      'spell_nature_sleep',
-  'Bear Form':      'ability_racial_bearform',
-  // ── Hunters ─────────────────────────────────────────────────────────────
+  'Insect Swarm':   'spell_nature_insectswarm',
+  // Hunter
   'MD':             'ability_hunter_misdirection',
-  'Tranq Shot':     'ability_hunter_tranquilizingshot',
-  'Scorpid Sting':  'ability_hunter_cobrashot',
-  "Hunter's Mark":  'ability_hunter_snipershot',
-  'Aspect/Viper':   'ability_hunter_aspectoftheviper',
-  'Aspect/Wild':    'ability_hunter_pet_bear',
-  'Volley':         'ability_upgrademoonglaive',
-  'Feign Death':    'ability_rogue_feigndeath',
-  // ── Mages ────────────────────────────────────────────────────────────────
+  'Frost Trap':     'spell_frost_freezingbreath',
+  'Freezing Trap':  'spell_frost_chainsofice',
+  // Mage
   'Sheep':          'spell_nature_polymorph',
   'CS':             'spell_frost_iceshock',
-  'Decurse':        'spell_holy_removecurse',
-  'Ice Block':      'spell_frost_frost',
-  'Amp Magic':      'spell_nature_abolishmagic',
-  'Dampen Magic':   'spell_arcane_arcaneresilience',
-  'Spellsteal':     'spell_arcane_arcane01',
-  'Blizzard':       'spell_frost_icestorm',
-  'Slow':           'spell_arcane_slow',
-  'Arcane Torrent': 'ability_racial_arcanetorrent',
-  'Evocation':      'spell_shadow_siphonmana',
-  'CoC':            'spell_frost_chainsofice',
-  // ── Paladins ─────────────────────────────────────────────────────────────
-  'BoSalv':         'spell_holy_sealofblood',
-  'BoWisdom':       'spell_holy_sealofwisdom',
-  'BoMight':        'spell_holy_fistofjustice',
-  'BoKings':        'spell_magic_greaterblessingofkings',
-  'BoSanctuary':    'spell_holy_sealofwrath',
-  'JoW':            'spell_holy_sealofwisdom',
-  'HoP/BoP':        'spell_holy_sealofprotection',
-  'Div Shield':     'spell_holy_divineshield',
-  'HoF':            'spell_holy_sealofsalvation',
-  'Sacred Shield':  'ability_paladin_shieldofvengeance',
-  'Aura':           'spell_holy_devotionaura',
-  'Cleanse':        'spell_holy_purify',
-  // ── Priests ──────────────────────────────────────────────────────────────
-  'PI':             'spell_holy_powerinfusion',
-  'CoH':            'spell_holy_circleofrenewal',
-  'Dispel':         'spell_holy_dispelmagic',
-  'Shackle':        'spell_holy_prayerofhealing02',
-  'Hymn':           'spell_holy_divinehymn',
-  'Shadow Weaving': 'spell_shadow_blackplague',
+  // Paladin
+  'HoJ':            'spell_holy_sealofmight',
+  // Priest
   'Fear Ward':      'spell_holy_fearward',
-  'MD Priests':     'spell_shadow_shadowform',
-  'VE':             'spell_shadow_improvedvampiricembrace',
-  'Abolish Disease':'spell_holy_dispelmagic',
-  // ── Rogues ───────────────────────────────────────────────────────────────
+  'Silence':        'spell_shadow_impphaseshift',
+  // Rogue
   'Kick':           'ability_kick',
-  'Expose Armor':   'ability_warrior_riposte',
-  'Blind':          'spell_shadow_mindsteal',
-  'Vanish':         'ability_rogue_ambush',
-  'Gouge':          'ability_gouge',
-  'CoS':            'ability_rogue_cloakofshadows',
-  'Garrote':        'ability_rogue_garrote',
-  'Sap':            'ability_sap',
-  'Evasion':        'spell_shadow_shadowward',
-  // ── Shamans ──────────────────────────────────────────────────────────────
-  'BL/Hero':        'spell_nature_bloodlust',
-  'Wind Shear':     'spell_nature_cyclone',
-  'Grounding':      'spell_nature_groundingtotem',
-  'Tremor':         'spell_nature_tremortotem',
-  'NS':             'spell_nature_naturesswiftness',
-  'Earth Shield':   'spell_nature_earthshield',
-  'Chain Heal':     'spell_nature_healingwavegreater',
-  'Mana Tide':      'spell_frost_summonwaterelemental',
-  'Heroism':        'ability_shaman_heroism',
-  'Fire Nova':      'spell_fire_firenova',
-  'Totem':          'spell_nature_stoneskintotem',
-  // ── Warriors ─────────────────────────────────────────────────────────────
-  'Taunt':          'ability_warrior_challange',
-  'Shield Slam':    'ability_warrior_shieldslam',
-  'T-Clap':         'spell_nature_thunderclap',
-  'Demo Shout':     'ability_warrior_warcry',
-  'Sunder':         'ability_warrior_sunder',
-  'Battle Shout':   'ability_warrior_battleshout',
-  'Spell Ref':      'ability_warrior_shieldreflection',
-  'Last Stand':     'spell_holy_ashestoashes',
-  'Reck':           'ability_warrior_intensifyrage',
-  'Death Wish':     'spell_shadow_deathpact',
-  'Whirlwind':      'ability_whirlwind',
-  'Commanding':     'ability_warrior_rallyingcry',
-  // ── Warlocks ─────────────────────────────────────────────────────────────
-  'Banish':         'spell_shadow_cripple',
-  'CoE':            'spell_shadow_curseofachimonde',
+  'Kidney Shot':    'ability_rogue_kidneyshot',
+  // Shaman
+  'Earth Shock':    'spell_nature_earthshock',
+  // Warrior
+  'Disarm':         'ability_warrior_disarm',
+  'Pummel':         'ability_warrior_pummel',
+  // Warlock
   'CoT':            'spell_shadow_curseoftounges',
   'CoR':            'spell_shadow_unholyfrenzy',
-  'Seed':           'spell_shadow_seedofcorruption',
-  'Healthstone':    'warlock_-healthstone',
-  'Soulstone':      'warlock_-soulstone',
-  'Enslave':        'spell_shadow_enslavedemon',
-  'Howl of Terror': 'spell_shadow_deathscream',
-  'Fear':           'spell_shadow_possession',
-  'CoA':            'spell_shadow_auraofdarkness',
-  'Amplify Curse':  'spell_shadow_contagion',
-  // ── General / Utility ────────────────────────────────────────────────────
-  'Lay Hands':      'spell_holy_layonhands',
-  'Intercept':      'ability_warrior_charge',
-  'Intervene':      'ability_warrior_intervene',
-  // ── Consumables / Profs ──────────────────────────────────────────────────
-  'Flask':          'inv_alchemy_elixir_04',
-  'Elixir':         'inv_potion_25',
-  'Food Buff':      'inv_misc_food_15',
-  'Drums':          'inv_misc_drum_02',
-  'Oil':            'inv_potion_92',
-  'Scrolls':        'inv_scroll_03',
-  // ── Markers (legacy text) ─────────────────────────────────────────────────
-  'Skull':          'ability_rogue_deathfromabove',
-  'Cross':          'ability_dualwieldspecialization',
-  'Square':         'spell_shadow_shadowbolt',
-  'Diamond':        'inv_jewelry_talisman_07',
-  'Star':           'achievement_guildperk_hastyheartiii',
-  'Circle':         'achievement_boss_onyxia',
-  'Triangle':       'achievement_pvp_h_01',
-  'Moon':           'spell_nature_sleep',
+  'CoS/CoShadow':   'spell_shadow_curseofachimonde',
+  'Searing Pain':   'spell_fire_soulburn',
 };
 
 const SA_SECTION_DEFS = [
@@ -3129,19 +3034,17 @@ function renderSpecialAssignments() {
   const sections = saGetOrInitSections();
   let html = '';
 
-  // Icon palette — grouped by class
+  // Icon palette — flat list, all kept icons
   const SA_ICON_GROUPS = [
-    { label: 'Druid',    icons: ['Innervate','Barkskin','Gift/Wild','Faerie Fire','Battle Rez','Tranquility','Abolish Poison','Cyclone','Hibernate','Bear Form'] },
-    { label: 'Hunter',   icons: ['MD','Tranq Shot','Scorpid Sting',"Hunter's Mark",'Aspect/Viper','Aspect/Wild','Volley','Feign Death'] },
-    { label: 'Mage',     icons: ['Sheep','CS','Decurse','Ice Block','Amp Magic','Dampen Magic','Spellsteal','Blizzard','Slow','CoC','Evocation','Arcane Torrent'] },
-    { label: 'Paladin',  icons: ['BoSalv','BoWisdom','BoMight','BoKings','BoSanctuary','JoW','HoP/BoP','Div Shield','HoF','Sacred Shield','Aura','Cleanse'] },
-    { label: 'Priest',   icons: ['PI','CoH','Dispel','Shackle','Hymn','Shadow Weaving','Fear Ward','VE','Abolish Disease'] },
-    { label: 'Rogue',    icons: ['Kick','Expose Armor','Blind','Vanish','Gouge','CoS','Garrote','Sap','Evasion'] },
-    { label: 'Shaman',   icons: ['BL/Hero','Wind Shear','Grounding','Tremor','NS','Earth Shield','Chain Heal','Mana Tide','Heroism','Fire Nova','Totem'] },
-    { label: 'Warrior',  icons: ['Taunt','Shield Slam','T-Clap','Demo Shout','Sunder','Battle Shout','Spell Ref','Last Stand','Reck','Death Wish','Whirlwind','Commanding'] },
-    { label: 'Warlock',  icons: ['Banish','CoE','CoT','CoR','Seed','Healthstone','Soulstone','Enslave','Howl of Terror','Fear','CoA','Amplify Curse'] },
-    { label: 'Misc',     icons: ['Lay Hands','Intercept','Intervene'] },
-    { label: 'Consums',  icons: ['Flask','Elixir','Food Buff','Drums','Oil','Scrolls'] },
+    { icons: ['Innervate','Faerie Fire','Abolish Poison','Insect Swarm',
+               'MD','Frost Trap','Freezing Trap',
+               'Sheep','CS',
+               'HoJ',
+               'Fear Ward','Silence',
+               'Kick','Kidney Shot',
+               'Earth Shock',
+               'Disarm','Pummel',
+               'CoT','CoR','CoS/CoShadow','Searing Pain'] },
   ];
 
   html += '<div class="sa-icon-palette" id="sa-icon-palette">';
