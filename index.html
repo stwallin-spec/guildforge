@@ -2971,7 +2971,7 @@ const SA_ICONS = {
   // Paladin
   'HoJ':            'spell_holy_sealofmight',
   // Priest
-  'Fear Ward':      'spell_holy_fearward',
+  'Fear Ward':      'spell_holy_excorcism_01',
   'Silence':        'spell_shadow_impphaseshift',
   // Rogue
   'Kick':           'ability_kick',
@@ -2980,7 +2980,7 @@ const SA_ICONS = {
   'Earth Shock':    'spell_nature_earthshock',
   // Warrior
   'Disarm':         'ability_warrior_disarm',
-  'Pummel':         'ability_warrior_pummel',
+  'Pummel':         'inv_gauntlets_04',
   // Warlock
   'CoT':            'spell_shadow_curseoftounges',
   'CoR':            'spell_shadow_unholyfrenzy',
@@ -4079,24 +4079,112 @@ function exportAssignImage() {
   try {
     const W = canvasW || aCanvas.width;
     const H = canvasH || aCanvas.height;
+
+    // ── Build Special Assignments block ──────────────────────────────────
+    const sections = saGetOrInitSections() || [];
+    const activeSections = sections.filter(s => s.rows && s.rows.length > 0);
+    const ICON_SIZE = 18;
+    const ROW_H = 24;
+    const SA_PAD = 10;
+    const SA_COL_W = Math.floor((W - SA_PAD * 2) / Math.max(activeSections.length, 1));
+    const maxRows = activeSections.reduce((m, s) => Math.max(m, s.rows.length), 0);
+    const SA_H = activeSections.length > 0
+      ? SA_PAD * 2 + 22 + maxRows * ROW_H  // header + rows
+      : 0;
+
     const out = document.createElement('canvas');
     out.width = W;
-    out.height = H;
+    out.height = H + SA_H;
     const ctx = out.getContext('2d', { willReadFrequently: false });
 
-    // Draw background
+    // Draw main canvas background + elements
     if (bgLoaded && bgImage && bgImage.complete && bgImage.naturalWidth) {
       ctx.drawImage(bgImage, 0, 0, W, H);
     } else {
       ctx.fillStyle = '#0a0a14';
       ctx.fillRect(0, 0, W, H);
     }
-
-    // Redraw all elements directly onto export canvas (avoids canvas taint issues)
     const savedCtx = aCtx;
     aCtx = ctx;
     for (const el of elements) drawElement(el);
     aCtx = savedCtx;
+
+    // ── Draw SA block below canvas ──────────────────────────────────────
+    if (SA_H > 0) {
+      ctx.fillStyle = '#0d0d1a';
+      ctx.fillRect(0, H, W, SA_H);
+      ctx.strokeStyle = '#2a2a4a';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, H); ctx.lineTo(W, H); ctx.stroke();
+
+      const roleColors = { tank:'#4fc3f7', healer:'#81c784', mdps:'#f06292', rdps:'#ffb74d' };
+      const roleLabels = { tank:'Tanks', healer:'Healers', mdps:'Melee DPS', rdps:'Ranged DPS' };
+
+      activeSections.forEach((sec, ci) => {
+        const sx = SA_PAD + ci * SA_COL_W;
+        const def = SA_SECTION_DEFS.find(d => d.role === sec.role) || SA_SECTION_DEFS[0];
+
+        // Column header
+        ctx.fillStyle = roleColors[sec.role] || '#aaa';
+        ctx.font = 'bold 10px "Exo 2", sans-serif';
+        ctx.fillText((roleLabels[sec.role] || sec.role).toUpperCase(), sx, H + SA_PAD + 12);
+
+        sec.rows.forEach((row, ri) => {
+          const ry = H + SA_PAD + 20 + ri * ROW_H;
+          const lbl = saRowLabel(sec.role, ri);
+
+          // Row label (MT/OT/HE/M/R)
+          ctx.fillStyle = 'rgba(255,255,255,0.35)';
+          ctx.font = 'bold 8px "Exo 2", sans-serif';
+          ctx.fillText(lbl, sx, ry + 14);
+
+          // Player name
+          const m = row.memberId ? members.find(x => x.id === row.memberId) : null;
+          const nameColor = m ? ((CM[m.cls]||{}).color || '#fff') : '#888';
+          ctx.fillStyle = nameColor;
+          ctx.font = 'bold 10px "Exo 2", sans-serif';
+          ctx.fillText(row.memberName || '—', sx + 22, ry + 13);
+
+          // Icons
+          const icons = row.icons || [];
+          icons.forEach((ic, ii) => {
+            const ix = sx + 22 + 70 + ii * (ICON_SIZE + 2);
+            if (ix + ICON_SIZE > sx + SA_COL_W - 4) return;
+            let img = null;
+            if (ic.startsWith('__marker__')) {
+              const mkey = ic.replace('__marker__', '');
+              // Use pre-loaded marker icon if available
+              const chip = document.getElementById('sa-chip-marker_' + mkey);
+              if (chip) img = chip.querySelector('img');
+            } else {
+              const chip = document.getElementById('sa-chip-' + ic.replace(/[^a-zA-Z0-9]/g,'_'));
+              if (chip) img = chip.querySelector('img');
+            }
+            if (img && img.complete && img.naturalWidth) {
+              ctx.drawImage(img, ix, ry + 2, ICON_SIZE, ICON_SIZE);
+            }
+          });
+
+          // Note text (after icons)
+          if (row.text) {
+            const noteX = sx + 22 + 70 + icons.length * (ICON_SIZE + 2) + 4;
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.font = 'italic 9px "Exo 2", sans-serif';
+            ctx.fillText(row.text, noteX, ry + 13);
+          }
+        });
+
+        // Column divider
+        if (ci < activeSections.length - 1) {
+          ctx.strokeStyle = '#2a2a4a';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(sx + SA_COL_W, H + 4);
+          ctx.lineTo(sx + SA_COL_W, H + SA_H - 4);
+          ctx.stroke();
+        }
+      });
+    }
 
     const planName = (currentPlanId && assignPlans[currentPlanId]?.name)
       ? assignPlans[currentPlanId].name
