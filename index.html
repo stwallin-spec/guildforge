@@ -779,6 +779,15 @@ body {
 }
 .sa-icon-chip:hover { border-color: var(--gold); }
 .sa-icon-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sa-palette-break {
+  width: 100%; height: 0; flex-basis: 100%; margin: 1px 0;
+  border-top: 1px solid var(--border);
+}
+.sa-palette-label {
+  font-size: 8px; font-weight: 700; text-transform: uppercase;
+  color: var(--text3); letter-spacing: 0.06em;
+  align-self: center; white-space: nowrap; padding: 0 2px;
+}
 .sa-section { border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .sa-section-header {
   padding: 4px 8px 4px 10px; font-size: 10px; font-weight: 700;
@@ -797,33 +806,42 @@ body {
   border-color: var(--gold); background: rgba(200,168,75,0.08); color: var(--gold2);
 }
 .sa-assign-row {
-  display: flex; align-items: center; border-top: 1px solid var(--border);
-  min-height: 30px; position: relative;
+  display: flex; flex-direction: column;
+  border-top: 1px solid var(--border); position: relative;
 }
 .sa-assign-row:hover .sa-row-del { opacity: 1; }
+.sa-row-top {
+  display: flex; align-items: center; min-height: 30px;
+}
 .sa-row-label {
   width: 28px; flex-shrink: 0; font-size: 9px; font-weight: 700;
   color: var(--text3); text-align: center; text-transform: uppercase; letter-spacing: 0.03em;
+  padding-top: 2px;
 }
 .sa-row-icons {
-  display: flex; gap: 2px; flex-shrink: 0; padding: 2px 3px;
-  align-items: center; flex-wrap: wrap; min-width: 24px;
-  border-radius: 3px; transition: background .1s;
+  display: flex; gap: 3px; flex-wrap: wrap; align-items: center;
+  padding: 3px 6px; min-height: 28px;
+  background: rgba(0,0,0,0.15);
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 3px 3px;
+  transition: background .1s, border-color .15s;
+  cursor: copy;
 }
-.sa-row-icons.sa-drop-over { background: rgba(200,168,75,0.12); outline: 1px solid rgba(200,168,75,0.5); }
+.sa-row-icons.sa-drop-over {
+  background: rgba(200,168,75,0.12);
+  border-color: rgba(200,168,75,0.5);
+  outline: 1px dashed rgba(200,168,75,0.6);
+}
 .sa-row-icon {
-  width: 20px; height: 20px; border-radius: 3px; flex-shrink: 0;
+  width: 22px; height: 22px; border-radius: 3px; flex-shrink: 0;
   border: 1px solid var(--border); overflow: hidden; cursor: pointer;
 }
 .sa-row-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.sa-row-icon:hover { border-color: #e06060; }
-.sa-row-icon-drop {
-  width: 20px; height: 20px; border-radius: 3px; flex-shrink: 0;
-  border: 1px dashed var(--border); display: flex; align-items: center;
-  justify-content: center; font-size: 11px; color: var(--text3);
-  transition: all .15s;
+.sa-row-icon:hover { border-color: #e06060; outline: 1px solid #e06060; }
+.sa-row-icon-hint {
+  font-size: 10px; color: var(--text3); font-style: italic;
+  padding: 0 2px; user-select: none;
 }
-.sa-row-icon-drop.sa-drop-over { border-color: var(--gold); background: rgba(200,168,75,0.1); color: var(--gold2); }
 .sa-row-player {
   width: 80px; flex-shrink: 0; padding: 0 3px;
   font-size: 11px; font-weight: 600;
@@ -2947,71 +2965,131 @@ function saveAssignData() {
 
 const BASE_ICON = 'https://wow.zamimg.com/images/wow/icons/medium/';
 const SA_ICONS = {
-  // Tanks / Warriors
-  'Taunt':        'ability_warrior_challange',
-  'Shield Slam':  'ability_warrior_shieldslam',
-  'T-Clap':       'spell_nature_thunderclap',
-  'Demo Shout':   'ability_warrior_warcry',
-  'Sunder':       'ability_warrior_sunder',
-  'Battle Shout': 'ability_warrior_battleshout',
-  'Spell Ref':    'ability_warrior_shieldreflection',
-  'Last Stand':   'spell_holy_ashestoashes',
-  // Healers
-  'Innervate':    'spell_nature_lightning',
-  'PI':           'spell_holy_powerinfusion',
-  'Chain Heal':   'spell_nature_healingwavegreater',
-  'CoH':          'spell_holy_circleofrenewal',
-  'Tranquility':  'spell_nature_tranquility',
-  'Battle Rez':   'spell_nature_reincarnation',
-  'Lay Hands':    'spell_holy_layonhands',
-  'Cleanse':      'spell_holy_purify',
-  // Hunters
-  'MD':           'ability_hunter_misdirection',
-  'Tranq Shot':   'ability_hunter_tranquilizingshot',
-  'Scorpid':      'ability_hunter_cobrashot',
-  "Hunter's Mark":'ability_hunter_snipershot',
-  // Rogues
-  'Kick':         'ability_kick',
-  'Expose':       'ability_warrior_riposte',
-  'Blind':        'spell_shadow_mindsteal',
-  'Vanish':       'ability_rogue_ambush',
-  // Mages
-  'Sheep':        'spell_nature_polymorph',
-  'CS':           'spell_frost_iceshock',
-  'Decurse':      'spell_holy_removecurse',
-  'Ice Block':    'spell_frost_frost',
-  // Warlocks
-  'Banish':       'spell_shadow_cripple',
-  'CoE':          'spell_shadow_curseofachimonde',
-  'CoT':          'spell_shadow_curseoftounges',
-  'CoR':          'spell_shadow_unholyfrenzy',
-  'Seed':         'spell_shadow_seedofcorruption',
-  'Healthstone':  'warlock_-healthstone',
-  'Soulstone':    'warlock_-soulstone',
-  // Shamans
-  'BL/Hero':      'spell_nature_bloodlust',
-  'Wind Shear':   'spell_nature_cyclone',
-  'Grounding':    'spell_nature_groundingtotem',
-  'Tremor':       'spell_nature_tremortotem',
-  // Druids
-  'Faerie Fire':  'spell_nature_faeriefire',
-  'Gift/Wild':    'spell_nature_giftofthewild',
-  // Paladins
-  'BoSalv':       'spell_holy_sealofblood',
-  'BoWisdom':     'spell_holy_sealofwisdom',
-  'BoMight':      'spell_holy_fistofjustice',
-  'BoKings':      'spell_magic_greaterblessingofkings',
-  'JoW':          'spell_holy_sealofwisdom',
-  'Div Shield':   'spell_holy_divineshield',
-  // Markers
-  'Skull':        'ability_rogue_deathfromabove',
-  'Cross':        'ability_dualwieldspecialization',
-  'Square':       'spell_shadow_shadowbolt',
-  'Diamond':      'inv_jewelry_talisman_07',
-  'Star':         'achievement_guildperk_hastyheartiii',
-  'Circle':       'achievement_boss_onyxia',
-  'Triangle':     'achievement_pvp_h_01',
-  'Moon':         'spell_nature_sleep',
+  // ── Druids ──────────────────────────────────────────────────────────────
+  'Innervate':      'spell_nature_lightning',
+  'Barkskin':       'spell_nature_stoneclawtotem',
+  'Gift/Wild':      'spell_nature_giftofthewild',
+  'Faerie Fire':    'spell_nature_faeriefire',
+  'Battle Rez':     'spell_nature_reincarnation',
+  'Tranquility':    'spell_nature_tranquility',
+  'Abolish Poison': 'spell_nature_nullifypoison',
+  'Cyclone':        'spell_nature_cyclone',
+  'Hibernate':      'spell_nature_sleep',
+  'Bear Form':      'ability_racial_bearform',
+  // ── Hunters ─────────────────────────────────────────────────────────────
+  'MD':             'ability_hunter_misdirection',
+  'Tranq Shot':     'ability_hunter_tranquilizingshot',
+  'Scorpid Sting':  'ability_hunter_cobrashot',
+  "Hunter's Mark":  'ability_hunter_snipershot',
+  'Aspect/Viper':   'ability_hunter_aspectoftheviper',
+  'Aspect/Wild':    'ability_hunter_pet_bear',
+  'Volley':         'ability_upgrademoonglaive',
+  'Feign Death':    'ability_rogue_feigndeath',
+  // ── Mages ────────────────────────────────────────────────────────────────
+  'Sheep':          'spell_nature_polymorph',
+  'CS':             'spell_frost_iceshock',
+  'Decurse':        'spell_holy_removecurse',
+  'Ice Block':      'spell_frost_frost',
+  'Amp Magic':      'spell_nature_abolishmagic',
+  'Dampen Magic':   'spell_arcane_arcaneresilience',
+  'Spellsteal':     'spell_arcane_arcane01',
+  'Blizzard':       'spell_frost_icestorm',
+  'Slow':           'spell_arcane_slow',
+  'Arcane Torrent': 'ability_racial_arcanetorrent',
+  'Evocation':      'spell_shadow_siphonmana',
+  'CoC':            'spell_frost_chainsofice',
+  // ── Paladins ─────────────────────────────────────────────────────────────
+  'BoSalv':         'spell_holy_sealofblood',
+  'BoWisdom':       'spell_holy_sealofwisdom',
+  'BoMight':        'spell_holy_fistofjustice',
+  'BoKings':        'spell_magic_greaterblessingofkings',
+  'BoSanctuary':    'spell_holy_sealofwrath',
+  'JoW':            'spell_holy_sealofwisdom',
+  'HoP/BoP':        'spell_holy_sealofprotection',
+  'Div Shield':     'spell_holy_divineshield',
+  'HoF':            'spell_holy_sealofsalvation',
+  'Sacred Shield':  'ability_paladin_shieldofvengeance',
+  'Aura':           'spell_holy_devotionaura',
+  'Cleanse':        'spell_holy_purify',
+  // ── Priests ──────────────────────────────────────────────────────────────
+  'PI':             'spell_holy_powerinfusion',
+  'CoH':            'spell_holy_circleofrenewal',
+  'Dispel':         'spell_holy_dispelmagic',
+  'Shackle':        'spell_holy_prayerofhealing02',
+  'Hymn':           'spell_holy_divinehymn',
+  'Shadow Weaving': 'spell_shadow_blackplague',
+  'Fear Ward':      'spell_holy_fearward',
+  'MD Priests':     'spell_shadow_shadowform',
+  'VE':             'spell_shadow_improvedvampiricembrace',
+  'Abolish Disease':'spell_holy_dispelmagic',
+  // ── Rogues ───────────────────────────────────────────────────────────────
+  'Kick':           'ability_kick',
+  'Expose Armor':   'ability_warrior_riposte',
+  'Blind':          'spell_shadow_mindsteal',
+  'Vanish':         'ability_rogue_ambush',
+  'Gouge':          'ability_gouge',
+  'CoS':            'ability_rogue_cloakofshadows',
+  'Garrote':        'ability_rogue_garrote',
+  'Sap':            'ability_sap',
+  'Evasion':        'spell_shadow_shadowward',
+  // ── Shamans ──────────────────────────────────────────────────────────────
+  'BL/Hero':        'spell_nature_bloodlust',
+  'Wind Shear':     'spell_nature_cyclone',
+  'Grounding':      'spell_nature_groundingtotem',
+  'Tremor':         'spell_nature_tremortotem',
+  'NS':             'spell_nature_naturesswiftness',
+  'Earth Shield':   'spell_nature_earthshield',
+  'Chain Heal':     'spell_nature_healingwavegreater',
+  'Mana Tide':      'spell_frost_summonwaterelemental',
+  'Heroism':        'ability_shaman_heroism',
+  'Fire Nova':      'spell_fire_firenova',
+  'Totem':          'spell_nature_stoneskintotem',
+  // ── Warriors ─────────────────────────────────────────────────────────────
+  'Taunt':          'ability_warrior_challange',
+  'Shield Slam':    'ability_warrior_shieldslam',
+  'T-Clap':         'spell_nature_thunderclap',
+  'Demo Shout':     'ability_warrior_warcry',
+  'Sunder':         'ability_warrior_sunder',
+  'Battle Shout':   'ability_warrior_battleshout',
+  'Spell Ref':      'ability_warrior_shieldreflection',
+  'Last Stand':     'spell_holy_ashestoashes',
+  'Reck':           'ability_warrior_intensifyrage',
+  'Death Wish':     'spell_shadow_deathpact',
+  'Whirlwind':      'ability_whirlwind',
+  'Commanding':     'ability_warrior_rallyingcry',
+  // ── Warlocks ─────────────────────────────────────────────────────────────
+  'Banish':         'spell_shadow_cripple',
+  'CoE':            'spell_shadow_curseofachimonde',
+  'CoT':            'spell_shadow_curseoftounges',
+  'CoR':            'spell_shadow_unholyfrenzy',
+  'Seed':           'spell_shadow_seedofcorruption',
+  'Healthstone':    'warlock_-healthstone',
+  'Soulstone':      'warlock_-soulstone',
+  'Enslave':        'spell_shadow_enslavedemon',
+  'Howl of Terror': 'spell_shadow_deathscream',
+  'Fear':           'spell_shadow_possession',
+  'CoA':            'spell_shadow_auraofdarkness',
+  'Amplify Curse':  'spell_shadow_contagion',
+  // ── General / Utility ────────────────────────────────────────────────────
+  'Lay Hands':      'spell_holy_layonhands',
+  'Intercept':      'ability_warrior_charge',
+  'Intervene':      'ability_warrior_intervene',
+  // ── Consumables / Profs ──────────────────────────────────────────────────
+  'Flask':          'inv_alchemy_elixir_04',
+  'Elixir':         'inv_potion_25',
+  'Food Buff':      'inv_misc_food_15',
+  'Drums':          'inv_misc_drum_02',
+  'Oil':            'inv_potion_92',
+  'Scrolls':        'inv_scroll_03',
+  // ── Markers (legacy text) ─────────────────────────────────────────────────
+  'Skull':          'ability_rogue_deathfromabove',
+  'Cross':          'ability_dualwieldspecialization',
+  'Square':         'spell_shadow_shadowbolt',
+  'Diamond':        'inv_jewelry_talisman_07',
+  'Star':           'achievement_guildperk_hastyheartiii',
+  'Circle':         'achievement_boss_onyxia',
+  'Triangle':       'achievement_pvp_h_01',
+  'Moon':           'spell_nature_sleep',
 };
 
 const SA_SECTION_DEFS = [
@@ -3060,12 +3138,41 @@ function renderSpecialAssignments() {
   const sections = saGetOrInitSections();
   let html = '';
 
-  // Icon palette
+  // Icon palette — grouped by class
+  const SA_ICON_GROUPS = [
+    { label: 'Druid',    icons: ['Innervate','Barkskin','Gift/Wild','Faerie Fire','Battle Rez','Tranquility','Abolish Poison','Cyclone','Hibernate','Bear Form'] },
+    { label: 'Hunter',   icons: ['MD','Tranq Shot','Scorpid Sting',"Hunter's Mark",'Aspect/Viper','Aspect/Wild','Volley','Feign Death'] },
+    { label: 'Mage',     icons: ['Sheep','CS','Decurse','Ice Block','Amp Magic','Dampen Magic','Spellsteal','Blizzard','Slow','CoC','Evocation','Arcane Torrent'] },
+    { label: 'Paladin',  icons: ['BoSalv','BoWisdom','BoMight','BoKings','BoSanctuary','JoW','HoP/BoP','Div Shield','HoF','Sacred Shield','Aura','Cleanse'] },
+    { label: 'Priest',   icons: ['PI','CoH','Dispel','Shackle','Hymn','Shadow Weaving','Fear Ward','VE','Abolish Disease'] },
+    { label: 'Rogue',    icons: ['Kick','Expose Armor','Blind','Vanish','Gouge','CoS','Garrote','Sap','Evasion'] },
+    { label: 'Shaman',   icons: ['BL/Hero','Wind Shear','Grounding','Tremor','NS','Earth Shield','Chain Heal','Mana Tide','Heroism','Fire Nova','Totem'] },
+    { label: 'Warrior',  icons: ['Taunt','Shield Slam','T-Clap','Demo Shout','Sunder','Battle Shout','Spell Ref','Last Stand','Reck','Death Wish','Whirlwind','Commanding'] },
+    { label: 'Warlock',  icons: ['Banish','CoE','CoT','CoR','Seed','Healthstone','Soulstone','Enslave','Howl of Terror','Fear','CoA','Amplify Curse'] },
+    { label: 'Misc',     icons: ['Lay Hands','Intercept','Intervene'] },
+    { label: 'Consums',  icons: ['Flask','Elixir','Food Buff','Drums','Oil','Scrolls'] },
+  ];
+
   html += '<div class="sa-icon-palette" id="sa-icon-palette">';
-  for (const [name, icon] of Object.entries(SA_ICONS)) {
-    const safeId = 'sa-chip-' + name.replace(/[^a-zA-Z0-9]/g,'_');
-    html += `<div class="sa-icon-chip" draggable="true" id="${safeId}" data-icon-name="${name}" title="${name}">
-      <img src="${BASE_ICON}${icon}.jpg" onerror="this.src='${BASE_ICON}inv_misc_questionmark.jpg'" alt="${name}" draggable="false" style="pointer-events:none">
+  SA_ICON_GROUPS.forEach((group, gi) => {
+    if (gi > 0) html += '<div class="sa-palette-break"></div>';
+    html += `<span class="sa-palette-label">${group.label}</span>`;
+    group.icons.forEach(name => {
+      if (!SA_ICONS[name]) return;
+      const safeId = 'sa-chip-' + name.replace(/[^a-zA-Z0-9]/g,'_');
+      html += `<div class="sa-icon-chip" draggable="true" id="${safeId}" data-icon-name="${name}" title="${name}">
+        <img src="${BASE_ICON}${SA_ICONS[name]}.jpg" onerror="this.src='${BASE_ICON}inv_misc_questionmark.jpg'" alt="${name}" draggable="false" style="pointer-events:none">
+      </div>`;
+    });
+  });
+  // Raid marker icons (base64 inline)
+  html += '<div class="sa-palette-break"></div>';
+  html += '<span class="sa-palette-label">Marks</span>';
+  const SA_MARKER_LABELS = {star:'Star',circle:'Circle',diamond:'Diamond',triangle:'Triangle',moon:'Moon',square:'Square',cross:'Cross',skull:'Skull',tank:'Tank',healer:'Healer',mdps:'Melee',rdps:'Ranged'};
+  for (const [key, label] of Object.entries(SA_MARKER_LABELS)) {
+    if (!MARKER_ICONS[key]) continue;
+    html += `<div class="sa-icon-chip" draggable="true" id="sa-chip-marker_${key}" data-icon-name="__marker__${key}" title="${label}">
+      <img src="${MARKER_ICONS[key]}" alt="${label}" draggable="false" style="pointer-events:none">
     </div>`;
   }
   html += '</div>';
@@ -3088,31 +3195,39 @@ function renderSpecialAssignments() {
         const nameColor = m ? ((CM[m.cls]||{}).color || 'var(--text)') : 'var(--text2)';
         const icons = row.icons || [];
 
+        const iconHint = icons.length === 0 ? '<span class="sa-row-icon-hint">drop icons here</span>' : '';
         let iconSlots = icons.map((ic, ii) => {
-          const iconFile = SA_ICONS[ic] || 'inv_misc_questionmark';
-          return `<div class="sa-row-icon" title="${ic} (click to remove)" onclick="saRemoveIcon(${si},${ri},${ii})">
-            <img src="${BASE_ICON}${iconFile}.jpg" onerror="this.src='${BASE_ICON}inv_misc_questionmark.jpg'" draggable="false" style="pointer-events:none">
+          let imgSrc;
+          if (ic.startsWith('__marker__')) {
+            const mkey = ic.replace('__marker__', '');
+            imgSrc = MARKER_ICONS[mkey] || (BASE_ICON + 'inv_misc_questionmark.jpg');
+          } else {
+            const iconFile = SA_ICONS[ic] || 'inv_misc_questionmark';
+            imgSrc = BASE_ICON + iconFile + '.jpg';
+          }
+          return `<div class="sa-row-icon" title="${ic.replace('__marker__','')} — click to remove" onclick="saRemoveIcon(${si},${ri},${ii})">
+            <img src="${imgSrc}" draggable="false" style="pointer-events:none">
           </div>`;
         }).join('');
-        iconSlots += `<div class="sa-row-icon-drop" id="sa-idrop-${si}-${ri}" title="Drop icon here">+</div>`;
 
         html += `<div class="sa-assign-row">
-          <div class="sa-row-label">${lbl}</div>
+          <div class="sa-row-top">
+            <div class="sa-row-label">${lbl}</div>
+            <div class="sa-row-player" id="sa-pslot-${si}-${ri}" style="color:${nameColor}"
+              ondragover="event.preventDefault();document.getElementById('sa-pslot-${si}-${ri}').classList.add('sa-drop-over')"
+              ondragleave="document.getElementById('sa-pslot-${si}-${ri}').classList.remove('sa-drop-over')"
+              ondrop="saOnPlayerDrop(event,${si},${ri})"
+              title="Drop player to replace">${row.memberName || '\u2014'}</div>
+            <input class="sa-row-text" value="${(row.text||'').replace(/"/g,'&quot;')}"
+              placeholder="notes..."
+              onchange="saSetRowText(${si},${ri},this.value)"
+              onblur="saSetRowText(${si},${ri},this.value)">
+            <button class="sa-row-del" onclick="saDeleteRow(${si},${ri})" title="Remove">\u2715</button>
+          </div>
           <div class="sa-row-icons" id="sa-icons-wrap-${si}-${ri}"
             ondragover="event.preventDefault();document.getElementById('sa-icons-wrap-${si}-${ri}').classList.add('sa-drop-over')"
             ondragleave="document.getElementById('sa-icons-wrap-${si}-${ri}').classList.remove('sa-drop-over')"
-            ondrop="saOnIconDrop(event,${si},${ri})"
-            style="cursor:copy;min-width:26px">${iconSlots}</div>
-          <div class="sa-row-player" id="sa-pslot-${si}-${ri}" style="color:${nameColor}"
-            ondragover="event.preventDefault();document.getElementById('sa-pslot-${si}-${ri}').classList.add('sa-drop-over')"
-            ondragleave="document.getElementById('sa-pslot-${si}-${ri}').classList.remove('sa-drop-over')"
-            ondrop="saOnPlayerDrop(event,${si},${ri})"
-            title="Drop player to replace">${row.memberName || '\u2014'}</div>
-          <input class="sa-row-text" value="${(row.text||'').replace(/"/g,'&quot;')}"
-            placeholder="notes..."
-            onchange="saSetRowText(${si},${ri},this.value)"
-            onblur="saSetRowText(${si},${ri},this.value)">
-          <button class="sa-row-del" onclick="saDeleteRow(${si},${ri})" title="Remove">\u2715</button>
+            ondrop="saOnIconDrop(event,${si},${ri})">${iconSlots}${iconHint}</div>
         </div>`;
       });
       // Drop zone
