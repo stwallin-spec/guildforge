@@ -758,124 +758,95 @@ body {
 
 /* SPECIAL ASSIGNMENTS PANEL */
 .sa-panel {
-  background: var(--bg2);
-  border-left: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 0;
+  background: var(--bg2); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden; min-width: 0;
 }
 .sa-panel-header {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--gold);
-  letter-spacing: 0.04em;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  padding: 8px 10px; border-bottom: 1px solid var(--border);
+  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 600;
+  color: var(--gold); letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
 }
-.sa-section {
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.sa-section-header {
-  padding: 7px 12px;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  user-select: none;
-  transition: color .15s;
-}
-.sa-section-header:hover { color: var(--text2); }
-.sa-section-body {
-  padding: 0 8px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.sa-slot {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.sa-icon-palette {
+  padding: 5px 8px; border-bottom: 1px solid var(--border);
+  display: flex; flex-wrap: wrap; gap: 3px; flex-shrink: 0;
   background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 5px 8px;
-  min-height: 30px;
+}
+.sa-icon-chip {
+  width: 24px; height: 24px; border-radius: 3px; cursor: grab;
+  border: 1px solid var(--border); overflow: hidden; flex-shrink: 0;
   transition: border-color .15s;
-  cursor: pointer;
-  position: relative;
 }
-.sa-slot:hover { border-color: var(--border2); }
-.sa-slot.sa-drop-over { border-color: var(--gold); background: rgba(200,168,75,0.08); }
-.sa-slot-label {
-  font-size: 10px;
-  color: var(--text3);
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-shrink: 0;
-  max-width: 68px;
+.sa-icon-chip:hover { border-color: var(--gold); }
+.sa-icon-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sa-section { border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.sa-section-header {
+  padding: 4px 8px 4px 10px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  display: flex; align-items: center; gap: 6px;
+  cursor: pointer; user-select: none;
 }
-.sa-slot-value {
-  flex: 1;
-  font-size: 11px;
-  font-weight: 600;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.sa-section-body { }
+.sa-section-drop {
+  min-height: 26px; border: 1px dashed var(--border);
+  margin: 3px 8px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--text3); transition: all .15s;
 }
-.sa-slot-clear {
-  width: 14px; height: 14px;
-  border: none;
-  background: rgba(255,255,255,0.08);
-  color: var(--text3);
-  cursor: pointer;
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 2px;
-  flex-shrink: 0;
+.sa-section-drop.sa-drop-over {
+  border-color: var(--gold); background: rgba(200,168,75,0.08); color: var(--gold2);
+}
+.sa-assign-row {
+  display: flex; align-items: center; border-top: 1px solid var(--border);
+  min-height: 30px; position: relative;
+}
+.sa-assign-row:hover .sa-row-del { opacity: 1; }
+.sa-row-label {
+  width: 28px; flex-shrink: 0; font-size: 9px; font-weight: 700;
+  color: var(--text3); text-align: center; text-transform: uppercase; letter-spacing: 0.03em;
+}
+.sa-row-icons {
+  display: flex; gap: 2px; flex-shrink: 0; padding: 2px 3px;
+  align-items: center; flex-wrap: wrap; min-width: 24px;
+}
+.sa-row-icon {
+  width: 20px; height: 20px; border-radius: 3px; flex-shrink: 0;
+  border: 1px solid var(--border); overflow: hidden; cursor: pointer;
+}
+.sa-row-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sa-row-icon:hover { border-color: #e06060; }
+.sa-row-icon-drop {
+  width: 20px; height: 20px; border-radius: 3px; flex-shrink: 0;
+  border: 1px dashed var(--border); display: flex; align-items: center;
+  justify-content: center; font-size: 11px; color: var(--text3);
   transition: all .15s;
-  line-height: 1;
 }
-.sa-slot-clear:hover { background: rgba(200,60,60,0.25); color: #e06060; }
+.sa-row-icon-drop.sa-drop-over { border-color: var(--gold); background: rgba(200,168,75,0.1); color: var(--gold2); }
+.sa-row-player {
+  width: 60px; flex-shrink: 0; padding: 0 3px;
+  font-size: 11px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  border-radius: 3px; height: 30px; line-height: 30px;
+}
+.sa-row-player.sa-drop-over { background: rgba(200,168,75,0.1); outline: 1px solid rgba(200,168,75,0.4); }
+.sa-row-text {
+  flex: 1; min-width: 0; background: transparent; border: none;
+  color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 11px;
+  padding: 0 4px; height: 30px;
+}
+.sa-row-text:focus { outline: none; background: rgba(200,168,75,0.05); }
+.sa-row-text::placeholder { color: var(--text3); font-size: 10px; }
+.sa-row-del {
+  opacity: 0; width: 16px; height: 16px; flex-shrink: 0;
+  background: transparent; border: none; color: var(--text3);
+  cursor: pointer; font-size: 10px; padding: 0; line-height: 1;
+  transition: opacity .15s, color .15s; margin-right: 4px;
+}
+.sa-row-del:hover { color: #e06060; }
 .sa-empty-state {
-  padding: 24px 12px;
-  text-align: center;
-  color: var(--text3);
-  font-size: 11px;
-  line-height: 1.6;
+  padding: 24px 10px; text-align: center;
+  color: var(--text3); font-size: 11px; line-height: 1.6;
 }
-.sa-add-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 8px;
-  background: transparent;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius);
-  color: var(--text3);
-  font-size: 10px;
-  cursor: pointer;
-  transition: all .15s;
-  width: 100%;
-  font-family: 'Exo 2', sans-serif;
-}
-.sa-add-btn:hover { border-color: var(--gold); color: var(--gold2); }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>const whTooltips = { colorLinks: true, iconizeLinks: false, renameLinks: false };</script>
@@ -1130,9 +1101,9 @@ body {
 
   <!-- ASSIGNMENTS -->
   <div class="page" id="page-assign" style="overflow:hidden">
-    <div style="display:grid;grid-template-columns:220px 1fr 200px 220px;gap:0;height:calc(100vh - 56px);width:100vw;overflow:hidden">
+    <div style="display:grid;grid-template-columns:220px 220px 1fr 200px;gap:0;height:calc(100vh - 56px);width:100vw;overflow:hidden">
 
-      <!-- LEFT: Plans + Raids -->
+      <!-- COL 1: Plans + Raids -->
       <div style="background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-width:0">
 
         <!-- Top: New Plan + wizard -->
@@ -1167,7 +1138,19 @@ body {
 
       </div>
 
-      <!-- CENTER: Canvas -->
+      <!-- COL 2: Special Assignments -->
+      <div class="sa-panel" id="sa-panel">
+        <div class="sa-panel-header">
+          <span style="flex:1">⚔ Special Assignments</span>
+        </div>
+        <div id="sa-body" style="flex:1;overflow-y:auto;overflow-x:hidden">
+          <div class="sa-empty-state" id="sa-empty">
+            Select or create a plan<br>to set up special assignments.
+          </div>
+        </div>
+      </div>
+
+      <!-- COL 3: Canvas -->
       <div style="position:relative;overflow:hidden;background:#0a0a0e" id="assign-canvas-wrap">
         <canvas id="assign-canvas" style="display:block"></canvas>
         <div id="assign-text-input" style="display:none;position:absolute;z-index:10">
@@ -1185,7 +1168,7 @@ body {
         </div>
       </div>
 
-      <!-- RIGHT: Markers + Boss Icons + Members -->
+      <!-- COL 4: Markers + Boss Icons + Members -->
       <div style="background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden">
         <div style="padding:10px 12px;border-bottom:1px solid var(--border)">
           <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Markers</div>
@@ -1199,22 +1182,6 @@ body {
           <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Guild Members</div>
           <input id="assign-member-search" placeholder="Filter..." style="width:100%;padding:5px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Exo 2',sans-serif;font-size:11px;margin-bottom:8px" oninput="renderAssignMemberList()">
           <div id="assign-member-list" style="display:flex;flex-direction:column;gap:4px"></div>
-        </div>
-      </div>
-
-      <!-- FAR RIGHT: Special Assignments -->
-      <div class="sa-panel" id="sa-panel">
-        <div class="sa-panel-header">
-          <span>⚔ Special Assignments</span>
-          <button id="sa-add-section-btn" onclick="saAddCustomSection()" title="Add custom section"
-            style="background:transparent;border:1px dashed rgba(200,168,75,0.3);color:var(--text3);cursor:pointer;font-size:10px;padding:2px 7px;border-radius:4px;font-family:'Exo 2',sans-serif;transition:all .15s"
-            onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold2)'"
-            onmouseout="this.style.borderColor='rgba(200,168,75,0.3)';this.style.color='var(--text3)'">+ Section</button>
-        </div>
-        <div id="sa-body" style="flex:1;overflow-y:auto;overflow-x:hidden">
-          <div class="sa-empty-state" id="sa-empty">
-            Select or create a plan<br>to set up special assignments.
-          </div>
         </div>
       </div>
 
@@ -2972,316 +2939,275 @@ function saveAssignData() {
 }
 
 // ══════════════════════════════════════════════════════════
-// SPECIAL ASSIGNMENTS PANEL
+// ══════════════════════════════════════════════════════════
+// SPECIAL ASSIGNMENTS PANEL  — icon + player + text model
 // ══════════════════════════════════════════════════════════
 
-// Default section templates per encounter
-// Each section: { id, label, slots: [{id, label, color?}] }
-const BOSS_SA_TEMPLATES = {
-  // ── T4 ────────────────────────────────────────────────
-  gruul: [
-    { id:'tanks',   label:'Tanks',           slots:[{id:'mt',label:'Main Tank'},{id:'ot',label:'Off Tank'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'kicks',   label:'Kick Rotation',    slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'},{id:'k3',label:'Kick 3'}] },
-    { id:'groundslam', label:'Groundslam Duty', slots:[{id:'gs1',label:'Call Out'}] },
-  ],
-  highking: [
-    { id:'tanks',   label:'Tank Assignments', slots:[{id:'t-maulgar',label:'Maulgar (MT)'},{id:'t-krosh',label:'Krosh (Mage Tank)'},{id:'t-olm',label:'Olm'},{id:'t-kiggler',label:'Kiggler'},{id:'t-blindeye',label:'Blindeye'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'mds',     label:'Misdirections',    slots:[{id:'md-krosh',label:'MD → Krosh'},{id:'md-kiggler',label:'MD → Kiggler'}] },
-    { id:'banish',  label:'Banish / CC',      slots:[{id:'banish1',label:'Banish'},{id:'sap',label:'Sap/Sheep'}] },
-  ],
-  magtheridon: [
-    { id:'cubes',   label:'Cube Clickers',    slots:[{id:'c1',label:'Cube 1'},{id:'c2',label:'Cube 2'},{id:'c3',label:'Cube 3'},{id:'c4',label:'Cube 4'},{id:'c5',label:'Cube 5'}] },
-    { id:'tanks',   label:'Tanks',            slots:[{id:'mt',label:'Main Tank'},{id:'ot1',label:'Off Tank 1'},{id:'ot2',label:'Off Tank 2'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'kicks',   label:'Channeler Kicks',  slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'},{id:'k3',label:'Kick 3'},{id:'k4',label:'Kick 4'},{id:'k5',label:'Kick 5'}] },
-  ],
-  // ── SSC ──────────────────────────────────────────────
-  hydross: [
-    { id:'tanks',   label:'Tank Assignments', slots:[{id:'mt',label:'Nature Tank'},{id:'ot',label:'Frost Tank'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'transitions', label:'Transition Duty', slots:[{id:'tr1',label:'Purge/Dispel 1'},{id:'tr2',label:'Purge/Dispel 2'}] },
-    { id:'groups',  label:'Transition Groups', slots:[{id:'grp-n',label:'North Group'},{id:'grp-s',label:'South Group'}] },
-  ],
-  lurker: [
-    { id:'tanks',   label:'Tanks',            slots:[{id:'mt',label:'Main Tank'},{id:'ot-spout',label:'Spout Tank'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'platform', label:'Platform Groups', slots:[{id:'p1',label:'Platform 1'},{id:'p2',label:'Platform 2'},{id:'p3',label:'Platform 3'}] },
-    { id:'adds',    label:'Add Tanks',        slots:[{id:'a1',label:'Add Tank 1'},{id:'a2',label:'Add Tank 2'},{id:'a3',label:'Add Tank 3'}] },
-    { id:'spout',   label:'Spout Jump Lead',  slots:[{id:'call',label:'Call Spout'}] },
-  ],
-  leotheras: [
-    { id:'tanks',   label:'Tank Assignments', slots:[{id:'mt',label:'Warrior Phase'},{id:'dt',label:'Demon Phase'},{id:'ot',label:'Off Tank'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'kicks',   label:'Kick Rotation',    slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'},{id:'k3',label:'Kick 3'},{id:'k4',label:'Kick 4'}] },
-    { id:'demon',   label:'Demon Inner Fire', slots:[{id:'df1',label:'Inner Fire 1'},{id:'df2',label:'Inner Fire 2'},{id:'df3',label:'Inner Fire 3'},{id:'df4',label:'Inner Fire 4'},{id:'df5',label:'Inner Fire 5'}] },
-  ],
-  karathress: [
-    { id:'tanks',   label:'Tank Assignments', slots:[{id:'t-kara',label:'Karathress (MT)'},{id:'t-sharkkis',label:'Sharkkis'},{id:'t-tidalvess',label:'Tidalvess'},{id:'t-caribdis',label:'Caribdis'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'mds',     label:'Misdirections',    slots:[{id:'md1',label:'MD → Sharkkis'},{id:'md2',label:'MD → Tidalvess'}] },
-    { id:'kicks',   label:'Spitfire Totem Kick',  slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'}] },
-  ],
-  morogrim: [
-    { id:'tanks',   label:'Tanks',            slots:[{id:'mt',label:'Main Tank'},{id:'ot',label:'Off Tank'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'murloc',  label:'Murloc AoE Group', slots:[{id:'aoe1',label:'AoE 1'},{id:'aoe2',label:'AoE 2'},{id:'aoe3',label:'AoE 3'}] },
-    { id:'wg',      label:'Warlock Gates',    slots:[{id:'wg1',label:'Gate 1'},{id:'wg2',label:'Gate 2'}] },
-  ],
-  vashj: [
-    { id:'tanks',   label:'Tank Assignments', slots:[{id:'mt',label:'Vashj (MT)'},{id:'ot1',label:'Coilfang Elite 1'},{id:'ot2',label:'Coilfang Elite 2'},{id:'ot3',label:'Coilfang Elite 3'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'shields', label:'Shield Handlers',  slots:[{id:'sh1',label:'Shield 1'},{id:'sh2',label:'Shield 2'},{id:'sh3',label:'Shield 3'},{id:'sh4',label:'Shield 4'},{id:'sh5',label:'Shield 5'}] },
-    { id:'mds',     label:'Misdirections',    slots:[{id:'md1',label:'MD 1'},{id:'md2',label:'MD 2'}] },
-    { id:'p3',      label:'Phase 3 Kick',     slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'},{id:'k3',label:'Kick 3'}] },
-  ],
-  // ── TK ───────────────────────────────────────────────
-  alar: [
-    { id:'tanks',   label:'Tank Assignments', slots:[{id:'p1t',label:'P1 Tank'},{id:'p2mt',label:'P2 Main Tank'},{id:'p2ot',label:'P2 Off Tank'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'adds',    label:'P1 Add Tanks',     slots:[{id:'a1',label:'Add 1'},{id:'a2',label:'Add 2'},{id:'a3',label:'Add 3'},{id:'a4',label:'Add 4'}] },
-    { id:'mds',     label:'Misdirections',    slots:[{id:'md1',label:'MD P1'},{id:'md2',label:'MD P2'}] },
-  ],
-  voidreaver: [
-    { id:'tanks',   label:'Tank Swap',        slots:[{id:'mt',label:'Main Tank'},{id:'ot',label:'Off Tank (swap at 2 stacks)'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'pounding',label:'Pounding Call Out',slots:[{id:'call',label:'Call Pounding'}] },
-  ],
-  solarian: [
-    { id:'tanks',   label:'Tanks',            slots:[{id:'mt',label:'Main Tank'},{id:'ot',label:'Off Tank'}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'kicks',   label:'Wrath Kick Rotation', slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'},{id:'k3',label:'Kick 3'}] },
-    { id:'bomb',    label:'Arcane Bomb Group', slots:[{id:'bgrp',label:'Bomb Group'}] },
-  ],
-  kaelthas: [
-    { id:'tanks',   label:'Tank Assignments', slots:[{id:'t-advisor',label:'Advisor Tank'},{id:'t-thaladred',label:'Thaladred'},{id:'t-lord',label:'Lord Sanguinar'},{id:'t-capernian',label:'Capernian'},{id:'t-telonicus',label:'Telonicus'},{id:'t-kael',label:"Kael'thas (P3/4)"}] },
-    { id:'healers', label:'Healer Targets',   slots:[{id:'h1',label:'Healer 1'},{id:'h2',label:'Healer 2'},{id:'h3',label:'Healer 3'},{id:'h4',label:'Healer 4'},{id:'h5',label:'Healer 5'}] },
-    { id:'kicks',   label:'Gravity Lapse Kick', slots:[{id:'k1',label:'Kick 1'},{id:'k2',label:'Kick 2'}] },
-    { id:'weapons', label:'Legendary Weapons', slots:[{id:'w-pheonix',label:"Pheonix's Egg"},{id:'w-scepter',label:'Scepter Kicker'},{id:'w-staff',label:'Staff Puller'},{id:'w-warglaive',label:'Warglaive'},{id:'w-shield',label:'Shield'},{id:'w-bow',label:'Bow Kicker'}] },
-    { id:'mc',      label:'MC Breakers',      slots:[{id:'mc1',label:'MC Break 1'},{id:'mc2',label:'MC Break 2'}] },
-  ],
+const BASE_ICON = 'https://wow.zamimg.com/images/wow/icons/medium/';
+const SA_ICONS = {
+  // Tanks / Warriors
+  'Taunt':        'ability_warrior_challange',
+  'Shield Slam':  'ability_warrior_shieldslam',
+  'T-Clap':       'spell_nature_thunderclap',
+  'Demo Shout':   'ability_warrior_warcry',
+  'Sunder':       'ability_warrior_sunder',
+  'Battle Shout': 'ability_warrior_battleshout',
+  'Spell Ref':    'ability_warrior_shieldreflection',
+  'Last Stand':   'spell_holy_ashestoashes',
+  // Healers
+  'Innervate':    'spell_nature_lightning',
+  'PI':           'spell_holy_powerinfusion',
+  'Chain Heal':   'spell_nature_healingwavegreater',
+  'CoH':          'spell_holy_circleofrenewal',
+  'Tranquility':  'spell_nature_tranquility',
+  'Battle Rez':   'spell_nature_reincarnation',
+  'Lay Hands':    'spell_holy_layonhands',
+  'Cleanse':      'spell_holy_purify',
+  // Hunters
+  'MD':           'ability_hunter_misdirection',
+  'Tranq Shot':   'ability_hunter_tranquilizingshot',
+  'Scorpid':      'ability_hunter_cobrashot',
+  "Hunter's Mark":'ability_hunter_snipershot',
+  // Rogues
+  'Kick':         'ability_kick',
+  'Expose':       'ability_warrior_riposte',
+  'Blind':        'spell_shadow_mindsteal',
+  'Vanish':       'ability_rogue_ambush',
+  // Mages
+  'Sheep':        'spell_nature_polymorph',
+  'CS':           'spell_frost_iceshock',
+  'Decurse':      'spell_holy_removecurse',
+  'Ice Block':    'spell_frost_frost',
+  // Warlocks
+  'Banish':       'spell_shadow_cripple',
+  'CoE':          'spell_shadow_curseofachimonde',
+  'CoT':          'spell_shadow_curseoftounges',
+  'CoR':          'spell_shadow_unholyfrenzy',
+  'Seed':         'spell_shadow_seedofcorruption',
+  'Healthstone':  'warlock_-healthstone',
+  'Soulstone':    'warlock_-soulstone',
+  // Shamans
+  'BL/Hero':      'spell_nature_bloodlust',
+  'Wind Shear':   'spell_nature_cyclone',
+  'Grounding':    'spell_nature_groundingtotem',
+  'Tremor':       'spell_nature_tremortotem',
+  // Druids
+  'Faerie Fire':  'spell_nature_faeriefire',
+  'Gift/Wild':    'spell_nature_giftofthewild',
+  // Paladins
+  'BoSalv':       'spell_holy_sealofblood',
+  'BoWisdom':     'spell_holy_sealofwisdom',
+  'BoMight':      'spell_holy_fistofjustice',
+  'BoKings':      'spell_magic_greaterblessingofkings',
+  'JoW':          'spell_holy_sealofwisdom',
+  'Div Shield':   'spell_holy_divineshield',
+  // Markers
+  'Skull':        'ability_rogue_deathfromabove',
+  'Cross':        'ability_dualwieldspecialization',
+  'Square':       'spell_shadow_shadowbolt',
+  'Diamond':      'inv_jewelry_talisman_07',
+  'Star':         'achievement_guildperk_hastyheartiii',
+  'Circle':       'achievement_boss_onyxia',
+  'Triangle':     'achievement_pvp_h_01',
+  'Moon':         'spell_nature_sleep',
 };
 
-// Next ID counter for custom sections/slots
-let saNextId = 1;
+const SA_SECTION_DEFS = [
+  { role: 'tank',   label: 'Tanks',      color: '#4fc3f7' },
+  { role: 'healer', label: 'Healers',    color: '#81c784' },
+  { role: 'mdps',   label: 'Melee DPS',  color: '#f06292' },
+  { role: 'rdps',   label: 'Ranged DPS', color: '#ffb74d' },
+];
 
-function getSaData() {
-  if (!currentPlanId || !assignPlans[currentPlanId]) return null;
-  return assignPlans[currentPlanId].specialAssignments || null;
-}
+let saNextRowId = 1;
 
-function ensureSaData(encounterId) {
+function saGetOrInitSections() {
   if (!currentPlanId || !assignPlans[currentPlanId]) return null;
   const plan = assignPlans[currentPlanId];
-  if (!plan.specialAssignments) {
-    // Initialise from template, preserving empty slot values
-    const template = BOSS_SA_TEMPLATES[encounterId] || [];
+  if (!plan.specialAssignments || !Array.isArray(plan.specialAssignments.sections)) {
     plan.specialAssignments = {
-      sections: template.map(sec => ({
-        id: sec.id,
-        label: sec.label,
-        collapsed: false,
-        slots: sec.slots.map(s => ({ id: s.id, label: s.label, value: '' }))
-      }))
+      sections: SA_SECTION_DEFS.map(def => ({ role: def.role, collapsed: false, rows: [] }))
     };
   }
-  return plan.specialAssignments;
+  // Ensure all 4 sections exist (backward compat)
+  SA_SECTION_DEFS.forEach(def => {
+    if (!plan.specialAssignments.sections.find(s => s.role === def.role)) {
+      plan.specialAssignments.sections.push({ role: def.role, collapsed: false, rows: [] });
+    }
+  });
+  return plan.specialAssignments.sections;
+}
+
+function saRowLabel(role, idx) {
+  if (role === 'tank')   return idx === 0 ? 'MT' : 'OT' + idx;
+  if (role === 'healer') return 'HE' + (idx + 1);
+  if (role === 'mdps')   return 'M' + (idx + 1);
+  if (role === 'rdps')   return 'R' + (idx + 1);
+  return '' + (idx + 1);
 }
 
 function renderSpecialAssignments() {
   const body = document.getElementById('sa-body');
-  const emptyState = document.getElementById('sa-empty');
   if (!body) return;
 
   if (!currentPlanId || !assignPlans[currentPlanId]) {
-    body.innerHTML = '<div class="sa-empty-state" id="sa-empty">Select or create a plan<br>to set up special assignments.</div>';
+    body.innerHTML = '<div class="sa-empty-state">Select or create a plan<br>to set up special assignments.</div>';
     return;
   }
 
-  const encounterId = assignPlans[currentPlanId].encounterId;
-  const sa = ensureSaData(encounterId);
-  if (!sa || !sa.sections.length) {
-    body.innerHTML = `<div class="sa-empty-state" id="sa-empty">No assignments defined for this boss yet.<br><span style="color:var(--gold2);cursor:pointer" onclick="saAddCustomSection()">+ Add a section</span></div>`;
-    return;
-  }
+  const sections = saGetOrInitSections();
+  let html = '';
 
-  body.innerHTML = sa.sections.map((sec, si) => {
-    const slots = sec.collapsed ? '' : sec.slots.map((slot, li) => {
-      const cc = slot.value ? _saGetMemberColor(slot.value) : '';
-      return `<div class="sa-slot" id="sa-slot-${si}-${li}"
-        ondragover="event.preventDefault();document.getElementById('sa-slot-${si}-${li}').classList.add('sa-drop-over')"
-        ondragleave="document.getElementById('sa-slot-${si}-${li}').classList.remove('sa-drop-over')"
-        ondrop="saOnDrop(event,${si},${li})"
-        onclick="saSlotClick(${si},${li})">
-        <span class="sa-slot-label" title="${slot.label}">${slot.label}</span>
-        <span class="sa-slot-value" style="color:${cc||'var(--text3)'}">${slot.value || '—'}</span>
-        ${slot.value ? `<button class="sa-slot-clear" onclick="event.stopPropagation();saClearSlot(${si},${li})" title="Clear">✕</button>` : ''}
-      </div>`;
-    }).join('') + `
-      <button class="sa-add-btn" onclick="saAddSlot(${si})">+ Add slot</button>`;
-
-    return `<div class="sa-section">
-      <div class="sa-section-header" onclick="saToggleSection(${si})">
-        <span>${sec.label}</span>
-        <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-size:9px">${sec.collapsed ? '▶' : '▼'}</span>
-          <button onclick="event.stopPropagation();saDeleteSection(${si})"
-            style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:10px;padding:0;line-height:1"
-            onmouseover="this.style.color='#e06060'" onmouseout="this.style.color='var(--text3)'"
-            title="Remove section">✕</button>
-        </div>
-      </div>
-      ${sec.collapsed ? '' : `<div class="sa-section-body">${slots}</div>`}
+  // Icon palette
+  html += '<div class="sa-icon-palette">';
+  for (const [name, icon] of Object.entries(SA_ICONS)) {
+    const safeId = 'sa-chip-' + name.replace(/[^a-zA-Z0-9]/g,'_');
+    html += `<div class="sa-icon-chip" draggable="true" id="${safeId}" title="${name}">
+      <img src="${BASE_ICON}${icon}.jpg" onerror="this.src='${BASE_ICON}inv_misc_questionmark.jpg'" alt="${name}">
     </div>`;
-  }).join('') + `<div style="padding:8px 12px 10px">
-    <button class="sa-add-btn" onclick="saAddCustomSection()" style="justify-content:center">+ Add Section</button>
-  </div>`;
-
-  // Wire up drag-start from member list tokens to SA slots
-  _saWireMemberDrags();
-}
-
-function _saGetMemberColor(name) {
-  const m = members.find(x => x.name === name);
-  if (!m) return '';
-  return (CM[m.cls] || {}).color || '';
-}
-
-function _saWireMemberDrags() {
-  // Already wired via ondrop on each slot — member tokens in the right panel use startDragToCanvas
-  // but SA slots listen to 'assignElem' data. We need to also handle simple name drops.
-  // We'll use a separate dataTransfer key 'saMember' set in the SA-specific drag start.
-}
-
-// Drag from member list in SA context
-function saStartMemberDrag(e, name) {
-  e.dataTransfer.setData('saMember', name);
-  e.dataTransfer.setData('assignElem', JSON.stringify({ type: 'token', label: name }));
-}
-
-function saOnDrop(e, si, li) {
-  e.preventDefault();
-  e.stopPropagation();
-  const el = document.getElementById(`sa-slot-${si}-${li}`);
-  if (el) el.classList.remove('sa-drop-over');
-
-  // Try saMember first, then parse assignElem label
-  let name = e.dataTransfer.getData('saMember');
-  if (!name) {
-    try {
-      const d = JSON.parse(e.dataTransfer.getData('assignElem'));
-      if (d && d.label) name = d.label;
-    } catch(_) {}
   }
-  if (!name) return;
+  html += '</div>';
 
-  const sa = getSaData();
-  if (!sa || !sa.sections[si] || !sa.sections[si].slots[li]) return;
-  sa.sections[si].slots[li].value = name;
-  savePlanState();
-  renderSpecialAssignments();
-}
+  // Sections
+  sections.forEach((sec, si) => {
+    const def = SA_SECTION_DEFS.find(d => d.role === sec.role) || SA_SECTION_DEFS[0];
+    const collapsed = sec.collapsed;
+    html += `<div class="sa-section">
+      <div class="sa-section-header" onclick="saToggleSection(${si})" style="color:${def.color}">
+        <span style="flex:1">${def.label} <span style="color:var(--text3);font-weight:400;font-family:'Exo 2',sans-serif">(${sec.rows.length})</span></span>
+        <span style="font-size:8px;color:var(--text3)">${collapsed ? '\u25B6' : '\u25BC'}</span>
+      </div>`;
 
-function saClearSlot(si, li) {
-  const sa = getSaData();
-  if (!sa) return;
-  sa.sections[si].slots[li].value = '';
-  savePlanState();
-  renderSpecialAssignments();
-}
+    if (!collapsed) {
+      html += '<div class="sa-section-body">';
+      sec.rows.forEach((row, ri) => {
+        const lbl = saRowLabel(sec.role, ri);
+        const m = row.memberId ? members.find(x => x.id === row.memberId) : null;
+        const nameColor = m ? ((CM[m.cls]||{}).color || 'var(--text)') : 'var(--text2)';
+        const icons = row.icons || [];
 
-function saSlotClick(si, li) {
-  // Show a quick-pick dropdown of members
-  const sa = getSaData();
-  if (!sa) return;
+        let iconSlots = icons.map((ic, ii) => {
+          const iconFile = SA_ICONS[ic] || 'inv_misc_questionmark';
+          return `<div class="sa-row-icon" title="${ic} (click to remove)" onclick="saRemoveIcon(${si},${ri},${ii})">
+            <img src="${BASE_ICON}${iconFile}.jpg" onerror="this.src='${BASE_ICON}inv_misc_questionmark.jpg'">
+          </div>`;
+        }).join('');
+        iconSlots += `<div class="sa-row-icon-drop" id="sa-idrop-${si}-${ri}"
+          ondragover="event.preventDefault();document.getElementById('sa-idrop-${si}-${ri}').classList.add('sa-drop-over')"
+          ondragleave="document.getElementById('sa-idrop-${si}-${ri}').classList.remove('sa-drop-over')"
+          ondrop="saOnIconDrop(event,${si},${ri})" title="Drop icon here">+</div>`;
 
-  // Build and show a floating member picker
-  const existing = document.getElementById('sa-picker');
-  if (existing) existing.remove();
+        html += `<div class="sa-assign-row">
+          <div class="sa-row-label">${lbl}</div>
+          <div class="sa-row-icons">${iconSlots}</div>
+          <div class="sa-row-player" id="sa-pslot-${si}-${ri}" style="color:${nameColor}"
+            ondragover="event.preventDefault();document.getElementById('sa-pslot-${si}-${ri}').classList.add('sa-drop-over')"
+            ondragleave="document.getElementById('sa-pslot-${si}-${ri}').classList.remove('sa-drop-over')"
+            ondrop="saOnPlayerDrop(event,${si},${ri})"
+            title="Drop player to replace">${row.memberName || '\u2014'}</div>
+          <input class="sa-row-text" value="${(row.text||'').replace(/"/g,'&quot;')}"
+            placeholder="notes..."
+            onchange="saSetRowText(${si},${ri},this.value)"
+            onblur="saSetRowText(${si},${ri},this.value)">
+          <button class="sa-row-del" onclick="saDeleteRow(${si},${ri})" title="Remove">\u2715</button>
+        </div>`;
+      });
+      // Drop zone
+      html += `<div class="sa-section-drop" id="sa-sdrop-${si}"
+        ondragover="event.preventDefault();document.getElementById('sa-sdrop-${si}').classList.add('sa-drop-over')"
+        ondragleave="document.getElementById('sa-sdrop-${si}').classList.remove('sa-drop-over')"
+        ondrop="saOnSectionDrop(event,${si})">drag player here</div>`;
+      html += '</div>';
+    }
+    html += '</div>';
+  });
 
-  const slotEl = document.getElementById(`sa-slot-${si}-${li}`);
-  if (!slotEl) return;
-  const r = slotEl.getBoundingClientRect();
-  const panelEl = document.getElementById('sa-panel');
-  const pr = panelEl.getBoundingClientRect();
+  body.innerHTML = html;
 
-  const picker = document.createElement('div');
-  picker.id = 'sa-picker';
-  picker.style.cssText = `position:fixed;z-index:500;background:var(--bg2);border:1px solid rgba(200,168,75,0.4);border-radius:6px;padding:4px;min-width:160px;max-height:220px;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.5);left:${pr.left - 166}px;top:${Math.min(r.top, window.innerHeight - 240)}px`;
-
-  const options = [{ name: '— Clear —', cls: '' }, ...members];
-  picker.innerHTML = options.map(m => {
-    const cc = m.cls ? ((CM[m.cls] || {}).color || '#888') : '#e06060';
-    return `<div onclick="saPickMember(${si},${li},'${m.name === '— Clear —' ? '' : m.name}')" style="padding:5px 10px;font-size:12px;cursor:pointer;border-radius:4px;color:${cc};transition:background .1s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">${m.name}</div>`;
-  }).join('');
-
-  document.body.appendChild(picker);
-  setTimeout(() => document.addEventListener('click', _saPickerClose, { once: true }), 10);
-}
-
-function _saPickerClose(e) {
-  const p = document.getElementById('sa-picker');
-  if (p && !p.contains(e.target)) p.remove();
-}
-
-function saPickMember(si, li, name) {
-  const p = document.getElementById('sa-picker');
-  if (p) p.remove();
-  const sa = getSaData();
-  if (!sa) return;
-  sa.sections[si].slots[li].value = name;
-  savePlanState();
-  renderSpecialAssignments();
+  // Wire icon chip drag starts after innerHTML is set
+  for (const name of Object.keys(SA_ICONS)) {
+    const safeId = 'sa-chip-' + name.replace(/[^a-zA-Z0-9]/g,'_');
+    const el = document.getElementById(safeId);
+    if (el) el.ondragstart = (e) => {
+      e.dataTransfer.setData('saIcon', name);
+      e.dataTransfer.effectAllowed = 'copy';
+    };
+  }
 }
 
 function saToggleSection(si) {
-  const sa = getSaData();
-  if (!sa) return;
-  sa.sections[si].collapsed = !sa.sections[si].collapsed;
+  const sections = saGetOrInitSections();
+  if (!sections) return;
+  sections[si].collapsed = !sections[si].collapsed;
   savePlanState();
   renderSpecialAssignments();
 }
 
-function saDeleteSection(si) {
-  const sa = getSaData();
-  if (!sa) return;
-  if (!confirm('Remove this section?')) return;
-  sa.sections.splice(si, 1);
+function saOnSectionDrop(e, si) {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById('sa-sdrop-' + si)?.classList.remove('sa-drop-over');
+  let name = e.dataTransfer.getData('saMember');
+  if (!name) { try { const d = JSON.parse(e.dataTransfer.getData('assignElem')); if (d?.label) name = d.label; } catch(_){} }
+  if (!name) return;
+  const m = members.find(x => x.name === name);
+  const sections = saGetOrInitSections();
+  if (!sections) return;
+  sections[si].rows.push({ id: 'r'+(saNextRowId++), memberId: m?m.id:null, memberName: name, icons: [], text: '' });
   savePlanState();
   renderSpecialAssignments();
 }
 
-function saAddSlot(si) {
-  const sa = getSaData();
-  if (!sa) return;
-  const label = prompt('Slot label (e.g. "Tank 3"):');
-  if (!label || !label.trim()) return;
-  sa.sections[si].slots.push({ id: 'custom_' + (saNextId++), label: label.trim(), value: '' });
+function saOnPlayerDrop(e, si, ri) {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById(`sa-pslot-${si}-${ri}`)?.classList.remove('sa-drop-over');
+  let name = e.dataTransfer.getData('saMember');
+  if (!name) { try { const d = JSON.parse(e.dataTransfer.getData('assignElem')); if (d?.label) name = d.label; } catch(_){} }
+  if (!name) return;
+  const m = members.find(x => x.name === name);
+  const sections = saGetOrInitSections();
+  if (!sections) return;
+  sections[si].rows[ri].memberId   = m ? m.id : null;
+  sections[si].rows[ri].memberName = name;
   savePlanState();
   renderSpecialAssignments();
 }
 
-function saAddCustomSection() {
-  if (!currentPlanId || !assignPlans[currentPlanId]) {
-    alert('Please create a plan first.');
-    return;
-  }
-  const encounterId = assignPlans[currentPlanId].encounterId;
-  const sa = ensureSaData(encounterId);
-  if (!sa) return;
-  const label = prompt('Section name (e.g. "Kick Rotation"):');
-  if (!label || !label.trim()) return;
-  sa.sections.push({
-    id: 'custom_' + (saNextId++),
-    label: label.trim(),
-    collapsed: false,
-    slots: [{ id: 'custom_' + (saNextId++), label: 'Slot 1', value: '' }]
-  });
+function saOnIconDrop(e, si, ri) {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById(`sa-idrop-${si}-${ri}`)?.classList.remove('sa-drop-over');
+  const iconName = e.dataTransfer.getData('saIcon');
+  if (!iconName) return;
+  const sections = saGetOrInitSections();
+  if (!sections) return;
+  const row = sections[si].rows[ri];
+  if (!row.icons) row.icons = [];
+  if (!row.icons.includes(iconName)) row.icons.push(iconName);
   savePlanState();
   renderSpecialAssignments();
 }
 
+function saRemoveIcon(si, ri, ii) {
+  const sections = saGetOrInitSections();
+  if (!sections) return;
+  sections[si].rows[ri].icons.splice(ii, 1);
+  savePlanState();
+  renderSpecialAssignments();
+}
+
+function saSetRowText(si, ri, value) {
+  const sections = saGetOrInitSections();
+  if (!sections) return;
+  sections[si].rows[ri].text = value;
+  savePlanState();
+}
+
+function saDeleteRow(si, ri) {
+  const sections = saGetOrInitSections();
+  if (!sections) return;
+  sections[si].rows.splice(ri, 1);
+  savePlanState();
+  renderSpecialAssignments();
+}
 
 // ── Background ─────────────────────────────────────────────
 function loadBossBackground(encounterId) {
