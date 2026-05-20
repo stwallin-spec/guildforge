@@ -585,12 +585,20 @@ function loadBossBackground(encounterId) {
     bgImage = null; bgLoaded = false;
     // Still apply any pending rescale from loadPlan (no bg image means canvas stays
     // at its current size, so rescale from saved size → current size directly)
-    if (_pendingRescaleW && _pendingRescaleH) {
+    if (_pendingRescaleW && _pendingRescaleH &&
+        (_pendingRescaleW !== canvasW || _pendingRescaleH !== canvasH)) {
       rescaleElements(elements, _pendingRescaleW, _pendingRescaleH, canvasW, canvasH);
       const plan = currentPlanId ? assignPlans[currentPlanId] : null;
-      if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
-      _pendingRescaleW = null; _pendingRescaleH = null;
+      if (plan) {
+        plan.elements = JSON.parse(JSON.stringify(elements.map(el => {
+          if (el.type === 'bossicon') { const { src, ...rest } = el; return rest; }
+          return el;
+        })));
+        plan.canvasW = canvasW;
+        plan.canvasH = canvasH;
+      }
     }
+    _pendingRescaleW = null; _pendingRescaleH = null;
     renderCanvas(); return;
   }
   bgImage = new Image();
@@ -622,19 +630,29 @@ function loadBossBackground(encounterId) {
       aCanvas.style.top = Math.round((wrapH - canvasH) / 2) + 'px';
 
       // Single rescale: from the plan's saved canvas size → the new final canvas size.
-      // _pendingRescaleW/H is set by loadPlan() and represents the size the elements
-      // were originally positioned at. If no plan was just loaded, fall back to prevW/H
-      // (handles live window-resize mid-session without a plan reload).
       const fromW = _pendingRescaleW || prevW;
       const fromH = _pendingRescaleH || prevH;
       _pendingRescaleW = null;
       _pendingRescaleH = null;
       if (fromW && fromH && (fromW !== canvasW || fromH !== canvasH)) {
         rescaleElements(elements, fromW, fromH, canvasW, canvasH);
+        // Also write the rescaled coords back into plan.elements so that subsequent
+        // loads of this plan (same session, no refresh) start from the correct positions
+        // and don't re-rescale from the original saved coords.
+        const plan = currentPlanId ? assignPlans[currentPlanId] : null;
+        if (plan) {
+          plan.elements = JSON.parse(JSON.stringify(elements.map(el => {
+            if (el.type === 'bossicon') { const { src, ...rest } = el; return rest; }
+            return el;
+          })));
+          plan.canvasW = canvasW;
+          plan.canvasH = canvasH;
+        }
+      } else {
+        // No rescale needed — just keep plan size in sync
+        const plan = currentPlanId ? assignPlans[currentPlanId] : null;
+        if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
       }
-      // Always update plan's stored canvas size to the final size after bg load
-      const plan = currentPlanId ? assignPlans[currentPlanId] : null;
-      if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
     }
     renderCanvas();
   };
