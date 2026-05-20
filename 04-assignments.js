@@ -244,7 +244,7 @@ const imgCache = {};
 function loadImg(src) {
   if (imgCache[src]) return imgCache[src];
   const img = new Image();
-  // No crossOrigin here — export uses fetch→blob separately to avoid cache conflicts
+  img.crossOrigin = 'anonymous';
   img.src = src;
   imgCache[src] = img;
   return img;
@@ -589,52 +589,41 @@ function loadBossBackground(encounterId) {
   const src = ENCOUNTER_BG[encounterId];
   if (!src) {
     bgImage = null; bgLoaded = false;
-    if (_pendingDenormalize && canvasW > 0 && canvasH > 0) {
+    // No bg image — canvas stays at current size.
+    // If a plan was just loaded with normalized coords, denormalize now.
+    if (_pendingDenormalize) {
       _pendingDenormalize = false;
       denormalizeElements(elements, canvasW, canvasH);
     }
     renderCanvas(); return;
   }
   bgImage = new Image();
-  // Note: do NOT set crossOrigin here — it causes cache conflicts with browsers
-  // that previously cached the image without CORS. The export function loads
-  // images separately via fetch→blob which handles CORS correctly.
+  bgImage.crossOrigin = 'anonymous';
   bgLoaded = false;
-  bgImage.onerror = () => {
-    // Image failed to load (CORS, missing file, etc.) — render canvas without bg
-    bgLoaded = false;
-    if (_pendingDenormalize && canvasW > 0 && canvasH > 0) {
-      _pendingDenormalize = false;
-      denormalizeElements(elements, canvasW, canvasH);
-    }
-    renderCanvas();
-  };
   bgImage.onload = () => {
     bgLoaded = true;
     const wrap = document.getElementById('assign-canvas-wrap');
     if (wrap) {
-      const wrapW = wrap.clientWidth  || canvasW;
-      const wrapH = wrap.clientHeight || canvasH;
-      // Guard: if the wrap has no size (tab not visible etc.), keep existing canvas size
-      if (wrapW > 0 && wrapH > 0) {
-        const imgAR  = bgImage.naturalWidth / bgImage.naturalHeight;
-        const wrapAR = wrapW / wrapH;
-        if (imgAR > wrapAR) {
-          canvasW = wrapW;
-          canvasH = Math.round(wrapW / imgAR);
-        } else {
-          canvasH = wrapH;
-          canvasW = Math.round(wrapH * imgAR);
-        }
-        aCanvas.width  = canvasW;
-        aCanvas.height = canvasH;
-        aCanvas.style.position = 'absolute';
-        aCanvas.style.left = Math.round((wrapW - canvasW) / 2) + 'px';
-        aCanvas.style.top  = Math.round((wrapH - canvasH) / 2) + 'px';
+      const wrapW = wrap.clientWidth;
+      const wrapH = wrap.clientHeight;
+      const imgAR = bgImage.naturalWidth / bgImage.naturalHeight;
+      const wrapAR = wrapW / wrapH;
+      if (imgAR > wrapAR) {
+        canvasW = wrapW;
+        canvasH = Math.round(wrapW / imgAR);
+      } else {
+        canvasH = wrapH;
+        canvasW = Math.round(wrapH * imgAR);
       }
+      aCanvas.width = canvasW;
+      aCanvas.height = canvasH;
+      aCanvas.style.position = 'absolute';
+      aCanvas.style.left = Math.round((wrapW - canvasW) / 2) + 'px';
+      aCanvas.style.top = Math.round((wrapH - canvasH) / 2) + 'px';
+
       // Denormalize: convert 0-1 fractions → pixel coords for this canvas size.
-      // Guard: only denormalize if canvas has a real size.
-      if (_pendingDenormalize && canvasW > 0 && canvasH > 0) {
+      // This is the ONLY place coords are converted — no rescaling, no drift.
+      if (_pendingDenormalize) {
         _pendingDenormalize = false;
         denormalizeElements(elements, canvasW, canvasH);
       }
