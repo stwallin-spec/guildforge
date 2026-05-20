@@ -244,7 +244,7 @@ const imgCache = {};
 function loadImg(src) {
   if (imgCache[src]) return imgCache[src];
   const img = new Image();
-  img.crossOrigin = 'anonymous';
+  // No crossOrigin here — export uses fetch→blob separately to avoid cache conflicts
   img.src = src;
   imgCache[src] = img;
   return img;
@@ -596,7 +596,9 @@ function loadBossBackground(encounterId) {
     renderCanvas(); return;
   }
   bgImage = new Image();
-  bgImage.crossOrigin = 'anonymous';
+  // Note: do NOT set crossOrigin here — it causes cache conflicts with browsers
+  // that previously cached the image without CORS. The export function loads
+  // images separately via fetch→blob which handles CORS correctly.
   bgLoaded = false;
   bgImage.onerror = () => {
     // Image failed to load (CORS, missing file, etc.) — render canvas without bg
@@ -639,8 +641,7 @@ function loadBossBackground(encounterId) {
     }
     renderCanvas();
   };
-  // Append cache-bust only once per session to avoid serving stale non-CORS cached image
-  bgImage.src = src + (src.includes('?') ? '&' : '?') + '_cb=' + (window._bgCacheBust = window._bgCacheBust || Date.now());
+  bgImage.src = src;
 }
 
 // ── Tool ──────────────────────────────────────────────────
