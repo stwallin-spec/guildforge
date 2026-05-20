@@ -244,7 +244,6 @@ const imgCache = {};
 function loadImg(src) {
   if (imgCache[src]) return imgCache[src];
   const img = new Image();
-  img.crossOrigin = 'anonymous';
   img.src = src;
   imgCache[src] = img;
   return img;
@@ -603,7 +602,6 @@ function loadBossBackground(encounterId) {
     renderCanvas(); return;
   }
   bgImage = new Image();
-  bgImage.crossOrigin = 'anonymous';
   bgLoaded = false;
   bgImage.onload = () => {
     bgLoaded = true;
@@ -1135,10 +1133,24 @@ function loadPlan(planId) {
   }
 
   if (plan.coordsNormalized) {
-    // New format: coords are 0-1 fractions — denormalise after bg sets final canvas size.
-    _pendingDenorm = true;
+    // Validate that coords actually look like 0-1 fractions.
+    // Plans saved during a broken period may have coordsNormalized:true but contain
+    // bad data (all zeros, or values >> 1). Detect this and fall back to legacy mode.
+    const nonArrow = elements.filter(el => el.type !== 'arrow');
+    const coordsLookValid = nonArrow.length === 0 || nonArrow.every(el =>
+      el.x >= 0 && el.x <= 1 && el.y >= 0 && el.y <= 1
+    );
+    if (coordsLookValid) {
+      // Good normalised data — denormalise after bg sets final canvas size.
+      _pendingDenorm = true;
+    } else {
+      // Bad normalised data — strip the flag and treat as legacy absolute coords.
+      // User will need to re-place elements and save again.
+      plan.coordsNormalized = false;
+      _pendingDenorm = false;
+    }
   } else {
-    // Legacy format: absolute pixels. Rescale once, then it migrates to normalised on next Save.
+    // Legacy format: absolute pixels. Rescale once, then migrates to normalised on next Save.
     if (plan.canvasW && plan.canvasH) {
       rescaleElements(elements, plan.canvasW, plan.canvasH, canvasW, canvasH);
     }
