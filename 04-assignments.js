@@ -162,26 +162,26 @@ const BOSS_ICON_NAMES = {
   '18698': 'Gruul',
   '20194': 'Kiggler',
   '20195': 'Krosh',
-  // SSC — verify these names match your NPC IDs
-  '20023': 'Hydross Add',
-  '20162': 'Hydross Add',
-  '20236': 'Lurker Add',
-  '20237': 'Lurker Add',
-  '20177': 'Leotheras Add',
-  '20178': 'Leotheras Add',
-  '20216': 'Karathress Guard',
-  '20514': 'Karathress Guard',
-  '20568': 'Karathress Guard',
-  '20662': 'Morogrim Add',
-  '20670': 'Morogrim Add',
-  '20671': 'Morogrim Add',
-  '20672': 'Morogrim Add',
-  '20739': 'Vashj Add',
-  '20748': 'Vashj Add',
-  // TK — verify these names match your NPC IDs
-  '18239': "Al'ar Add",
-  '18945': "Al'ar Add",
-  '18951': 'Void Reaver Add',
+  // SSC adds — names TBD, keyed by NPC ID
+  '20023': 'NPC 20023',
+  '20162': 'NPC 20162',
+  '20177': 'NPC 20177',
+  '20178': 'NPC 20178',
+  '20216': 'NPC 20216',
+  '20236': 'NPC 20236',
+  '20237': 'NPC 20237',
+  '20514': 'NPC 20514',
+  '20568': 'NPC 20568',
+  '20662': 'NPC 20662',
+  '20670': 'NPC 20670',
+  '20671': 'NPC 20671',
+  '20672': 'NPC 20672',
+  '20739': 'NPC 20739',
+  '20748': 'NPC 20748',
+  // TK adds — names TBD
+  '18239': 'NPC 18239',
+  '18945': 'NPC 18945',
+  '18951': 'NPC 18951',
 };
 
 // Which boss icons show for each encounter
@@ -189,16 +189,17 @@ const ENCOUNTER_BOSS_ICONS = {
   highking:    ['11585','12472','18649','20194','20195'],
   gruul:       ['18698'],
   magtheridon: ['18527','9865'],
-  // SSC
-  hydross:     ['20023','20162'],
-  lurker:      ['20236','20237'],
-  leotheras:   ['20177','20178'],
-  karathress:  ['20216','20514','20568'],
-  morogrim:    ['20662','20670','20671','20672'],
-  vashj:       ['20739','20748'],
-  // TK
-  alar:        ['18239','18945'],
-  voidreaver:  ['18951'],
+  // SSC — TODO: verify each NPC ID against the actual icon images in assets/
+  // and assign the correct IDs to each encounter below.
+  hydross:     [],
+  lurker:      [],
+  leotheras:   [],
+  karathress:  [],
+  morogrim:    [],
+  vashj:       [],
+  // TK — TODO: same
+  alar:        [],
+  voidreaver:  [],
   solarian:    [],
   kaelthas:    [],
 };
@@ -1426,19 +1427,40 @@ function clearCanvas() { if (!confirm('Clear all elements from canvas?')) return
 
 // ── Export ────────────────────────────────────────────────
 
-// Preload an image by URL, resolving to the Image element (or null on failure).
-function _exportLoadImg(src) {
-  return new Promise(resolve => {
-    if (!src) return resolve(null);
-    // Use cache if already loaded
-    if (imgCache[src] && imgCache[src].complete && imgCache[src].naturalWidth) {
-      return resolve(imgCache[src]);
+// Preload an image for export via fetch→blob to avoid tainted-canvas errors.
+// Same-origin assets/ files are fetched directly (no CORS needed).
+// External sources (zamimg) are fetched with mode:'cors'.
+// Falls back to a plain crossOrigin image tag if fetch fails.
+const _exportBlobCache = {};
+async function _exportLoadImg(src) {
+  if (!src) return null;
+  if (_exportBlobCache[src]) return _exportBlobCache[src];
+  const isExternal = src.startsWith('http://') || src.startsWith('https://');
+  try {
+    const res = await fetch(src, {
+      mode: isExternal ? 'cors' : 'same-origin',
+      credentials: 'omit',
+    });
+    if (res.ok) {
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload  = resolve;
+        img.onerror = reject;
+        img.src = objectUrl;
+      });
+      _exportBlobCache[src] = img;
+      return img;
     }
+  } catch (_) { /* fall through to crossOrigin attempt */ }
+  // Fallback: crossOrigin tag (works if the server sends the right headers)
+  return new Promise(resolve => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.onload  = () => resolve(img);
+    img.onload  = () => { _exportBlobCache[src] = img; resolve(img); };
     img.onerror = () => resolve(null);
-    img.src = src;
+    img.src = src + (src.includes('?') ? '&' : '?') + '_nocache=' + Date.now();
   });
 }
 
@@ -1494,11 +1516,20 @@ async function exportAssignImage() {
     const allSections     = saGetOrInitSections() || [];
     const activeSections  = allSections.filter(s => s.rows && s.rows.length > 0);
 
-    // ── Pre-load all icon images asynchronously ──────────────────────────
-    const iconUrls   = _exportCollectIconUrls(activeSections);
-    const loadedImgs = await Promise.all(iconUrls.map(u => _exportLoadImg(u)));
-    const iconImgMap = {};  // url -> Image
-    iconUrls.forEach((u, i) => { if (loadedImgs[i]) iconImgMap[u] = loadedImgs[i]; });
+    // ── Pre-fetch ALL images via blob URLs to prevent tainted-canvas ────────
+    // Covers: background, canvas element srcs, and SA panel icons.
+    const allSrcSet = new Set();
+    const bgSrc = ENCOUNTER_BG[currentEncounterId];
+    if (bgSrc) allSrcSet.add(bgSrc);
+    for (const el of elements) {
+      if (el.src && el.src.length > 4 && !el.src.startsWith('data:')) allSrcSet.add(el.src);
+    }
+    _exportCollectIconUrls(activeSections).forEach(u => allSrcSet.add(u));
+
+    const allUrls   = [...allSrcSet];
+    const allLoaded = await Promise.all(allUrls.map(u => _exportLoadImg(u)));
+    const iconImgMap = {};
+    allUrls.forEach((u, i) => { if (allLoaded[i]) iconImgMap[u] = allLoaded[i]; });
 
     // ── Compute SA panel height ──────────────────────────────────────────
     // Each section: sec header + rows + small drop-zone gap
@@ -1519,9 +1550,18 @@ async function exportAssignImage() {
     const ctx  = out.getContext('2d', { willReadFrequently: false });
 
     // ── Draw canvas area (right side) ────────────────────────────────────
+    // Temporarily inject blob-loaded images into imgCache so drawElement
+    // pulls clean (untainted) images when we call it for the export canvas.
+    const _cacheBackup = {};
+    for (const [url, img] of Object.entries(iconImgMap)) {
+      if (imgCache[url]) _cacheBackup[url] = imgCache[url];
+      imgCache[url] = img;
+    }
+
     const cx = hasSA ? SA_W : 0;
-    if (bgLoaded && bgImage && bgImage.complete && bgImage.naturalWidth) {
-      ctx.drawImage(bgImage, cx, 0, CW, CH);
+    const exportBg = bgSrc ? iconImgMap[bgSrc] : null;
+    if (exportBg && exportBg.complete && exportBg.naturalWidth) {
+      ctx.drawImage(exportBg, cx, 0, CW, CH);
     } else {
       ctx.fillStyle = '#0a0a14';
       ctx.fillRect(cx, 0, CW, CH);
@@ -1534,6 +1574,12 @@ async function exportAssignImage() {
     for (const el of elements) drawElement(el);
     aCtx = savedCtx;
     ctx.restore();
+
+    // Restore original imgCache entries
+    for (const url of Object.keys(iconImgMap)) {
+      if (_cacheBackup[url]) imgCache[url] = _cacheBackup[url];
+      else delete imgCache[url];
+    }
 
     // If taller than canvas (due to SA overflow), fill remaining bg
     if (OUT_H > CH) {
