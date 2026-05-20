@@ -27,25 +27,25 @@ const IMG_BG_SOLARIAN   = "assets/solarian.png";
 const IMG_BG_KAELTHAS   = "assets/sunstrider.png";
 
 // SSC boss/add icons
-const IMG_BOSS_20023 = "assets/20023.png";   // Hydross add
-const IMG_BOSS_20162 = "assets/20162.png";   // Hydross add
-const IMG_BOSS_20236 = "assets/20236.png";   // Lurker add
-const IMG_BOSS_20237 = "assets/20237.png";   // Lurker add
-const IMG_BOSS_20177 = "assets/20177.png";   // Leotheras add
-const IMG_BOSS_20178 = "assets/20178.png";   // Leotheras add
-const IMG_BOSS_20216 = "assets/20216.png";   // Karathress guard
-const IMG_BOSS_20514 = "assets/20514.png";   // Karathress guard
-const IMG_BOSS_20568 = "assets/20568.png";   // Karathress guard
-const IMG_BOSS_20662 = "assets/20662.png";   // Morogrim add
-const IMG_BOSS_20670 = "assets/20670.png";   // Morogrim add
-const IMG_BOSS_20671 = "assets/20671.png";   // Morogrim add
-const IMG_BOSS_20672 = "assets/20672.png";   // Morogrim add
-const IMG_BOSS_20739 = "assets/20739.png";   // Vashj add
-const IMG_BOSS_20748 = "assets/20748.png";   // Vashj add
+const IMG_BOSS_20023 = "assets/20023.png";   // Kael'thas Sunstrider
+const IMG_BOSS_20162 = "assets/20162.png";   // Hydross the Unstable
+const IMG_BOSS_20236 = "assets/20236.png";   // Master Engineer Telonicus (Kael'thas advisor)
+const IMG_BOSS_20237 = "assets/20237.png";   // Grand Astromancer Capernian (Kael'thas advisor)
+const IMG_BOSS_20177 = "assets/20177.png";   // Thaladred the Darkener (Kael'thas advisor)
+const IMG_BOSS_20178 = "assets/20178.png";   // Master Engineer Telonicus (Kael'thas advisor)
+const IMG_BOSS_20216 = "assets/20216.png";   // The Lurker Below
+const IMG_BOSS_20514 = "assets/20514.png";   // Leotheras the Blind
+const IMG_BOSS_20568 = "assets/20568.png";   // Shadow of Leotheras
+const IMG_BOSS_20662 = "assets/20662.png";   // Fathom-Lord Karathress
+const IMG_BOSS_20670 = "assets/20670.png";   // Fathom-Guard Tidalvess (Karathress add)
+const IMG_BOSS_20671 = "assets/20671.png";   // Fathom-Guard Sharkkis (Karathress add)
+const IMG_BOSS_20672 = "assets/20672.png";   // Fathom-Guard Caribdis (Karathress add)
+const IMG_BOSS_20739 = "assets/20739.png";   // Morogrim Tidewalker
+const IMG_BOSS_20748 = "assets/20748.png";   // Lady Vashj
 // TK boss/add icons
-const IMG_BOSS_18239 = "assets/18239.png";   // Al'ar add
-const IMG_BOSS_18945 = "assets/18945.png";   // Al'ar add
-const IMG_BOSS_18951 = "assets/18951.png";   // Void Reaver add
+const IMG_BOSS_18239 = "assets/18239.png";   // High Astromancer Solarian
+const IMG_BOSS_18945 = "assets/18945.png";   // Al'ar
+const IMG_BOSS_18951 = "assets/18951.png";   // Void Reaver
 
 const MARKER_ICONS = {
   star: "assets/image_14.png",
@@ -163,25 +163,25 @@ const BOSS_ICON_NAMES = {
   '20194': 'Kiggler',
   '20195': 'Krosh',
   // SSC
-  '20162': 'Spawn of Hydross',
-  '20236': 'Coilfang Ambusher',
-  '20237': 'Coilfang Guardian',
-  '20177': 'Greyheart Technician',
-  '20178': 'Inner Demon',
-  '20216': 'Caribdis',
-  '20514': 'Tidalvess',
-  '20568': 'Sharkkis',
-  '20662': 'Tidewalker Lurker',
-  '20670': 'Tidewalker Ambusher',
-  '20671': 'Coilfang Elite',
-  '20672': 'Coilfang Strider',
-  '20739': 'Tainted Elemental',
-  '20748': 'Enchanted Elemental',
+  '20162': 'Hydross the Unstable',
+  '20216': 'The Lurker Below',
+  '20514': 'Leotheras the Blind',
+  '20568': 'Shadow of Leotheras',
+  '20662': 'Fathom-Lord Karathress',
+  '20670': 'Fathom-Guard Tidalvess',
+  '20671': 'Fathom-Guard Sharkkis',
+  '20672': 'Fathom-Guard Caribdis',
+  '20739': 'Morogrim Tidewalker',
+  '20748': 'Lady Vashj',
   // TK
-  '18239': 'Nether Wraith',
-  '18945': 'Phoenix Hatchling',
+  '18945': "Al'ar",
   '18951': 'Void Reaver',
-  '20023': 'Capernian',
+  '18239': 'High Astromancer Solarian',
+  '20023': "Kael'thas Sunstrider",
+  '20177': 'Thaladred the Darkener',
+  '20178': 'Master Engineer Telonicus',
+  '20236': 'Master Engineer Telonicus',
+  '20237': 'Grand Astromancer Capernian',
 };
 
 // Which boss icons show for each encounter
@@ -190,17 +190,17 @@ const ENCOUNTER_BOSS_ICONS = {
   gruul:       ['18698'],
   magtheridon: ['18527','9865'],
   // SSC
-  hydross:     ['20162'],                         // Spawn of Hydross
-  lurker:      ['20236','20237'],                 // Coilfang Ambusher, Coilfang Guardian
-  leotheras:   ['20177','20178'],                 // Greyheart Technician, Inner Demon
-  karathress:  ['20216','20514','20568'],          // Caribdis, Tidalvess, Sharkkis
-  morogrim:    ['20662','20670'],                  // Tidewalker Lurker, Tidewalker Ambusher
-  vashj:       ['20671','20672','20739','20748'],  // Coilfang Elite, Coilfang Strider, Tainted/Enchanted Elemental
+  hydross:     ['20162'],                              // Hydross the Unstable
+  lurker:      ['20216'],                              // The Lurker Below
+  leotheras:   ['20514','20568'],                      // Leotheras the Blind, Shadow of Leotheras
+  karathress:  ['20662','20670','20671','20672'],       // Fathom-Lord Karathress + 3 guards
+  morogrim:    ['20739'],                              // Morogrim Tidewalker
+  vashj:       ['20748'],                              // Lady Vashj
   // TK
-  alar:        ['18945'],                         // Phoenix Hawk Hatchling
-  voidreaver:  ['18951'],                         // Void Reaver
-  solarian:    ['18239'],                         // Nether Wraith
-  kaelthas:    ['20023'],                         // Grand Astromancer Capernian (advisor)
+  alar:        ['18945'],                              // Al'ar
+  voidreaver:  ['18951'],                              // Void Reaver
+  solarian:    ['18239'],                              // High Astromancer Solarian
+  kaelthas:    ['20023','20177','20178','20236','20237'], // Kael'thas Sunstrider + Thaladred, Telonicus, Master Engineer, Capernian
 };
 
 // ── State ──────────────────────────────────────────────────
