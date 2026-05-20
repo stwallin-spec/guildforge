@@ -162,26 +162,26 @@ const BOSS_ICON_NAMES = {
   '18698': 'Gruul',
   '20194': 'Kiggler',
   '20195': 'Krosh',
-  // SSC adds — names TBD, keyed by NPC ID
-  '20023': 'NPC 20023',
-  '20162': 'NPC 20162',
-  '20177': 'NPC 20177',
-  '20178': 'NPC 20178',
-  '20216': 'NPC 20216',
-  '20236': 'NPC 20236',
-  '20237': 'NPC 20237',
-  '20514': 'NPC 20514',
-  '20568': 'NPC 20568',
-  '20662': 'NPC 20662',
-  '20670': 'NPC 20670',
-  '20671': 'NPC 20671',
-  '20672': 'NPC 20672',
-  '20739': 'NPC 20739',
-  '20748': 'NPC 20748',
-  // TK adds — names TBD
-  '18239': 'NPC 18239',
-  '18945': 'NPC 18945',
-  '18951': 'NPC 18951',
+  // SSC
+  '20162': 'Spawn of Hydross',
+  '20236': 'Coilfang Ambusher',
+  '20237': 'Coilfang Guardian',
+  '20177': 'Greyheart Technician',
+  '20178': 'Inner Demon',
+  '20216': 'Caribdis',
+  '20514': 'Tidalvess',
+  '20568': 'Sharkkis',
+  '20662': 'Tidewalker Lurker',
+  '20670': 'Tidewalker Ambusher',
+  '20671': 'Coilfang Elite',
+  '20672': 'Coilfang Strider',
+  '20739': 'Tainted Elemental',
+  '20748': 'Enchanted Elemental',
+  // TK
+  '18239': 'Nether Wraith',
+  '18945': 'Phoenix Hatchling',
+  '18951': 'Void Reaver',
+  '20023': 'Capernian',
 };
 
 // Which boss icons show for each encounter
@@ -189,19 +189,18 @@ const ENCOUNTER_BOSS_ICONS = {
   highking:    ['11585','12472','18649','20194','20195'],
   gruul:       ['18698'],
   magtheridon: ['18527','9865'],
-  // SSC — TODO: verify each NPC ID against the actual icon images in assets/
-  // and assign the correct IDs to each encounter below.
-  hydross:     [],
-  lurker:      [],
-  leotheras:   [],
-  karathress:  [],
-  morogrim:    [],
-  vashj:       [],
-  // TK — TODO: same
-  alar:        [],
-  voidreaver:  [],
-  solarian:    [],
-  kaelthas:    [],
+  // SSC
+  hydross:     ['20162'],                         // Spawn of Hydross
+  lurker:      ['20236','20237'],                 // Coilfang Ambusher, Coilfang Guardian
+  leotheras:   ['20177','20178'],                 // Greyheart Technician, Inner Demon
+  karathress:  ['20216','20514','20568'],          // Caribdis, Tidalvess, Sharkkis
+  morogrim:    ['20662','20670'],                  // Tidewalker Lurker, Tidewalker Ambusher
+  vashj:       ['20671','20672','20739','20748'],  // Coilfang Elite, Coilfang Strider, Tainted/Enchanted Elemental
+  // TK
+  alar:        ['18945'],                         // Phoenix Hawk Hatchling
+  voidreaver:  ['18951'],                         // Void Reaver
+  solarian:    ['18239'],                         // Nether Wraith
+  kaelthas:    ['20023'],                         // Grand Astromancer Capernian (advisor)
 };
 
 // ── State ──────────────────────────────────────────────────
