@@ -299,10 +299,10 @@ function initAssign() {
   }
 }
 
-function saveAssignData() {
+async function saveAssignData() {
   const assignData = { plans: assignPlans, nextPlanId, nextElemId };
   localStorage.setItem('gm_assign', JSON.stringify(assignData));
-  cloudSaveAssign(assignData);
+  await cloudSaveAssign(assignData);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -583,20 +583,12 @@ function loadBossBackground(encounterId) {
   const src = ENCOUNTER_BG[encounterId];
   if (!src) {
     bgImage = null; bgLoaded = false;
-    // Still apply any pending rescale from loadPlan (no bg image means canvas stays
-    // at its current size, so rescale from saved size → current size directly)
+    // Still apply any pending rescale (no bg image — canvas stays at current size)
     if (_pendingRescaleW && _pendingRescaleH &&
         (_pendingRescaleW !== canvasW || _pendingRescaleH !== canvasH)) {
       rescaleElements(elements, _pendingRescaleW, _pendingRescaleH, canvasW, canvasH);
       const plan = currentPlanId ? assignPlans[currentPlanId] : null;
-      if (plan) {
-        plan.elements = JSON.parse(JSON.stringify(elements.map(el => {
-          if (el.type === 'bossicon') { const { src, ...rest } = el; return rest; }
-          return el;
-        })));
-        plan.canvasW = canvasW;
-        plan.canvasH = canvasH;
-      }
+      if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
     }
     _pendingRescaleW = null; _pendingRescaleH = null;
     renderCanvas(); return;
@@ -630,29 +622,18 @@ function loadBossBackground(encounterId) {
       aCanvas.style.top = Math.round((wrapH - canvasH) / 2) + 'px';
 
       // Single rescale: from the plan's saved canvas size → the new final canvas size.
+      // We only rescale the live `elements` copy — plan.elements is never touched here.
+      // plan.canvasW/H is updated to the final canvas size so that savePlanState()
+      // always writes the correct reference dimensions.
       const fromW = _pendingRescaleW || prevW;
       const fromH = _pendingRescaleH || prevH;
       _pendingRescaleW = null;
       _pendingRescaleH = null;
       if (fromW && fromH && (fromW !== canvasW || fromH !== canvasH)) {
         rescaleElements(elements, fromW, fromH, canvasW, canvasH);
-        // Also write the rescaled coords back into plan.elements so that subsequent
-        // loads of this plan (same session, no refresh) start from the correct positions
-        // and don't re-rescale from the original saved coords.
-        const plan = currentPlanId ? assignPlans[currentPlanId] : null;
-        if (plan) {
-          plan.elements = JSON.parse(JSON.stringify(elements.map(el => {
-            if (el.type === 'bossicon') { const { src, ...rest } = el; return rest; }
-            return el;
-          })));
-          plan.canvasW = canvasW;
-          plan.canvasH = canvasH;
-        }
-      } else {
-        // No rescale needed — just keep plan size in sync
-        const plan = currentPlanId ? assignPlans[currentPlanId] : null;
-        if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
       }
+      const plan = currentPlanId ? assignPlans[currentPlanId] : null;
+      if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
     }
     renderCanvas();
   };
@@ -1136,10 +1117,25 @@ function loadPlan(planId) {
     }
   }
 
-  // Don't rescale here — loadBossBackground fires async and will resize the canvas
-  // to match the image aspect ratio. We do ONE rescale there, from the plan's saved
-  // dimensions to the final canvas size. Stash the saved size so it survives into
-  // the onload callback.
+  // Rescale plan.elements in-memory from their saved size to the current canvas size.
+  // This is only an in-memory update — saveAssignData() is not called here, so the
+  // on-disk coords and plan.canvasW/H are untouched. We also stash the saved size for
+  // loadBossBackground, which may resize the canvas further once the image loads.
+  const _savedW = plan.canvasW || null;
+  const _savedH = plan.canvasH || null;
+  if (_savedW && _savedH && (_savedW !== canvasW || _savedH !== canvasH)) {
+    rescaleElements(elements, _savedW, _savedH, canvasW, canvasH);
+    // Update the in-memory plan so repeated clicks within the same session
+    // don't re-rescale from the original saved coords.
+    plan.elements = JSON.parse(JSON.stringify(elements.map(el => {
+      if (el.type === 'bossicon') { const { src, ...rest } = el; return rest; }
+      return el;
+    })));
+    plan.canvasW = canvasW;
+    plan.canvasH = canvasH;
+  }
+  // Pass the pre-bg-load canvas size to loadBossBackground so it can rescale
+  // from THIS size → final bg-fitted size (avoids double-rescaling).
   _pendingRescaleW = plan.canvasW || null;
   _pendingRescaleH = plan.canvasH || null;
 
@@ -1318,7 +1314,7 @@ function updateCurrentPlanBar() {
   }
 }
 
-function savePlanManual() {
+async function savePlanManual() {
   if (!currentPlanId) return;
   const nameInput = document.getElementById('save-plan-name');
   const name = nameInput ? nameInput.value.trim() : '';
@@ -1327,11 +1323,25 @@ function savePlanManual() {
     return;
   }
   assignPlans[currentPlanId].name = name;
-  savePlanState();
+  // Compute elements to save and update plan in memory
+  const elemsToSave = elements.map(el => {
+    if (el.type === 'bossicon') { const { src, ...rest } = el; return rest; }
+    return el;
+  });
+  assignPlans[currentPlanId].elements = JSON.parse(JSON.stringify(elemsToSave));
+  assignPlans[currentPlanId].canvasW = canvasW;
+  assignPlans[currentPlanId].canvasH = canvasH;
   renderPlansLibrary();
   updateCurrentPlanBar();
+  // Block button and wait for cloud write to fully complete before showing success
   const btn = document.querySelector('#current-plan-bar .btn-gold');
-  if (btn) { const orig = btn.textContent; btn.textContent = '✓ Saved!'; setTimeout(()=>btn.textContent=orig, 1200); }
+  if (btn) { btn.textContent = '⏳ Saving…'; btn.disabled = true; }
+  try {
+    await saveAssignData();
+    if (btn) { btn.textContent = '✓ Saved!'; setTimeout(()=>{ btn.textContent = '💾 Save Plan'; btn.disabled = false; }, 1500); }
+  } catch(e) {
+    if (btn) { btn.textContent = '✗ Error'; btn.style.background = '#8b3333'; setTimeout(()=>{ btn.textContent = '💾 Save Plan'; btn.disabled = false; btn.style.background = ''; }, 2500); }
+  }
 }
 
 function addPlan() { startNewPlan(); } // legacy alias

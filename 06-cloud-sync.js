@@ -172,7 +172,8 @@ async function cloudSaveProf() {
 }
 
 async function cloudSaveAssign(assignData) {
-  try { await sbSet('assign', assignData); showSyncStatus('saved'); } catch(e) { showSyncStatus('error'); }
+  try { await sbSet('assign', assignData); showSyncStatus('saved'); }
+  catch(e) { showSyncStatus('error'); throw e; }
 }
 
 // ── Sync status indicator ────────────────────────────────
