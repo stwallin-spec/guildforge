@@ -1425,122 +1425,289 @@ function undoAssign() {
 function clearCanvas() { if (!confirm('Clear all elements from canvas?')) return; pushUndo(); elements = []; savePlanState(); renderCanvas(); }
 
 // ── Export ────────────────────────────────────────────────
-function exportAssignImage() {
+
+// Preload an image by URL, resolving to the Image element (or null on failure).
+function _exportLoadImg(src) {
+  return new Promise(resolve => {
+    if (!src) return resolve(null);
+    // Use cache if already loaded
+    if (imgCache[src] && imgCache[src].complete && imgCache[src].naturalWidth) {
+      return resolve(imgCache[src]);
+    }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload  = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+// Collect every unique icon URL needed for the SA panel rows.
+function _exportCollectIconUrls(sections) {
+  const urls = new Set();
+  for (const sec of sections) {
+    for (const row of (sec.rows || [])) {
+      for (const ic of (row.icons || [])) {
+        if (ic.startsWith('__marker__')) {
+          const mkey = ic.replace('__marker__', '');
+          if (MARKER_ICONS[mkey]) urls.add(MARKER_ICONS[mkey]);
+        } else {
+          const file = SA_ICONS[ic];
+          if (file) urls.add(BASE_ICON + file + '.jpg');
+        }
+      }
+    }
+  }
+  return [...urls];
+}
+
+async function exportAssignImage() {
   if (!aCanvas || !aCtx) { alert('Canvas not ready — open the Assignments tab first.'); return; }
 
   const btn = document.getElementById('assign-export-btn');
   if (btn) { btn.textContent = '⏳ Saving...'; btn.disabled = true; }
 
   try {
-    const W = canvasW || aCanvas.width;
-    const H = canvasH || aCanvas.height;
+    const CW = canvasW || aCanvas.width;
+    const CH = canvasH || aCanvas.height;
 
-    // ── Build Special Assignments block ──────────────────────────────────
-    const sections = saGetOrInitSections() || [];
-    const activeSections = sections.filter(s => s.rows && s.rows.length > 0);
-    const ICON_SIZE = 18;
-    const ROW_H = 24;
-    const SA_PAD = 10;
-    const SA_COL_W = Math.floor((W - SA_PAD * 2) / Math.max(activeSections.length, 1));
-    const maxRows = activeSections.reduce((m, s) => Math.max(m, s.rows.length), 0);
-    const SA_H = activeSections.length > 0
-      ? SA_PAD * 2 + 22 + maxRows * ROW_H  // header + rows
-      : 0;
+    // ── Layout constants ─────────────────────────────────────────────────
+    const SA_W        = 240;   // width of the special assignments sidebar
+    const PAD         = 10;    // outer padding inside SA panel
+    const HDR_H       = 28;    // panel title bar height
+    const SEC_HDR_H   = 22;    // per-section role header height
+    const ROW_H       = 44;    // height per assignment row (top line + icon strip)
+    const ICON_SZ     = 20;    // icon size in icon strip
+    const LBL_W       = 30;    // width of MT/OT/HE/R label column
+    const NAME_W      = 86;    // width reserved for player name
+    const DIVIDER_COL = '#1e1e32';
+    const BORDER_COL  = '#2a2a4a';
+    const BG_PANEL    = '#10101e';
+    const BG_SEC_HDR  = '#0a0a16';
+    const BG_ROW_ALT  = '#0d0d1c';
+    const BG_ICON_ROW = 'rgba(0,0,0,0.25)';
+
+    const roleColors  = { tank:'#4fc3f7', healer:'#81c784', mdps:'#f06292', rdps:'#ffb74d' };
+    const roleLabels  = { tank:'TANKS', healer:'HEALERS', mdps:'MELEE DPS', rdps:'RANGED DPS' };
+
+    // ── Gather sections with content ─────────────────────────────────────
+    const allSections     = saGetOrInitSections() || [];
+    const activeSections  = allSections.filter(s => s.rows && s.rows.length > 0);
+
+    // ── Pre-load all icon images asynchronously ──────────────────────────
+    const iconUrls   = _exportCollectIconUrls(activeSections);
+    const loadedImgs = await Promise.all(iconUrls.map(u => _exportLoadImg(u)));
+    const iconImgMap = {};  // url -> Image
+    iconUrls.forEach((u, i) => { if (loadedImgs[i]) iconImgMap[u] = loadedImgs[i]; });
+
+    // ── Compute SA panel height ──────────────────────────────────────────
+    // Each section: sec header + rows + small drop-zone gap
+    function sectionHeight(sec) {
+      return SEC_HDR_H + sec.rows.length * ROW_H + 6;
+    }
+    const SA_CONTENT_H = HDR_H + activeSections.reduce((s, sec) => s + sectionHeight(sec), 0);
+    const SA_H         = Math.max(SA_CONTENT_H, CH);  // at least as tall as the canvas
+
+    // ── Create output canvas ─────────────────────────────────────────────
+    const hasSA = activeSections.length > 0;
+    const OUT_W = hasSA ? SA_W + CW : CW;
+    const OUT_H = hasSA ? SA_H : CH;
 
     const out = document.createElement('canvas');
-    out.width = W;
-    out.height = H + SA_H;
-    const ctx = out.getContext('2d', { willReadFrequently: false });
+    out.width  = OUT_W;
+    out.height = OUT_H;
+    const ctx  = out.getContext('2d', { willReadFrequently: false });
 
-    // Draw main canvas background + elements
+    // ── Draw canvas area (right side) ────────────────────────────────────
+    const cx = hasSA ? SA_W : 0;
     if (bgLoaded && bgImage && bgImage.complete && bgImage.naturalWidth) {
-      ctx.drawImage(bgImage, 0, 0, W, H);
+      ctx.drawImage(bgImage, cx, 0, CW, CH);
     } else {
       ctx.fillStyle = '#0a0a14';
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(cx, 0, CW, CH);
     }
+    // Re-draw elements into export canvas by temporarily redirecting aCtx
+    ctx.save();
+    ctx.translate(cx, 0);
     const savedCtx = aCtx;
     aCtx = ctx;
     for (const el of elements) drawElement(el);
     aCtx = savedCtx;
+    ctx.restore();
 
-    // ── Draw SA block below canvas ──────────────────────────────────────
-    if (SA_H > 0) {
-      ctx.fillStyle = '#0d0d1a';
-      ctx.fillRect(0, H, W, SA_H);
-      ctx.strokeStyle = '#2a2a4a';
+    // If taller than canvas (due to SA overflow), fill remaining bg
+    if (OUT_H > CH) {
+      ctx.fillStyle = '#0a0a14';
+      ctx.fillRect(cx, CH, CW, OUT_H - CH);
+    }
+
+    if (!hasSA) {
+      // Nothing to draw in the sidebar — just export the canvas as-is
+    } else {
+      // ── Draw SA sidebar (left side) ───────────────────────────────────
+
+      // Panel background
+      ctx.fillStyle = BG_PANEL;
+      ctx.fillRect(0, 0, SA_W, OUT_H);
+
+      // Right border divider
+      ctx.fillStyle = DIVIDER_COL;
+      ctx.fillRect(SA_W - 1, 0, 1, OUT_H);
+
+      // ── Panel title bar ──────────────────────────────────────────────
+      ctx.fillStyle = '#14142a';
+      ctx.fillRect(0, 0, SA_W, HDR_H);
+      ctx.strokeStyle = BORDER_COL;
       ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(0, H); ctx.lineTo(W, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, HDR_H); ctx.lineTo(SA_W - 1, HDR_H); ctx.stroke();
 
-      const roleColors = { tank:'#4fc3f7', healer:'#81c784', mdps:'#f06292', rdps:'#ffb74d' };
-      const roleLabels = { tank:'Tanks', healer:'Healers', mdps:'Melee DPS', rdps:'Ranged DPS' };
+      // Gold title text — use a sword-like prefix matching the UI
+      ctx.fillStyle = '#c8a84b';
+      ctx.font = 'bold 11px "Exo 2", Georgia, serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('⚔  SPECIAL ASSIGNMENTS', PAD, HDR_H / 2);
 
-      activeSections.forEach((sec, ci) => {
-        const sx = SA_PAD + ci * SA_COL_W;
-        const def = SA_SECTION_DEFS.find(d => d.role === sec.role) || SA_SECTION_DEFS[0];
+      // ── Sections ────────────────────────────────────────────────────
+      let curY = HDR_H;
 
-        // Column header
-        ctx.fillStyle = roleColors[sec.role] || '#aaa';
-        ctx.font = 'bold 10px "Exo 2", sans-serif';
-        ctx.fillText((roleLabels[sec.role] || sec.role).toUpperCase(), sx, H + SA_PAD + 12);
+      activeSections.forEach((sec, si) => {
+        const roleColor = roleColors[sec.role] || '#aaa';
+        const roleLabel = roleLabels[sec.role] || sec.role.toUpperCase();
 
+        // Section role header
+        ctx.fillStyle = BG_SEC_HDR;
+        ctx.fillRect(0, curY, SA_W - 1, SEC_HDR_H);
+        ctx.strokeStyle = BORDER_COL;
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(0, curY); ctx.lineTo(SA_W - 1, curY); ctx.stroke();
+
+        // Coloured left accent bar
+        ctx.fillStyle = roleColor;
+        ctx.fillRect(0, curY, 3, SEC_HDR_H);
+
+        // Role label
+        ctx.fillStyle = roleColor;
+        ctx.font = 'bold 9px "Exo 2", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(roleLabel, PAD + 4, curY + SEC_HDR_H / 2);
+
+        // Row count badge
+        const badge = `${sec.rows.length}`;
+        ctx.font = '9px "Exo 2", sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.fillText(badge, SA_W - PAD - 12, curY + SEC_HDR_H / 2);
+
+        curY += SEC_HDR_H;
+
+        // ── Assignment rows ─────────────────────────────────────────
         sec.rows.forEach((row, ri) => {
-          const ry = H + SA_PAD + 20 + ri * ROW_H;
+          const rowY    = curY;
+          const isAlt   = ri % 2 === 1;
+          const topH    = Math.round(ROW_H * 0.55);   // top line (label + name + note)
+          const icnH    = ROW_H - topH;                // icon strip height
+
+          // Row background
+          ctx.fillStyle = isAlt ? BG_ROW_ALT : BG_PANEL;
+          ctx.fillRect(0, rowY, SA_W - 1, ROW_H);
+
+          // Subtle bottom divider
+          ctx.strokeStyle = 'rgba(42,42,74,0.6)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(PAD, rowY + ROW_H - 1);
+          ctx.lineTo(SA_W - PAD, rowY + ROW_H - 1);
+          ctx.stroke();
+
+          // ── Top line: label | name | note ────────────────────────
+          const textMidY = rowY + topH / 2;
+
+          // Row label (MT / OT1 / HE1 / M1 / R1)
           const lbl = saRowLabel(sec.role, ri);
-
-          // Row label (MT/OT/HE/M/R)
-          ctx.fillStyle = 'rgba(255,255,255,0.35)';
+          ctx.fillStyle = 'rgba(255,255,255,0.28)';
           ctx.font = 'bold 8px "Exo 2", sans-serif';
-          ctx.fillText(lbl, sx, ry + 14);
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(lbl, PAD + 2, textMidY);
 
-          // Player name
-          const m = row.memberId ? members.find(x => x.id === row.memberId) : null;
-          const nameColor = m ? ((CM[m.cls]||{}).color || '#fff') : '#888';
+          // Player name (class-coloured)
+          const member     = row.memberId ? members.find(x => x.id === row.memberId) : null;
+          const nameColor  = member ? ((CM[member.cls] || {}).color || '#ffffff') : 'rgba(255,255,255,0.45)';
+          const displayName = row.memberName || '—';
           ctx.fillStyle = nameColor;
-          ctx.font = 'bold 10px "Exo 2", sans-serif';
-          ctx.fillText(row.memberName || '—', sx + 22, ry + 13);
+          ctx.font = 'bold 11px "Exo 2", sans-serif';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(displayName, PAD + LBL_W, textMidY);
 
-          // Icons
+          // Note text (italic, dim, after the name)
+          if (row.text) {
+            ctx.fillStyle = 'rgba(255,255,255,0.38)';
+            ctx.font = 'italic 9px "Exo 2", sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            // Truncate note if needed
+            const maxNoteW = SA_W - PAD - (PAD + LBL_W + NAME_W + 4);
+            let note = row.text;
+            if (ctx.measureText(note).width > maxNoteW) {
+              while (note.length > 0 && ctx.measureText(note + '…').width > maxNoteW) note = note.slice(0, -1);
+              note += '…';
+            }
+            ctx.fillText(note, PAD + LBL_W + NAME_W + 4, textMidY);
+          }
+
+          // ── Icon strip ───────────────────────────────────────────
+          const icnY = rowY + topH;
+          ctx.fillStyle = BG_ICON_ROW;
+          ctx.fillRect(1, icnY, SA_W - 2, icnH);
+
           const icons = row.icons || [];
           icons.forEach((ic, ii) => {
-            const ix = sx + 22 + 70 + ii * (ICON_SIZE + 2);
-            if (ix + ICON_SIZE > sx + SA_COL_W - 4) return;
-            let img = null;
+            const ix = PAD + LBL_W + ii * (ICON_SZ + 3);
+            if (ix + ICON_SZ > SA_W - PAD) return;   // overflow guard
+
+            let imgSrc = null;
             if (ic.startsWith('__marker__')) {
               const mkey = ic.replace('__marker__', '');
-              // Use pre-loaded marker icon if available
-              const chip = document.getElementById('sa-chip-marker_' + mkey);
-              if (chip) img = chip.querySelector('img');
+              imgSrc = MARKER_ICONS[mkey] || null;
             } else {
-              const chip = document.getElementById('sa-chip-' + ic.replace(/[^a-zA-Z0-9]/g,'_'));
-              if (chip) img = chip.querySelector('img');
+              const file = SA_ICONS[ic];
+              if (file) imgSrc = BASE_ICON + file + '.jpg';
             }
-            if (img && img.complete && img.naturalWidth) {
-              ctx.drawImage(img, ix, ry + 2, ICON_SIZE, ICON_SIZE);
+
+            const imgEl = imgSrc ? iconImgMap[imgSrc] : null;
+            if (imgEl) {
+              // Rounded-corner clip for icon
+              const iy = icnY + Math.round((icnH - ICON_SZ) / 2);
+              ctx.save();
+              ctx.beginPath();
+              ctx.roundRect(ix, iy, ICON_SZ, ICON_SZ, 3);
+              ctx.clip();
+              ctx.drawImage(imgEl, ix, iy, ICON_SZ, ICON_SZ);
+              ctx.restore();
+              // Thin border around icon
+              ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+              ctx.lineWidth = 1;
+              ctx.strokeRect(ix + 0.5, iy + 0.5, ICON_SZ - 1, ICON_SZ - 1);
             }
           });
 
-          // Note text (after icons)
-          if (row.text) {
-            const noteX = sx + 22 + 70 + icons.length * (ICON_SIZE + 2) + 4;
-            ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            ctx.font = 'italic 9px "Exo 2", sans-serif';
-            ctx.fillText(row.text, noteX, ry + 13);
-          }
+          curY += ROW_H;
         });
 
-        // Column divider
-        if (ci < activeSections.length - 1) {
-          ctx.strokeStyle = '#2a2a4a';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(sx + SA_COL_W, H + 4);
-          ctx.lineTo(sx + SA_COL_W, H + SA_H - 4);
-          ctx.stroke();
-        }
+        // Small spacer between sections
+        curY += 6;
       });
+
+      // Remaining panel area below all sections — fill to edge
+      if (curY < OUT_H) {
+        ctx.fillStyle = BG_PANEL;
+        ctx.fillRect(0, curY, SA_W - 1, OUT_H - curY);
+      }
     }
 
+    // ── Trigger download ─────────────────────────────────────────────────
     const planName = (currentPlanId && assignPlans[currentPlanId]?.name)
       ? assignPlans[currentPlanId].name
       : (currentEncounterName || 'assignment');
@@ -1552,6 +1719,7 @@ function exportAssignImage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
   } catch(err) {
     console.error('Export error:', err);
     alert('Export failed: ' + err.message);
