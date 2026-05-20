@@ -26,28 +26,28 @@ const IMG_BG_VOIDREAVER = "assets/voidreaver.png";
 const IMG_BG_SOLARIAN   = "assets/solarian.png";
 const IMG_BG_KAELTHAS   = "assets/sunstrider.png";
 
-// SSC boss/add icons
-const IMG_BOSS_20023 = "assets/20023.png";   // Kael'thas Sunstrider
+// SSC boss icons
 const IMG_BOSS_20162 = "assets/20162.png";   // Hydross the Unstable
-const IMG_BOSS_WATER_ELEMENTAL = "assets/water_elemental.png";  // Water Elemental (Hydross add)
-const IMG_BOSS_20236 = "assets/20236.png";   // Master Engineer Telonicus (Kael'thas advisor)
-const IMG_BOSS_20237 = "assets/20237.png";   // Grand Astromancer Capernian (Kael'thas advisor)
-const IMG_BOSS_20177 = "assets/20177.png";   // Thaladred the Darkener (Kael'thas advisor)
-const IMG_BOSS_20178 = "assets/20178.png";   // Master Engineer Telonicus (Kael'thas advisor)
+const IMG_BOSS_WATER_ELEMENTAL = "assets/water_elemental.png";  // Water Elemental
 const IMG_BOSS_20216 = "assets/20216.png";   // The Lurker Below
 const IMG_BOSS_LURKER_NAGA = "assets/lurker_naga.png";  // Lurker Naga
 const IMG_BOSS_20514 = "assets/20514.png";   // Leotheras the Blind
 const IMG_BOSS_20568 = "assets/20568.png";   // Shadow of Leotheras
 const IMG_BOSS_20662 = "assets/20662.png";   // Fathom-Lord Karathress
-const IMG_BOSS_20670 = "assets/20670.png";   // Fathom-Guard Tidalvess (Karathress add)
-const IMG_BOSS_20671 = "assets/20671.png";   // Fathom-Guard Sharkkis (Karathress add)
-const IMG_BOSS_20672 = "assets/20672.png";   // Fathom-Guard Caribdis (Karathress add)
+const IMG_BOSS_20670 = "assets/20670.png";   // Fathom-Guard Tidalvess
+const IMG_BOSS_20671 = "assets/20671.png";   // Fathom-Guard Sharkkis
+const IMG_BOSS_20672 = "assets/20672.png";   // Fathom-Guard Caribdis
 const IMG_BOSS_20739 = "assets/20739.png";   // Morogrim Tidewalker
 const IMG_BOSS_20748 = "assets/20748.png";   // Lady Vashj
-// TK boss/add icons
-const IMG_BOSS_18239 = "assets/18239.png";   // High Astromancer Solarian
+// TK boss icons
 const IMG_BOSS_18945 = "assets/18945.png";   // Al'ar
 const IMG_BOSS_18951 = "assets/18951.png";   // Void Reaver
+const IMG_BOSS_18239 = "assets/18239.png";   // High Astromancer Solarian
+const IMG_BOSS_20023 = "assets/20023.png";   // Kael'thas Sunstrider
+const IMG_BOSS_20177 = "assets/20177.png";   // Thaladred the Darkener
+const IMG_BOSS_20178 = "assets/20178.png";   // Master Engineer Telonicus
+const IMG_BOSS_20236 = "assets/20236.png";   // Master Engineer Telonicus (helm)
+const IMG_BOSS_20237 = "assets/20237.png";   // Grand Astromancer Capernian
 
 const MARKER_ICONS = {
   star: "assets/image_14.png",
@@ -85,22 +85,22 @@ const RAIDS = [
     id: 'serpentshrine_cavern',
     name: "Serpentshrine Cavern",
     encounters: [
-      { id: 'hydross',    name: 'Hydross the Unstable',     bg: 'IMG_BG_HYDROSS'    },
-      { id: 'lurker',     name: 'The Lurker Below',         bg: 'IMG_BG_LURKER'     },
-      { id: 'leotheras',  name: 'Leotheras the Blind',      bg: 'IMG_BG_LEOTHERAS'  },
-      { id: 'karathress', name: 'Fathom-Lord Karathress',   bg: 'IMG_BG_KARATHRESS' },
-      { id: 'morogrim',   name: 'Morogrim Tidewalker',      bg: 'IMG_BG_MOROGRIM'   },
-      { id: 'vashj',      name: "Lady Vashj",               bg: 'IMG_BG_VASHJ'      },
+      { id: 'hydross',    name: 'Hydross the Unstable',      bg: IMG_BG_HYDROSS    },
+      { id: 'lurker',     name: 'The Lurker Below',          bg: IMG_BG_LURKER     },
+      { id: 'leotheras',  name: 'Leotheras the Blind',       bg: IMG_BG_LEOTHERAS  },
+      { id: 'karathress', name: 'Fathom-Lord Karathress',    bg: IMG_BG_KARATHRESS },
+      { id: 'morogrim',   name: 'Morogrim Tidewalker',       bg: IMG_BG_MOROGRIM   },
+      { id: 'vashj',      name: "Lady Vashj",                bg: IMG_BG_VASHJ      },
     ]
   },
   {
     id: 'the_eye',
     name: "The Eye (Tempest Keep)",
     encounters: [
-      { id: 'alar',       name: "Al'ar",                    bg: 'IMG_BG_ALAR'       },
-      { id: 'voidreaver', name: 'Void Reaver',              bg: 'IMG_BG_VOIDREAVER' },
-      { id: 'solarian',   name: 'High Astromancer Solarian',bg: 'IMG_BG_SOLARIAN'   },
-      { id: 'kaelthas',   name: "Kael'thas Sunstrider",     bg: 'IMG_BG_KAELTHAS'   },
+      { id: 'alar',       name: "Al'ar",                     bg: IMG_BG_ALAR       },
+      { id: 'voidreaver', name: 'Void Reaver',               bg: IMG_BG_VOIDREAVER },
+      { id: 'solarian',   name: 'High Astromancer Solarian', bg: IMG_BG_SOLARIAN   },
+      { id: 'kaelthas',   name: "Kael'thas Sunstrider",      bg: IMG_BG_KAELTHAS   },
     ]
   },
 ];
@@ -134,27 +134,27 @@ const BOSS_ICONS_DATA = {
   '20194': IMG_BOSS_20194,
   '20195': IMG_BOSS_20195,
   // SSC
-  '20023': IMG_BOSS_20023,
-  '20162': IMG_BOSS_20162,
-  'water_elemental': IMG_BOSS_WATER_ELEMENTAL,
-  '20236': IMG_BOSS_20236,
-  '20237': IMG_BOSS_20237,
-  '20177': IMG_BOSS_20177,
-  '20178': IMG_BOSS_20178,
-  '20216': IMG_BOSS_20216,
-  'lurker_naga': IMG_BOSS_LURKER_NAGA,
-  '20514': IMG_BOSS_20514,
-  '20568': IMG_BOSS_20568,
-  '20662': IMG_BOSS_20662,
-  '20670': IMG_BOSS_20670,
-  '20671': IMG_BOSS_20671,
-  '20672': IMG_BOSS_20672,
-  '20739': IMG_BOSS_20739,
-  '20748': IMG_BOSS_20748,
+  '20162':          IMG_BOSS_20162,
+  'water_elemental':IMG_BOSS_WATER_ELEMENTAL,
+  '20216':          IMG_BOSS_20216,
+  'lurker_naga':    IMG_BOSS_LURKER_NAGA,
+  '20514':          IMG_BOSS_20514,
+  '20568':          IMG_BOSS_20568,
+  '20662':          IMG_BOSS_20662,
+  '20670':          IMG_BOSS_20670,
+  '20671':          IMG_BOSS_20671,
+  '20672':          IMG_BOSS_20672,
+  '20739':          IMG_BOSS_20739,
+  '20748':          IMG_BOSS_20748,
   // TK
-  '18239': IMG_BOSS_18239,
   '18945': IMG_BOSS_18945,
   '18951': IMG_BOSS_18951,
+  '18239': IMG_BOSS_18239,
+  '20023': IMG_BOSS_20023,
+  '20177': IMG_BOSS_20177,
+  '20178': IMG_BOSS_20178,
+  '20236': IMG_BOSS_20236,
+  '20237': IMG_BOSS_20237,
 };
 
 const BOSS_ICON_NAMES = {
@@ -167,18 +167,18 @@ const BOSS_ICON_NAMES = {
   '20194': 'Kiggler',
   '20195': 'Krosh',
   // SSC
-  '20162': 'Hydross the Unstable',
+  '20162':           'Hydross the Unstable',
   'water_elemental': 'Water Elemental',
-  '20216': 'The Lurker Below',
-  'lurker_naga': 'Lurker Naga',
-  '20514': 'Leotheras the Blind',
-  '20568': 'Shadow of Leotheras',
-  '20662': 'Fathom-Lord Karathress',
-  '20670': 'Fathom-Guard Tidalvess',
-  '20671': 'Fathom-Guard Sharkkis',
-  '20672': 'Fathom-Guard Caribdis',
-  '20739': 'Morogrim Tidewalker',
-  '20748': 'Lady Vashj',
+  '20216':           'The Lurker Below',
+  'lurker_naga':     'Lurker Naga',
+  '20514':           'Leotheras the Blind',
+  '20568':           'Shadow of Leotheras',
+  '20662':           'Fathom-Lord Karathress',
+  '20670':           'Fathom-Guard Tidalvess',
+  '20671':           'Fathom-Guard Sharkkis',
+  '20672':           'Fathom-Guard Caribdis',
+  '20739':           'Morogrim Tidewalker',
+  '20748':           'Lady Vashj',
   // TK
   '18945': "Al'ar",
   '18951': 'Void Reaver',
@@ -196,24 +196,24 @@ const ENCOUNTER_BOSS_ICONS = {
   gruul:       ['18698'],
   magtheridon: ['18527','9865'],
   // SSC
-  hydross:     ['20162','water_elemental'],            // Hydross the Unstable, Water Elemental
-  lurker:      ['20216','lurker_naga'],               // The Lurker Below, Lurker Naga
-  leotheras:   ['20514','20568'],                      // Leotheras the Blind, Shadow of Leotheras
-  karathress:  ['20662','20670','20671','20672'],       // Fathom-Lord Karathress + 3 guards
-  morogrim:    ['20739'],                              // Morogrim Tidewalker
-  vashj:       ['20748'],                              // Lady Vashj
+  hydross:     ['20162','water_elemental'],
+  lurker:      ['20216','lurker_naga'],
+  leotheras:   ['20514','20568'],
+  karathress:  ['20662','20670','20671','20672'],
+  morogrim:    ['20739'],
+  vashj:       ['20748'],
   // TK
-  alar:        ['18945'],                              // Al'ar
-  voidreaver:  ['18951'],                              // Void Reaver
-  solarian:    ['18239'],                              // High Astromancer Solarian
-  kaelthas:    ['20023','20177','20178','20236','20237'], // Kael'thas Sunstrider + Thaladred, Telonicus, Master Engineer, Capernian
+  alar:        ['18945'],
+  voidreaver:  ['18951'],
+  solarian:    ['18239'],
+  kaelthas:    ['20023','20177','20178','20236','20237'],
 };
 
 // ── State ──────────────────────────────────────────────────
 let assignInited = false;
 let aCanvas, aCtx;
 let canvasW = 900, canvasH = 506;
-let _pendingDenormalize = false;  // set by loadPlan, consumed by loadBossBackground
+let _pendingDenorm = false;  // set by loadPlan, consumed by loadBossBackground.onload
 
 let currentEncounterId = 'gruul';
 let currentEncounterName = 'Gruul the Dragonkiller';
@@ -589,11 +589,16 @@ function loadBossBackground(encounterId) {
   const src = ENCOUNTER_BG[encounterId];
   if (!src) {
     bgImage = null; bgLoaded = false;
-    // No bg image — canvas stays at current size.
-    // If a plan was just loaded with normalized coords, denormalize now.
-    if (_pendingDenormalize) {
-      _pendingDenormalize = false;
-      denormalizeElements(elements, canvasW, canvasH);
+    // No bg image — canvas stays current size, denormalise immediately if needed.
+    if (_pendingDenorm && canvasW > 0 && canvasH > 0) {
+      _pendingDenorm = false;
+      for (const el of elements) {
+        if (el.type === 'arrow') {
+          el.x1 *= canvasW; el.y1 *= canvasH; el.x2 *= canvasW; el.y2 *= canvasH;
+        } else { el.x *= canvasW; el.y *= canvasH; }
+        if (el.size     != null) el.size     *= canvasH;
+        if (el.fontSize != null) el.fontSize *= canvasH;
+      }
     }
     renderCanvas(); return;
   }
@@ -604,28 +609,32 @@ function loadBossBackground(encounterId) {
     bgLoaded = true;
     const wrap = document.getElementById('assign-canvas-wrap');
     if (wrap) {
-      const wrapW = wrap.clientWidth;
-      const wrapH = wrap.clientHeight;
-      const imgAR = bgImage.naturalWidth / bgImage.naturalHeight;
-      const wrapAR = wrapW / wrapH;
-      if (imgAR > wrapAR) {
-        canvasW = wrapW;
-        canvasH = Math.round(wrapW / imgAR);
-      } else {
-        canvasH = wrapH;
-        canvasW = Math.round(wrapH * imgAR);
+      const wrapW = wrap.clientWidth || canvasW;
+      const wrapH = wrap.clientHeight || canvasH;
+      if (wrapW > 0 && wrapH > 0) {
+        const imgAR  = bgImage.naturalWidth / bgImage.naturalHeight;
+        const wrapAR = wrapW / wrapH;
+        if (imgAR > wrapAR) { canvasW = wrapW; canvasH = Math.round(wrapW / imgAR); }
+        else                 { canvasH = wrapH; canvasW = Math.round(wrapH * imgAR); }
+        aCanvas.width  = canvasW;
+        aCanvas.height = canvasH;
+        aCanvas.style.position = 'absolute';
+        aCanvas.style.left = Math.round((wrapW - canvasW) / 2) + 'px';
+        aCanvas.style.top  = Math.round((wrapH - canvasH) / 2) + 'px';
       }
-      aCanvas.width = canvasW;
-      aCanvas.height = canvasH;
-      aCanvas.style.position = 'absolute';
-      aCanvas.style.left = Math.round((wrapW - canvasW) / 2) + 'px';
-      aCanvas.style.top = Math.round((wrapH - canvasH) / 2) + 'px';
-
-      // Denormalize: convert 0-1 fractions → pixel coords for this canvas size.
-      // This is the ONLY place coords are converted — no rescaling, no drift.
-      if (_pendingDenormalize) {
-        _pendingDenormalize = false;
-        denormalizeElements(elements, canvasW, canvasH);
+      // Denormalise: expand 0-1 fractions to pixels for this exact canvas size.
+      // This happens once after the bg sets the final size — no double-rescale.
+      if (_pendingDenorm && canvasW > 0 && canvasH > 0) {
+        _pendingDenorm = false;
+        for (const el of elements) {
+          if (el.type === 'arrow') {
+            el.x1 *= canvasW; el.y1 *= canvasH; el.x2 *= canvasW; el.y2 *= canvasH;
+          } else {
+            el.x *= canvasW; el.y *= canvasH;
+          }
+          if (el.size     != null) el.size     *= canvasH;
+          if (el.fontSize != null) el.fontSize *= canvasH;
+        }
       }
     }
     renderCanvas();
@@ -1055,48 +1064,37 @@ function aCanvasDropHandler(e) {
 // ── Plans ─────────────────────────────────────────────────
 function savePlanState() {
   if (!currentPlanId) return;
-  // Normalise all coords AND sizes to 0-1 fractions of canvas size before saving.
-  // This makes plans resolution-independent — they load correctly on any screen size.
+  // Strip large base64 src from bossicons before saving - we can re-resolve from BOSS_ICONS_DATA
   const elemsToSave = elements.map(el => {
-    let out = { ...el };
-    if (out.type === 'bossicon') { delete out.src; }  // re-resolved on load
-    if (canvasW && canvasH) {
-      if (out.type === 'arrow') {
-        out.x1 = out.x1 / canvasW; out.y1 = out.y1 / canvasH;
-        out.x2 = out.x2 / canvasW; out.y2 = out.y2 / canvasH;
-      } else {
-        out.x = out.x / canvasW; out.y = out.y / canvasH;
-      }
-      // Normalise size/fontSize against canvas height
-      if (out.size    != null) out.size     = out.size     / canvasH;
-      if (out.fontSize != null) out.fontSize = out.fontSize / canvasH;
+    if (el.type === 'bossicon') {
+      const { src, ...rest } = el; // eslint-disable-line no-unused-vars
+      return rest; // save without src, bossIconId is preserved for re-resolution
     }
-    return out;
+    return el;
   });
-  assignPlans[currentPlanId].elements = JSON.parse(JSON.stringify(elemsToSave));
-  assignPlans[currentPlanId].coordsNormalized = true;  // flag: coords are fractions not pixels
-  assignPlans[currentPlanId].canvasW = canvasW;
-  assignPlans[currentPlanId].canvasH = canvasH;
+  // Normalise coords and sizes to 0-1 fractions before saving so plans are
+  // resolution-independent and load correctly on any screen size.
+  const elemsNorm = elemsToSave.map(el => {
+    if (!canvasW || !canvasH) return el;
+    const o = { ...el };
+    if (o.type === 'arrow') {
+      o.x1 = o.x1/canvasW; o.y1 = o.y1/canvasH;
+      o.x2 = o.x2/canvasW; o.y2 = o.y2/canvasH;
+    } else {
+      o.x = o.x/canvasW; o.y = o.y/canvasH;
+    }
+    if (o.size     != null) o.size     = o.size/canvasH;
+    if (o.fontSize != null) o.fontSize = o.fontSize/canvasH;
+    return o;
+  });
+  assignPlans[currentPlanId].elements        = JSON.parse(JSON.stringify(elemsNorm));
+  assignPlans[currentPlanId].coordsNormalized = true;
+  assignPlans[currentPlanId].canvasW         = canvasW;
+  assignPlans[currentPlanId].canvasH         = canvasH;
   saveAssignData();
   updateCurrentPlanBar();
 }
 
-// Expand normalised (0-1) coords and sizes to pixels for the current canvas size.
-function denormalizeElements(elems, toW, toH) {
-  for (const el of elems) {
-    if (el.type === 'arrow') {
-      el.x1 = el.x1 * toW; el.y1 = el.y1 * toH;
-      el.x2 = el.x2 * toW; el.y2 = el.y2 * toH;
-    } else {
-      el.x = el.x * toW; el.y = el.y * toH;
-    }
-    // Expand size/fontSize against canvas height
-    if (el.size     != null) el.size     = el.size     * toH;
-    if (el.fontSize != null) el.fontSize = el.fontSize * toH;
-  }
-}
-
-// Legacy: rescale absolute pixel coords (old plans saved before normalization).
 function rescaleElements(elems, fromW, fromH, toW, toH) {
   if (!fromW || !fromH || !toW || !toH) return;
   if (fromW === toW && fromH === toH) return;
@@ -1109,9 +1107,6 @@ function rescaleElements(elems, fromW, fromH, toW, toH) {
     } else {
       el.x = Math.round(el.x * scaleX); el.y = Math.round(el.y * scaleY);
     }
-    // Also rescale size and fontSize against height
-    if (el.size     != null) el.size     = Math.round(el.size     * scaleY);
-    if (el.fontSize != null) el.fontSize = Math.round(el.fontSize * scaleY);
   }
 }
 
@@ -1140,20 +1135,14 @@ function loadPlan(planId) {
   }
 
   if (plan.coordsNormalized) {
-    // New format: coords are 0-1 fractions. Denormalize AFTER the bg image loads
-    // and sets the final canvas size — so we set a flag for loadBossBackground.
-    _pendingDenormalize = true;
+    // New format: coords are 0-1 fractions — denormalise after bg sets final canvas size.
+    _pendingDenorm = true;
   } else {
-    // Legacy format: absolute pixel coords saved with canvasW/H reference.
-    // Rescale once to current canvas size, then mark as normalized going forward.
-    const _savedW = plan.canvasW || null;
-    const _savedH = plan.canvasH || null;
-    if (_savedW && _savedH && (_savedW !== canvasW || _savedH !== canvasH)) {
-      rescaleElements(elements, _savedW, _savedH, canvasW, canvasH);
+    // Legacy format: absolute pixels. Rescale once, then it migrates to normalised on next Save.
+    if (plan.canvasW && plan.canvasH) {
+      rescaleElements(elements, plan.canvasW, plan.canvasH, canvasW, canvasH);
     }
-    // Convert to normalized so subsequent loads within the session are clean.
-    // The plan will be fully migrated to normalized format on next Save.
-    _pendingDenormalize = false;
+    _pendingDenorm = false;
   }
 
   undoStack = [];
@@ -1340,12 +1329,9 @@ async function savePlanManual() {
     return;
   }
   assignPlans[currentPlanId].name = name;
-  // Compute elements to save and update plan in memory
-  // Use savePlanState to ensure coords are properly normalised
   savePlanState();
   renderPlansLibrary();
   updateCurrentPlanBar();
-  // Block button and wait for cloud write to fully complete before showing success
   const btn = document.querySelector('#current-plan-bar .btn-gold');
   if (btn) { btn.textContent = '⏳ Saving…'; btn.disabled = true; }
   try {
@@ -1477,46 +1463,31 @@ function undoAssign() {
 }
 function clearCanvas() { if (!confirm('Clear all elements from canvas?')) return; pushUndo(); elements = []; savePlanState(); renderCanvas(); }
 
-// ── Export ────────────────────────────────────────────────
-
-// Preload an image for export via fetch→blob to avoid tainted-canvas errors.
-// Same-origin assets/ files are fetched directly (no CORS needed).
-// External sources (zamimg) are fetched with mode:'cors'.
-// Falls back to a plain crossOrigin image tag if fetch fails.
+// ── Export helpers ───────────────────────────────────────
 const _exportBlobCache = {};
 async function _exportLoadImg(src) {
   if (!src) return null;
   if (_exportBlobCache[src]) return _exportBlobCache[src];
   const isExternal = src.startsWith('http://') || src.startsWith('https://');
   try {
-    const res = await fetch(src, {
-      mode: isExternal ? 'cors' : 'same-origin',
-      credentials: 'omit',
-    });
+    const res = await fetch(src, { mode: isExternal ? 'cors' : 'same-origin', credentials: 'omit' });
     if (res.ok) {
       const blob = await res.blob();
       const objectUrl = URL.createObjectURL(blob);
       const img = new Image();
-      await new Promise((resolve, reject) => {
-        img.onload  = resolve;
-        img.onerror = reject;
-        img.src = objectUrl;
-      });
+      await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; img.src = objectUrl; });
       _exportBlobCache[src] = img;
       return img;
     }
-  } catch (_) { /* fall through to crossOrigin attempt */ }
-  // Fallback: crossOrigin tag (works if the server sends the right headers)
+  } catch (_) {}
   return new Promise(resolve => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
     img.onload  = () => { _exportBlobCache[src] = img; resolve(img); };
     img.onerror = () => resolve(null);
-    img.src = src + (src.includes('?') ? '&' : '?') + '_nocache=' + Date.now();
+    img.src = src;
   });
 }
 
-// Collect every unique icon URL needed for the SA panel rows.
 function _exportCollectIconUrls(sections) {
   const urls = new Set();
   for (const sec of sections) {
@@ -1537,39 +1508,19 @@ function _exportCollectIconUrls(sections) {
 
 async function exportAssignImage() {
   if (!aCanvas || !aCtx) { alert('Canvas not ready — open the Assignments tab first.'); return; }
-
   const btn = document.getElementById('assign-export-btn');
   if (btn) { btn.textContent = '⏳ Saving...'; btn.disabled = true; }
-
   try {
     const CW = canvasW || aCanvas.width;
     const CH = canvasH || aCanvas.height;
+    const SA_W = 240, PAD = 10, HDR_H = 28, SEC_HDR_H = 22, ROW_H = 44, ICON_SZ = 20;
+    const LBL_W = 30, NAME_W = 86;
+    const roleColors = { tank:'#4fc3f7', healer:'#81c784', mdps:'#f06292', rdps:'#ffb74d' };
+    const roleLabels = { tank:'TANKS', healer:'HEALERS', mdps:'MELEE DPS', rdps:'RANGED DPS' };
 
-    // ── Layout constants ─────────────────────────────────────────────────
-    const SA_W        = 240;   // width of the special assignments sidebar
-    const PAD         = 10;    // outer padding inside SA panel
-    const HDR_H       = 28;    // panel title bar height
-    const SEC_HDR_H   = 22;    // per-section role header height
-    const ROW_H       = 44;    // height per assignment row (top line + icon strip)
-    const ICON_SZ     = 20;    // icon size in icon strip
-    const LBL_W       = 30;    // width of MT/OT/HE/R label column
-    const NAME_W      = 86;    // width reserved for player name
-    const DIVIDER_COL = '#1e1e32';
-    const BORDER_COL  = '#2a2a4a';
-    const BG_PANEL    = '#10101e';
-    const BG_SEC_HDR  = '#0a0a16';
-    const BG_ROW_ALT  = '#0d0d1c';
-    const BG_ICON_ROW = 'rgba(0,0,0,0.25)';
+    const allSections    = saGetOrInitSections() || [];
+    const activeSections = allSections.filter(s => s.rows && s.rows.length > 0);
 
-    const roleColors  = { tank:'#4fc3f7', healer:'#81c784', mdps:'#f06292', rdps:'#ffb74d' };
-    const roleLabels  = { tank:'TANKS', healer:'HEALERS', mdps:'MELEE DPS', rdps:'RANGED DPS' };
-
-    // ── Gather sections with content ─────────────────────────────────────
-    const allSections     = saGetOrInitSections() || [];
-    const activeSections  = allSections.filter(s => s.rows && s.rows.length > 0);
-
-    // ── Pre-fetch ALL images via blob URLs to prevent tainted-canvas ────────
-    // Covers: background, canvas element srcs, and SA panel icons.
     const allSrcSet = new Set();
     const bgSrc = ENCOUNTER_BG[currentEncounterId];
     if (bgSrc) allSrcSet.add(bgSrc);
@@ -1577,247 +1528,119 @@ async function exportAssignImage() {
       if (el.src && el.src.length > 4 && !el.src.startsWith('data:')) allSrcSet.add(el.src);
     }
     _exportCollectIconUrls(activeSections).forEach(u => allSrcSet.add(u));
-
     const allUrls   = [...allSrcSet];
     const allLoaded = await Promise.all(allUrls.map(u => _exportLoadImg(u)));
     const iconImgMap = {};
     allUrls.forEach((u, i) => { if (allLoaded[i]) iconImgMap[u] = allLoaded[i]; });
 
-    // ── Compute SA panel height ──────────────────────────────────────────
-    // Each section: sec header + rows + small drop-zone gap
-    function sectionHeight(sec) {
-      return SEC_HDR_H + sec.rows.length * ROW_H + 6;
-    }
+    function sectionHeight(sec) { return SEC_HDR_H + sec.rows.length * ROW_H + 6; }
     const SA_CONTENT_H = HDR_H + activeSections.reduce((s, sec) => s + sectionHeight(sec), 0);
-    const SA_H         = Math.max(SA_CONTENT_H, CH);  // at least as tall as the canvas
-
-    // ── Create output canvas ─────────────────────────────────────────────
     const hasSA = activeSections.length > 0;
     const OUT_W = hasSA ? SA_W + CW : CW;
-    const OUT_H = hasSA ? SA_H : CH;
+    const OUT_H = hasSA ? Math.max(SA_CONTENT_H, CH) : CH;
 
     const out = document.createElement('canvas');
-    out.width  = OUT_W;
-    out.height = OUT_H;
-    const ctx  = out.getContext('2d', { willReadFrequently: false });
+    out.width = OUT_W; out.height = OUT_H;
+    const ctx = out.getContext('2d');
 
-    // ── Draw canvas area (right side) ────────────────────────────────────
-    // Temporarily inject blob-loaded images into imgCache so drawElement
-    // pulls clean (untainted) images when we call it for the export canvas.
+    const cx = hasSA ? SA_W : 0;
+    const exportBg = bgSrc ? iconImgMap[bgSrc] : null;
+    if (exportBg) { ctx.drawImage(exportBg, cx, 0, CW, CH); }
+    else { ctx.fillStyle = '#0a0a14'; ctx.fillRect(cx, 0, CW, CH); }
+
     const _cacheBackup = {};
     for (const [url, img] of Object.entries(iconImgMap)) {
       if (imgCache[url]) _cacheBackup[url] = imgCache[url];
       imgCache[url] = img;
     }
-
-    const cx = hasSA ? SA_W : 0;
-    const exportBg = bgSrc ? iconImgMap[bgSrc] : null;
-    if (exportBg && exportBg.complete && exportBg.naturalWidth) {
-      ctx.drawImage(exportBg, cx, 0, CW, CH);
-    } else {
-      ctx.fillStyle = '#0a0a14';
-      ctx.fillRect(cx, 0, CW, CH);
-    }
-    // Re-draw elements into export canvas by temporarily redirecting aCtx
-    ctx.save();
-    ctx.translate(cx, 0);
-    const savedCtx = aCtx;
-    aCtx = ctx;
+    ctx.save(); ctx.translate(cx, 0);
+    const savedCtx = aCtx; aCtx = ctx;
     for (const el of elements) drawElement(el);
-    aCtx = savedCtx;
-    ctx.restore();
-
-    // Restore original imgCache entries
+    aCtx = savedCtx; ctx.restore();
     for (const url of Object.keys(iconImgMap)) {
       if (_cacheBackup[url]) imgCache[url] = _cacheBackup[url];
       else delete imgCache[url];
     }
+    if (OUT_H > CH) { ctx.fillStyle = '#0a0a14'; ctx.fillRect(cx, CH, CW, OUT_H - CH); }
 
-    // If taller than canvas (due to SA overflow), fill remaining bg
-    if (OUT_H > CH) {
-      ctx.fillStyle = '#0a0a14';
-      ctx.fillRect(cx, CH, CW, OUT_H - CH);
-    }
-
-    if (!hasSA) {
-      // Nothing to draw in the sidebar — just export the canvas as-is
-    } else {
-      // ── Draw SA sidebar (left side) ───────────────────────────────────
-
-      // Panel background
-      ctx.fillStyle = BG_PANEL;
-      ctx.fillRect(0, 0, SA_W, OUT_H);
-
-      // Right border divider
-      ctx.fillStyle = DIVIDER_COL;
-      ctx.fillRect(SA_W - 1, 0, 1, OUT_H);
-
-      // ── Panel title bar ──────────────────────────────────────────────
-      ctx.fillStyle = '#14142a';
-      ctx.fillRect(0, 0, SA_W, HDR_H);
-      ctx.strokeStyle = BORDER_COL;
-      ctx.lineWidth = 1;
+    if (hasSA) {
+      ctx.fillStyle = '#10101e'; ctx.fillRect(0, 0, SA_W, OUT_H);
+      ctx.fillStyle = '#1e1e32'; ctx.fillRect(SA_W - 1, 0, 1, OUT_H);
+      ctx.fillStyle = '#14142a'; ctx.fillRect(0, 0, SA_W, HDR_H);
+      ctx.strokeStyle = '#2a2a4a'; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(0, HDR_H); ctx.lineTo(SA_W - 1, HDR_H); ctx.stroke();
-
-      // Gold title text — use a sword-like prefix matching the UI
-      ctx.fillStyle = '#c8a84b';
-      ctx.font = 'bold 11px "Exo 2", Georgia, serif';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#c8a84b'; ctx.font = 'bold 11px "Exo 2", Georgia, serif';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
       ctx.fillText('⚔  SPECIAL ASSIGNMENTS', PAD, HDR_H / 2);
 
-      // ── Sections ────────────────────────────────────────────────────
       let curY = HDR_H;
-
-      activeSections.forEach((sec, si) => {
+      activeSections.forEach((sec) => {
         const roleColor = roleColors[sec.role] || '#aaa';
-        const roleLabel = roleLabels[sec.role] || sec.role.toUpperCase();
-
-        // Section role header
-        ctx.fillStyle = BG_SEC_HDR;
-        ctx.fillRect(0, curY, SA_W - 1, SEC_HDR_H);
-        ctx.strokeStyle = BORDER_COL;
-        ctx.lineWidth = 1;
+        ctx.fillStyle = '#0a0a16'; ctx.fillRect(0, curY, SA_W - 1, SEC_HDR_H);
+        ctx.strokeStyle = '#2a2a4a'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(0, curY); ctx.lineTo(SA_W - 1, curY); ctx.stroke();
-
-        // Coloured left accent bar
-        ctx.fillStyle = roleColor;
-        ctx.fillRect(0, curY, 3, SEC_HDR_H);
-
-        // Role label
-        ctx.fillStyle = roleColor;
-        ctx.font = 'bold 9px "Exo 2", sans-serif';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(roleLabel, PAD + 4, curY + SEC_HDR_H / 2);
-
-        // Row count badge
-        const badge = `${sec.rows.length}`;
-        ctx.font = '9px "Exo 2", sans-serif';
-        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        ctx.fillText(badge, SA_W - PAD - 12, curY + SEC_HDR_H / 2);
-
+        ctx.fillStyle = roleColor; ctx.fillRect(0, curY, 3, SEC_HDR_H);
+        ctx.fillStyle = roleColor; ctx.font = 'bold 9px "Exo 2", sans-serif';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(roleLabels[sec.role] || sec.role.toUpperCase(), PAD + 4, curY + SEC_HDR_H / 2);
         curY += SEC_HDR_H;
 
-        // ── Assignment rows ─────────────────────────────────────────
         sec.rows.forEach((row, ri) => {
-          const rowY    = curY;
-          const isAlt   = ri % 2 === 1;
-          const topH    = Math.round(ROW_H * 0.55);   // top line (label + name + note)
-          const icnH    = ROW_H - topH;                // icon strip height
-
-          // Row background
-          ctx.fillStyle = isAlt ? BG_ROW_ALT : BG_PANEL;
+          const rowY = curY; const topH = Math.round(ROW_H * 0.55); const icnH = ROW_H - topH;
+          ctx.fillStyle = ri % 2 === 1 ? '#0d0d1c' : '#10101e';
           ctx.fillRect(0, rowY, SA_W - 1, ROW_H);
+          ctx.strokeStyle = 'rgba(42,42,74,0.6)'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(PAD, rowY + ROW_H - 1); ctx.lineTo(SA_W - PAD, rowY + ROW_H - 1); ctx.stroke();
 
-          // Subtle bottom divider
-          ctx.strokeStyle = 'rgba(42,42,74,0.6)';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(PAD, rowY + ROW_H - 1);
-          ctx.lineTo(SA_W - PAD, rowY + ROW_H - 1);
-          ctx.stroke();
-
-          // ── Top line: label | name | note ────────────────────────
           const textMidY = rowY + topH / 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.28)'; ctx.font = 'bold 8px "Exo 2", sans-serif';
+          ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+          ctx.fillText(saRowLabel(sec.role, ri), PAD + 2, textMidY);
 
-          // Row label (MT / OT1 / HE1 / M1 / R1)
-          const lbl = saRowLabel(sec.role, ri);
-          ctx.fillStyle = 'rgba(255,255,255,0.28)';
-          ctx.font = 'bold 8px "Exo 2", sans-serif';
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(lbl, PAD + 2, textMidY);
-
-          // Player name (class-coloured)
-          const member     = row.memberId ? members.find(x => x.id === row.memberId) : null;
-          const nameColor  = member ? ((CM[member.cls] || {}).color || '#ffffff') : 'rgba(255,255,255,0.45)';
-          const displayName = row.memberName || '—';
-          ctx.fillStyle = nameColor;
+          const member = row.memberId ? members.find(x => x.id === row.memberId) : null;
+          ctx.fillStyle = member ? ((CM[member.cls] || {}).color || '#ffffff') : 'rgba(255,255,255,0.45)';
           ctx.font = 'bold 11px "Exo 2", sans-serif';
-          ctx.textAlign = 'left';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(displayName, PAD + LBL_W, textMidY);
+          ctx.fillText(row.memberName || '—', PAD + LBL_W, textMidY);
 
-          // Note text (italic, dim, after the name)
           if (row.text) {
-            ctx.fillStyle = 'rgba(255,255,255,0.38)';
-            ctx.font = 'italic 9px "Exo 2", sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            // Truncate note if needed
+            ctx.fillStyle = 'rgba(255,255,255,0.38)'; ctx.font = 'italic 9px "Exo 2", sans-serif';
             const maxNoteW = SA_W - PAD - (PAD + LBL_W + NAME_W + 4);
             let note = row.text;
-            if (ctx.measureText(note).width > maxNoteW) {
-              while (note.length > 0 && ctx.measureText(note + '…').width > maxNoteW) note = note.slice(0, -1);
-              note += '…';
-            }
+            while (note.length > 0 && ctx.measureText(note + '…').width > maxNoteW) note = note.slice(0, -1);
+            if (note !== row.text) note += '…';
             ctx.fillText(note, PAD + LBL_W + NAME_W + 4, textMidY);
           }
 
-          // ── Icon strip ───────────────────────────────────────────
-          const icnY = rowY + topH;
-          ctx.fillStyle = BG_ICON_ROW;
-          ctx.fillRect(1, icnY, SA_W - 2, icnH);
-
-          const icons = row.icons || [];
-          icons.forEach((ic, ii) => {
+          ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(1, rowY + topH, SA_W - 2, icnH);
+          (row.icons || []).forEach((ic, ii) => {
             const ix = PAD + LBL_W + ii * (ICON_SZ + 3);
-            if (ix + ICON_SZ > SA_W - PAD) return;   // overflow guard
-
+            if (ix + ICON_SZ > SA_W - PAD) return;
             let imgSrc = null;
             if (ic.startsWith('__marker__')) {
-              const mkey = ic.replace('__marker__', '');
-              imgSrc = MARKER_ICONS[mkey] || null;
+              imgSrc = MARKER_ICONS[ic.replace('__marker__', '')] || null;
             } else {
-              const file = SA_ICONS[ic];
-              if (file) imgSrc = BASE_ICON + file + '.jpg';
+              const file = SA_ICONS[ic]; if (file) imgSrc = BASE_ICON + file + '.jpg';
             }
-
             const imgEl = imgSrc ? iconImgMap[imgSrc] : null;
             if (imgEl) {
-              // Rounded-corner clip for icon
-              const iy = icnY + Math.round((icnH - ICON_SZ) / 2);
-              ctx.save();
-              ctx.beginPath();
-              ctx.roundRect(ix, iy, ICON_SZ, ICON_SZ, 3);
-              ctx.clip();
-              ctx.drawImage(imgEl, ix, iy, ICON_SZ, ICON_SZ);
-              ctx.restore();
-              // Thin border around icon
-              ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-              ctx.lineWidth = 1;
-              ctx.strokeRect(ix + 0.5, iy + 0.5, ICON_SZ - 1, ICON_SZ - 1);
+              const iy = rowY + topH + Math.round((icnH - ICON_SZ) / 2);
+              ctx.save(); ctx.beginPath(); ctx.roundRect(ix, iy, ICON_SZ, ICON_SZ, 3);
+              ctx.clip(); ctx.drawImage(imgEl, ix, iy, ICON_SZ, ICON_SZ); ctx.restore();
             }
           });
-
           curY += ROW_H;
         });
-
-        // Small spacer between sections
         curY += 6;
       });
-
-      // Remaining panel area below all sections — fill to edge
-      if (curY < OUT_H) {
-        ctx.fillStyle = BG_PANEL;
-        ctx.fillRect(0, curY, SA_W - 1, OUT_H - curY);
-      }
+      if (curY < OUT_H) { ctx.fillStyle = '#10101e'; ctx.fillRect(0, curY, SA_W - 1, OUT_H - curY); }
     }
 
-    // ── Trigger download ─────────────────────────────────────────────────
     const planName = (currentPlanId && assignPlans[currentPlanId]?.name)
-      ? assignPlans[currentPlanId].name
-      : (currentEncounterName || 'assignment');
+      ? assignPlans[currentPlanId].name : (currentEncounterName || 'assignment');
     const filename = planName.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.png';
-
     const link = document.createElement('a');
-    link.download = filename;
-    link.href = out.toDataURL('image/png');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
+    link.download = filename; link.href = out.toDataURL('image/png');
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
   } catch(err) {
     console.error('Export error:', err);
     alert('Export failed: ' + err.message);
