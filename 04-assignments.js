@@ -13,6 +13,40 @@ const IMG_BOSS_18698 = "assets/image_11.png";
 const IMG_BOSS_20194 = "assets/image_12.png";
 const IMG_BOSS_20195 = "assets/image_13.png";
 
+// SSC backgrounds
+const IMG_BG_HYDROSS    = "assets/hydros.png";
+const IMG_BG_LURKER     = "assets/lurker.png";
+const IMG_BG_LEOTHERAS  = "assets/leotheras.png";
+const IMG_BG_KARATHRESS = "assets/fathom.png";
+const IMG_BG_MOROGRIM   = "assets/morogrim.png";
+const IMG_BG_VASHJ      = "assets/vashj.png";
+// TK backgrounds
+const IMG_BG_ALAR       = "assets/alar.png";
+const IMG_BG_VOIDREAVER = "assets/voidreaver.png";
+const IMG_BG_SOLARIAN   = "assets/solarian.png";
+const IMG_BG_KAELTHAS   = "assets/sunstrider.png";
+
+// SSC boss/add icons
+const IMG_BOSS_20023 = "assets/20023.png";   // Hydross add
+const IMG_BOSS_20162 = "assets/20162.png";   // Hydross add
+const IMG_BOSS_20236 = "assets/20236.png";   // Lurker add
+const IMG_BOSS_20237 = "assets/20237.png";   // Lurker add
+const IMG_BOSS_20177 = "assets/20177.png";   // Leotheras add
+const IMG_BOSS_20178 = "assets/20178.png";   // Leotheras add
+const IMG_BOSS_20216 = "assets/20216.png";   // Karathress guard
+const IMG_BOSS_20514 = "assets/20514.png";   // Karathress guard
+const IMG_BOSS_20568 = "assets/20568.png";   // Karathress guard
+const IMG_BOSS_20662 = "assets/20662.png";   // Morogrim add
+const IMG_BOSS_20670 = "assets/20670.png";   // Morogrim add
+const IMG_BOSS_20671 = "assets/20671.png";   // Morogrim add
+const IMG_BOSS_20672 = "assets/20672.png";   // Morogrim add
+const IMG_BOSS_20739 = "assets/20739.png";   // Vashj add
+const IMG_BOSS_20748 = "assets/20748.png";   // Vashj add
+// TK boss/add icons
+const IMG_BOSS_18239 = "assets/18239.png";   // Al'ar add
+const IMG_BOSS_18945 = "assets/18945.png";   // Al'ar add
+const IMG_BOSS_18951 = "assets/18951.png";   // Void Reaver add
+
 const MARKER_ICONS = {
   star: "assets/image_14.png",
   circle: "assets/image_15.png",
@@ -49,31 +83,43 @@ const RAIDS = [
     id: 'serpentshrine_cavern',
     name: "Serpentshrine Cavern",
     encounters: [
-      { id: 'hydross', name: 'Hydross the Unstable' },
-      { id: 'lurker', name: 'The Lurker Below' },
-      { id: 'leotheras', name: 'Leotheras the Blind' },
-      { id: 'karathress', name: 'Fathom-Lord Karathress' },
-      { id: 'morogrim', name: 'Morogrim Tidewalker' },
-      { id: 'vashj', name: "Lady Vashj" },
+      { id: 'hydross',    name: 'Hydross the Unstable',     bg: 'IMG_BG_HYDROSS'    },
+      { id: 'lurker',     name: 'The Lurker Below',         bg: 'IMG_BG_LURKER'     },
+      { id: 'leotheras',  name: 'Leotheras the Blind',      bg: 'IMG_BG_LEOTHERAS'  },
+      { id: 'karathress', name: 'Fathom-Lord Karathress',   bg: 'IMG_BG_KARATHRESS' },
+      { id: 'morogrim',   name: 'Morogrim Tidewalker',      bg: 'IMG_BG_MOROGRIM'   },
+      { id: 'vashj',      name: "Lady Vashj",               bg: 'IMG_BG_VASHJ'      },
     ]
   },
   {
     id: 'the_eye',
     name: "The Eye (Tempest Keep)",
     encounters: [
-      { id: 'alar', name: "Al'ar" },
-      { id: 'voidreaver', name: 'Void Reaver' },
-      { id: 'solarian', name: 'High Astromancer Solarian' },
-      { id: 'kaelthas', name: "Kael'thas Sunstrider" },
+      { id: 'alar',       name: "Al'ar",                    bg: 'IMG_BG_ALAR'       },
+      { id: 'voidreaver', name: 'Void Reaver',              bg: 'IMG_BG_VOIDREAVER' },
+      { id: 'solarian',   name: 'High Astromancer Solarian',bg: 'IMG_BG_SOLARIAN'   },
+      { id: 'kaelthas',   name: "Kael'thas Sunstrider",     bg: 'IMG_BG_KAELTHAS'   },
     ]
   },
 ];
 
 // Map encounter id -> background image data
 const ENCOUNTER_BG = {
-  gruul: IMG_BG_GRUUL,
-  highking: IMG_BG_HIGHKING,
+  gruul:       IMG_BG_GRUUL,
+  highking:    IMG_BG_HIGHKING,
   magtheridon: IMG_BG_MAGTHERIDON,
+  // SSC
+  hydross:     IMG_BG_HYDROSS,
+  lurker:      IMG_BG_LURKER,
+  leotheras:   IMG_BG_LEOTHERAS,
+  karathress:  IMG_BG_KARATHRESS,
+  morogrim:    IMG_BG_MOROGRIM,
+  vashj:       IMG_BG_VASHJ,
+  // TK
+  alar:        IMG_BG_ALAR,
+  voidreaver:  IMG_BG_VOIDREAVER,
+  solarian:    IMG_BG_SOLARIAN,
+  kaelthas:    IMG_BG_KAELTHAS,
 };
 
 const BOSS_ICONS_DATA = {
@@ -85,6 +131,26 @@ const BOSS_ICONS_DATA = {
   '18698': IMG_BOSS_18698,
   '20194': IMG_BOSS_20194,
   '20195': IMG_BOSS_20195,
+  // SSC
+  '20023': IMG_BOSS_20023,
+  '20162': IMG_BOSS_20162,
+  '20236': IMG_BOSS_20236,
+  '20237': IMG_BOSS_20237,
+  '20177': IMG_BOSS_20177,
+  '20178': IMG_BOSS_20178,
+  '20216': IMG_BOSS_20216,
+  '20514': IMG_BOSS_20514,
+  '20568': IMG_BOSS_20568,
+  '20662': IMG_BOSS_20662,
+  '20670': IMG_BOSS_20670,
+  '20671': IMG_BOSS_20671,
+  '20672': IMG_BOSS_20672,
+  '20739': IMG_BOSS_20739,
+  '20748': IMG_BOSS_20748,
+  // TK
+  '18239': IMG_BOSS_18239,
+  '18945': IMG_BOSS_18945,
+  '18951': IMG_BOSS_18951,
 };
 
 const BOSS_ICON_NAMES = {
@@ -96,6 +162,26 @@ const BOSS_ICON_NAMES = {
   '18698': 'Gruul',
   '20194': 'Kiggler',
   '20195': 'Krosh',
+  // SSC — verify these names match your NPC IDs
+  '20023': 'Hydross Add',
+  '20162': 'Hydross Add',
+  '20236': 'Lurker Add',
+  '20237': 'Lurker Add',
+  '20177': 'Leotheras Add',
+  '20178': 'Leotheras Add',
+  '20216': 'Karathress Guard',
+  '20514': 'Karathress Guard',
+  '20568': 'Karathress Guard',
+  '20662': 'Morogrim Add',
+  '20670': 'Morogrim Add',
+  '20671': 'Morogrim Add',
+  '20672': 'Morogrim Add',
+  '20739': 'Vashj Add',
+  '20748': 'Vashj Add',
+  // TK — verify these names match your NPC IDs
+  '18239': "Al'ar Add",
+  '18945': "Al'ar Add",
+  '18951': 'Void Reaver Add',
 };
 
 // Which boss icons show for each encounter
@@ -103,6 +189,18 @@ const ENCOUNTER_BOSS_ICONS = {
   highking:    ['11585','12472','18649','20194','20195'],
   gruul:       ['18698'],
   magtheridon: ['18527','9865'],
+  // SSC
+  hydross:     ['20023','20162'],
+  lurker:      ['20236','20237'],
+  leotheras:   ['20177','20178'],
+  karathress:  ['20216','20514','20568'],
+  morogrim:    ['20662','20670','20671','20672'],
+  vashj:       ['20739','20748'],
+  // TK
+  alar:        ['18239','18945'],
+  voidreaver:  ['18951'],
+  solarian:    [],
+  kaelthas:    [],
 };
 
 // ── State ──────────────────────────────────────────────────
