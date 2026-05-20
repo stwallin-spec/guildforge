@@ -29,6 +29,7 @@ const IMG_BG_KAELTHAS   = "assets/sunstrider.png";
 // SSC boss/add icons
 const IMG_BOSS_20023 = "assets/20023.png";   // Kael'thas Sunstrider
 const IMG_BOSS_20162 = "assets/20162.png";   // Hydross the Unstable
+const IMG_BOSS_WATER_ELEMENTAL = "assets/water_elemental.png";  // Water Elemental (Hydross add)
 const IMG_BOSS_20236 = "assets/20236.png";   // Master Engineer Telonicus (Kael'thas advisor)
 const IMG_BOSS_20237 = "assets/20237.png";   // Grand Astromancer Capernian (Kael'thas advisor)
 const IMG_BOSS_20177 = "assets/20177.png";   // Thaladred the Darkener (Kael'thas advisor)
@@ -135,6 +136,7 @@ const BOSS_ICONS_DATA = {
   // SSC
   '20023': IMG_BOSS_20023,
   '20162': IMG_BOSS_20162,
+  'water_elemental': IMG_BOSS_WATER_ELEMENTAL,
   '20236': IMG_BOSS_20236,
   '20237': IMG_BOSS_20237,
   '20177': IMG_BOSS_20177,
@@ -166,6 +168,7 @@ const BOSS_ICON_NAMES = {
   '20195': 'Krosh',
   // SSC
   '20162': 'Hydross the Unstable',
+  'water_elemental': 'Water Elemental',
   '20216': 'The Lurker Below',
   'lurker_naga': 'Lurker Naga',
   '20514': 'Leotheras the Blind',
@@ -193,7 +196,7 @@ const ENCOUNTER_BOSS_ICONS = {
   gruul:       ['18698'],
   magtheridon: ['18527','9865'],
   // SSC
-  hydross:     ['20162'],                              // Hydross the Unstable
+  hydross:     ['20162','water_elemental'],            // Hydross the Unstable, Water Elemental
   lurker:      ['20216','lurker_naga'],               // The Lurker Below, Lurker Naga
   leotheras:   ['20514','20568'],                      // Leotheras the Blind, Shadow of Leotheras
   karathress:  ['20662','20670','20671','20672'],       // Fathom-Lord Karathress + 3 guards
