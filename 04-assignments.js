@@ -1055,7 +1055,7 @@ function aCanvasDropHandler(e) {
 // ── Plans ─────────────────────────────────────────────────
 function savePlanState() {
   if (!currentPlanId) return;
-  // Normalise all coords to 0-1 fractions of canvas size before saving.
+  // Normalise all coords AND sizes to 0-1 fractions of canvas size before saving.
   // This makes plans resolution-independent — they load correctly on any screen size.
   const elemsToSave = elements.map(el => {
     let out = { ...el };
@@ -1067,6 +1067,9 @@ function savePlanState() {
       } else {
         out.x = out.x / canvasW; out.y = out.y / canvasH;
       }
+      // Normalise size/fontSize against canvas height
+      if (out.size    != null) out.size     = out.size     / canvasH;
+      if (out.fontSize != null) out.fontSize = out.fontSize / canvasH;
     }
     return out;
   });
@@ -1078,7 +1081,7 @@ function savePlanState() {
   updateCurrentPlanBar();
 }
 
-// Expand normalised (0-1) coords to pixel coords for the current canvas size.
+// Expand normalised (0-1) coords and sizes to pixels for the current canvas size.
 function denormalizeElements(elems, toW, toH) {
   for (const el of elems) {
     if (el.type === 'arrow') {
@@ -1087,6 +1090,9 @@ function denormalizeElements(elems, toW, toH) {
     } else {
       el.x = el.x * toW; el.y = el.y * toH;
     }
+    // Expand size/fontSize against canvas height
+    if (el.size     != null) el.size     = el.size     * toH;
+    if (el.fontSize != null) el.fontSize = el.fontSize * toH;
   }
 }
 
@@ -1103,6 +1109,9 @@ function rescaleElements(elems, fromW, fromH, toW, toH) {
     } else {
       el.x = Math.round(el.x * scaleX); el.y = Math.round(el.y * scaleY);
     }
+    // Also rescale size and fontSize against height
+    if (el.size     != null) el.size     = Math.round(el.size     * scaleY);
+    if (el.fontSize != null) el.fontSize = Math.round(el.fontSize * scaleY);
   }
 }
 
