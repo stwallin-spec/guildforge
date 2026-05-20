@@ -213,7 +213,7 @@ const ENCOUNTER_BOSS_ICONS = {
 let assignInited = false;
 let aCanvas, aCtx;
 let canvasW = 900, canvasH = 506;
-let _pendingRescaleW = null, _pendingRescaleH = null;  // saved canvas size from last loadPlan call
+let _pendingDenormalize = false;  // set by loadPlan, consumed by loadBossBackground
 
 let currentEncounterId = 'gruul';
 let currentEncounterName = 'Gruul the Dragonkiller';
@@ -589,14 +589,12 @@ function loadBossBackground(encounterId) {
   const src = ENCOUNTER_BG[encounterId];
   if (!src) {
     bgImage = null; bgLoaded = false;
-    // Still apply any pending rescale (no bg image — canvas stays at current size)
-    if (_pendingRescaleW && _pendingRescaleH &&
-        (_pendingRescaleW !== canvasW || _pendingRescaleH !== canvasH)) {
-      rescaleElements(elements, _pendingRescaleW, _pendingRescaleH, canvasW, canvasH);
-      const plan = currentPlanId ? assignPlans[currentPlanId] : null;
-      if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
+    // No bg image — canvas stays at current size.
+    // If a plan was just loaded with normalized coords, denormalize now.
+    if (_pendingDenormalize) {
+      _pendingDenormalize = false;
+      denormalizeElements(elements, canvasW, canvasH);
     }
-    _pendingRescaleW = null; _pendingRescaleH = null;
     renderCanvas(); return;
   }
   bgImage = new Image();
@@ -604,12 +602,8 @@ function loadBossBackground(encounterId) {
   bgLoaded = false;
   bgImage.onload = () => {
     bgLoaded = true;
-    // Size canvas to match image aspect ratio within the container
     const wrap = document.getElementById('assign-canvas-wrap');
     if (wrap) {
-      // Remember previous canvas size before we resize
-      const prevW = canvasW;
-      const prevH = canvasH;
       const wrapW = wrap.clientWidth;
       const wrapH = wrap.clientHeight;
       const imgAR = bgImage.naturalWidth / bgImage.naturalHeight;
@@ -627,19 +621,12 @@ function loadBossBackground(encounterId) {
       aCanvas.style.left = Math.round((wrapW - canvasW) / 2) + 'px';
       aCanvas.style.top = Math.round((wrapH - canvasH) / 2) + 'px';
 
-      // Single rescale: from the plan's saved canvas size → the new final canvas size.
-      // We only rescale the live `elements` copy — plan.elements is never touched here.
-      // plan.canvasW/H is updated to the final canvas size so that savePlanState()
-      // always writes the correct reference dimensions.
-      const fromW = _pendingRescaleW || prevW;
-      const fromH = _pendingRescaleH || prevH;
-      _pendingRescaleW = null;
-      _pendingRescaleH = null;
-      if (fromW && fromH && (fromW !== canvasW || fromH !== canvasH)) {
-        rescaleElements(elements, fromW, fromH, canvasW, canvasH);
+      // Denormalize: convert 0-1 fractions → pixel coords for this canvas size.
+      // This is the ONLY place coords are converted — no rescaling, no drift.
+      if (_pendingDenormalize) {
+        _pendingDenormalize = false;
+        denormalizeElements(elements, canvasW, canvasH);
       }
-      const plan = currentPlanId ? assignPlans[currentPlanId] : null;
-      if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
     }
     renderCanvas();
   };
@@ -1068,22 +1055,42 @@ function aCanvasDropHandler(e) {
 // ── Plans ─────────────────────────────────────────────────
 function savePlanState() {
   if (!currentPlanId) return;
-  // Strip large base64 src from bossicons before saving - we can re-resolve from BOSS_ICONS_DATA
+  // Normalise all coords to 0-1 fractions of canvas size before saving.
+  // This makes plans resolution-independent — they load correctly on any screen size.
   const elemsToSave = elements.map(el => {
-    if (el.type === 'bossicon') {
-      const { src, ...rest } = el; // eslint-disable-line no-unused-vars
-      return rest; // save without src, bossIconId is preserved for re-resolution
+    let out = { ...el };
+    if (out.type === 'bossicon') { delete out.src; }  // re-resolved on load
+    if (canvasW && canvasH) {
+      if (out.type === 'arrow') {
+        out.x1 = out.x1 / canvasW; out.y1 = out.y1 / canvasH;
+        out.x2 = out.x2 / canvasW; out.y2 = out.y2 / canvasH;
+      } else {
+        out.x = out.x / canvasW; out.y = out.y / canvasH;
+      }
     }
-    return el;
+    return out;
   });
   assignPlans[currentPlanId].elements = JSON.parse(JSON.stringify(elemsToSave));
-  // Save canvas dimensions so we can rescale coords correctly when loading on a different screen
+  assignPlans[currentPlanId].coordsNormalized = true;  // flag: coords are fractions not pixels
   assignPlans[currentPlanId].canvasW = canvasW;
   assignPlans[currentPlanId].canvasH = canvasH;
   saveAssignData();
   updateCurrentPlanBar();
 }
 
+// Expand normalised (0-1) coords to pixel coords for the current canvas size.
+function denormalizeElements(elems, toW, toH) {
+  for (const el of elems) {
+    if (el.type === 'arrow') {
+      el.x1 = el.x1 * toW; el.y1 = el.y1 * toH;
+      el.x2 = el.x2 * toW; el.y2 = el.y2 * toH;
+    } else {
+      el.x = el.x * toW; el.y = el.y * toH;
+    }
+  }
+}
+
+// Legacy: rescale absolute pixel coords (old plans saved before normalization).
 function rescaleElements(elems, fromW, fromH, toW, toH) {
   if (!fromW || !fromH || !toW || !toH) return;
   if (fromW === toW && fromH === toH) return;
@@ -1123,27 +1130,22 @@ function loadPlan(planId) {
     }
   }
 
-  // Rescale plan.elements in-memory from their saved size to the current canvas size.
-  // This is only an in-memory update — saveAssignData() is not called here, so the
-  // on-disk coords and plan.canvasW/H are untouched. We also stash the saved size for
-  // loadBossBackground, which may resize the canvas further once the image loads.
-  const _savedW = plan.canvasW || null;
-  const _savedH = plan.canvasH || null;
-  if (_savedW && _savedH && (_savedW !== canvasW || _savedH !== canvasH)) {
-    rescaleElements(elements, _savedW, _savedH, canvasW, canvasH);
-    // Update the in-memory plan so repeated clicks within the same session
-    // don't re-rescale from the original saved coords.
-    plan.elements = JSON.parse(JSON.stringify(elements.map(el => {
-      if (el.type === 'bossicon') { const { src, ...rest } = el; return rest; }
-      return el;
-    })));
-    plan.canvasW = canvasW;
-    plan.canvasH = canvasH;
+  if (plan.coordsNormalized) {
+    // New format: coords are 0-1 fractions. Denormalize AFTER the bg image loads
+    // and sets the final canvas size — so we set a flag for loadBossBackground.
+    _pendingDenormalize = true;
+  } else {
+    // Legacy format: absolute pixel coords saved with canvasW/H reference.
+    // Rescale once to current canvas size, then mark as normalized going forward.
+    const _savedW = plan.canvasW || null;
+    const _savedH = plan.canvasH || null;
+    if (_savedW && _savedH && (_savedW !== canvasW || _savedH !== canvasH)) {
+      rescaleElements(elements, _savedW, _savedH, canvasW, canvasH);
+    }
+    // Convert to normalized so subsequent loads within the session are clean.
+    // The plan will be fully migrated to normalized format on next Save.
+    _pendingDenormalize = false;
   }
-  // Pass the pre-bg-load canvas size to loadBossBackground so it can rescale
-  // from THIS size → final bg-fitted size (avoids double-rescaling).
-  _pendingRescaleW = plan.canvasW || null;
-  _pendingRescaleH = plan.canvasH || null;
 
   undoStack = [];
   currentEncounterId = plan.encounterId;
@@ -1330,13 +1332,8 @@ async function savePlanManual() {
   }
   assignPlans[currentPlanId].name = name;
   // Compute elements to save and update plan in memory
-  const elemsToSave = elements.map(el => {
-    if (el.type === 'bossicon') { const { src, ...rest } = el; return rest; }
-    return el;
-  });
-  assignPlans[currentPlanId].elements = JSON.parse(JSON.stringify(elemsToSave));
-  assignPlans[currentPlanId].canvasW = canvasW;
-  assignPlans[currentPlanId].canvasH = canvasH;
+  // Use savePlanState to ensure coords are properly normalised
+  savePlanState();
   renderPlansLibrary();
   updateCurrentPlanBar();
   // Block button and wait for cloud write to fully complete before showing success
