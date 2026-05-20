@@ -207,6 +207,7 @@ const ENCOUNTER_BOSS_ICONS = {
 let assignInited = false;
 let aCanvas, aCtx;
 let canvasW = 900, canvasH = 506;
+let _pendingRescaleW = null, _pendingRescaleH = null;  // saved canvas size from last loadPlan call
 
 let currentEncounterId = 'gruul';
 let currentEncounterName = 'Gruul the Dragonkiller';
@@ -580,7 +581,18 @@ function loadBossBackground(encounterId) {
   const enc = RAIDS.flatMap(r => r.encounters).find(e => e.id === encounterId);
   if (enc) currentEncounterName = enc.name;
   const src = ENCOUNTER_BG[encounterId];
-  if (!src) { bgImage = null; bgLoaded = false; renderCanvas(); return; }
+  if (!src) {
+    bgImage = null; bgLoaded = false;
+    // Still apply any pending rescale from loadPlan (no bg image means canvas stays
+    // at its current size, so rescale from saved size → current size directly)
+    if (_pendingRescaleW && _pendingRescaleH) {
+      rescaleElements(elements, _pendingRescaleW, _pendingRescaleH, canvasW, canvasH);
+      const plan = currentPlanId ? assignPlans[currentPlanId] : null;
+      if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
+      _pendingRescaleW = null; _pendingRescaleH = null;
+    }
+    renderCanvas(); return;
+  }
   bgImage = new Image();
   bgImage.crossOrigin = 'anonymous';
   bgLoaded = false;
@@ -609,16 +621,20 @@ function loadBossBackground(encounterId) {
       aCanvas.style.left = Math.round((wrapW - canvasW) / 2) + 'px';
       aCanvas.style.top = Math.round((wrapH - canvasH) / 2) + 'px';
 
-      // Rescale element coordinates if the background image caused the canvas to
-      // change size from what it was just before this load (prevW/prevH).
-      // Note: cross-screen rescaling is already handled in loadPlan(), so we only
-      // need to account for the aspect-ratio resize that happens here.
-      if (prevW && prevH && (prevW !== canvasW || prevH !== canvasH)) {
-        rescaleElements(elements, prevW, prevH, canvasW, canvasH);
-        // Update plan's stored canvas size so subsequent saves use the new dimensions
-        const plan = currentPlanId ? assignPlans[currentPlanId] : null;
-        if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
+      // Single rescale: from the plan's saved canvas size → the new final canvas size.
+      // _pendingRescaleW/H is set by loadPlan() and represents the size the elements
+      // were originally positioned at. If no plan was just loaded, fall back to prevW/H
+      // (handles live window-resize mid-session without a plan reload).
+      const fromW = _pendingRescaleW || prevW;
+      const fromH = _pendingRescaleH || prevH;
+      _pendingRescaleW = null;
+      _pendingRescaleH = null;
+      if (fromW && fromH && (fromW !== canvasW || fromH !== canvasH)) {
+        rescaleElements(elements, fromW, fromH, canvasW, canvasH);
       }
+      // Always update plan's stored canvas size to the final size after bg load
+      const plan = currentPlanId ? assignPlans[currentPlanId] : null;
+      if (plan) { plan.canvasW = canvasW; plan.canvasH = canvasH; }
     }
     renderCanvas();
   };
@@ -1102,15 +1118,12 @@ function loadPlan(planId) {
     }
   }
 
-  // If the plan was saved at a different canvas size (different screen), rescale all
-  // element coordinates NOW — before loadBossBackground potentially resizes the canvas
-  // further. This ensures positions are always relative to the current canvas.
-  if (plan.canvasW && plan.canvasH && canvasW && canvasH) {
-    rescaleElements(elements, plan.canvasW, plan.canvasH, canvasW, canvasH);
-    // Update the plan's stored size so subsequent saves use the current dimensions
-    plan.canvasW = canvasW;
-    plan.canvasH = canvasH;
-  }
+  // Don't rescale here — loadBossBackground fires async and will resize the canvas
+  // to match the image aspect ratio. We do ONE rescale there, from the plan's saved
+  // dimensions to the final canvas size. Stash the saved size so it survives into
+  // the onload callback.
+  _pendingRescaleW = plan.canvasW || null;
+  _pendingRescaleH = plan.canvasH || null;
 
   undoStack = [];
   currentEncounterId = plan.encounterId;
