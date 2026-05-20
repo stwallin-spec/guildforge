@@ -34,6 +34,7 @@ const IMG_BOSS_20237 = "assets/20237.png";   // Grand Astromancer Capernian (Kae
 const IMG_BOSS_20177 = "assets/20177.png";   // Thaladred the Darkener (Kael'thas advisor)
 const IMG_BOSS_20178 = "assets/20178.png";   // Master Engineer Telonicus (Kael'thas advisor)
 const IMG_BOSS_20216 = "assets/20216.png";   // The Lurker Below
+const IMG_BOSS_LURKER_NAGA = "assets/lurker_naga.png";  // Lurker Naga
 const IMG_BOSS_20514 = "assets/20514.png";   // Leotheras the Blind
 const IMG_BOSS_20568 = "assets/20568.png";   // Shadow of Leotheras
 const IMG_BOSS_20662 = "assets/20662.png";   // Fathom-Lord Karathress
@@ -139,6 +140,7 @@ const BOSS_ICONS_DATA = {
   '20177': IMG_BOSS_20177,
   '20178': IMG_BOSS_20178,
   '20216': IMG_BOSS_20216,
+  'lurker_naga': IMG_BOSS_LURKER_NAGA,
   '20514': IMG_BOSS_20514,
   '20568': IMG_BOSS_20568,
   '20662': IMG_BOSS_20662,
@@ -165,6 +167,7 @@ const BOSS_ICON_NAMES = {
   // SSC
   '20162': 'Hydross the Unstable',
   '20216': 'The Lurker Below',
+  'lurker_naga': 'Lurker Naga',
   '20514': 'Leotheras the Blind',
   '20568': 'Shadow of Leotheras',
   '20662': 'Fathom-Lord Karathress',
@@ -191,7 +194,7 @@ const ENCOUNTER_BOSS_ICONS = {
   magtheridon: ['18527','9865'],
   // SSC
   hydross:     ['20162'],                              // Hydross the Unstable
-  lurker:      ['20216'],                              // The Lurker Below
+  lurker:      ['20216','lurker_naga'],               // The Lurker Below, Lurker Naga
   leotheras:   ['20514','20568'],                      // Leotheras the Blind, Shadow of Leotheras
   karathress:  ['20662','20670','20671','20672'],       // Fathom-Lord Karathress + 3 guards
   morogrim:    ['20739'],                              // Morogrim Tidewalker
