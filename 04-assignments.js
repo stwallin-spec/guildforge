@@ -39,6 +39,9 @@ const IMG_BOSS_20671 = "assets/20671.png";   // Fathom-Guard Sharkkis
 const IMG_BOSS_20672 = "assets/20672.png";   // Fathom-Guard Caribdis
 const IMG_BOSS_20739 = "assets/20739.png";   // Morogrim Tidewalker
 const IMG_BOSS_20748 = "assets/20748.png";   // Lady Vashj
+const IMG_BOSS_TAINTED_CORE     = "assets/tainted_core.png";      // Tainted Core (Vashj add)
+const IMG_BOSS_GREEN_ELEMENTAL  = "assets/green_elemental.png";   // Green Elemental (Vashj add)
+const IMG_BOSS_COILFANG_STRIDER = "assets/coilfang_strider.png";  // Coilfang Strider (Vashj add)
 // TK boss icons
 const IMG_BOSS_18945 = "assets/18945.png";   // Al'ar
 const IMG_BOSS_18951 = "assets/18951.png";   // Void Reaver
@@ -146,6 +149,9 @@ const BOSS_ICONS_DATA = {
   '20672':          IMG_BOSS_20672,
   '20739':          IMG_BOSS_20739,
   '20748':          IMG_BOSS_20748,
+  'tainted_core':     IMG_BOSS_TAINTED_CORE,
+  'green_elemental':  IMG_BOSS_GREEN_ELEMENTAL,
+  'coilfang_strider': IMG_BOSS_COILFANG_STRIDER,
   // TK
   '18945': IMG_BOSS_18945,
   '18951': IMG_BOSS_18951,
@@ -179,6 +185,9 @@ const BOSS_ICON_NAMES = {
   '20672':           'Fathom-Guard Caribdis',
   '20739':           'Morogrim Tidewalker',
   '20748':           'Lady Vashj',
+  'tainted_core':     'Tainted Core',
+  'green_elemental':  'Green Elemental',
+  'coilfang_strider': 'Coilfang Strider',
   // TK
   '18945': "Al'ar",
   '18951': 'Void Reaver',
@@ -201,7 +210,7 @@ const ENCOUNTER_BOSS_ICONS = {
   leotheras:   ['20514','20568'],
   karathress:  ['20662','20670','20671','20672'],
   morogrim:    ['20739'],
-  vashj:       ['20748'],
+  vashj:       ['20748','20162','water_elemental','green_elemental','lurker_naga','tainted_core','coilfang_strider'],
   // TK
   alar:        ['18945'],
   voidreaver:  ['18951'],
@@ -242,6 +251,7 @@ let undoStack = [];
 const imgCache = {};
 
 function loadImg(src) {
+  if (!src) return new Image();
   if (imgCache[src]) return imgCache[src];
   const img = new Image();
   img.src = src;
@@ -751,8 +761,8 @@ function drawElement(el) {
   const size = el.size || 44;
   const half = size / 2;
 
-  // Re-resolve bossicon src from BOSS_ICONS_DATA if missing/corrupted
-  if (el.type === 'bossicon' && (!el.src || el.src.length < 100)) {
+  // Always re-resolve bossicon src from BOSS_ICONS_DATA (src is stripped on save)
+  if (el.type === 'bossicon') {
     if (el.bossIconId && BOSS_ICONS_DATA[el.bossIconId]) {
       el.src = BOSS_ICONS_DATA[el.bossIconId];
     } else if (el.label) {
@@ -761,6 +771,7 @@ function drawElement(el) {
     }
   }
 
+  if (!el.src) return;  // nothing to draw
   const img = loadImg(el.src);
 
   if (img.complete && img.naturalWidth) {
@@ -804,7 +815,11 @@ function drawElement(el) {
       }
     }
   } else {
-    if (!img.complete) img.onload = () => renderCanvas();
+    // Only attach onload once to avoid overwriting it on every render call
+    if (!img.complete && !img._waOnload) {
+      img._waOnload = true;
+      img.onload = () => renderCanvas();
+    }
   }
 
   // Label under token
