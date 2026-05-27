@@ -105,18 +105,32 @@ async function importLootText(text) {
     return;
   }
   const existing = new Set(_lootData.map(e => e.id));
-  const added = newEntries.filter(e => !existing.has(e.id));
+  const candidates = newEntries.filter(e => !existing.has(e.id));
+
+  // Fetch item quality for new entries before filtering
+  statusEl.style.color = 'var(--text3)';
+  statusEl.textContent = `⟳ Fetching item data... (${candidates.length} entries)`;
+  await fetchMissingItems(candidates.map(e => e.itemID));
+
+  // Keep only Epic (4) or Legendary (5) items -- always keep Nether Vortex (30183)
+  const ALWAYS_KEEP = new Set([30183]);
+  const added = candidates.filter(e => {
+    if (ALWAYS_KEEP.has(e.itemID)) return true;
+    const quality = _itemCache[e.itemID]?.quality ?? 0;
+    return quality >= 4;
+  });
+  const filteredOut = candidates.length - added.length;
+
   _lootData = [..._lootData, ...added];
   _lootData.sort((a, b) => b.dateTime.localeCompare(a.dateTime));
   saveLootData();
 
-  statusEl.style.color = '#80d080';
-  statusEl.textContent = `⟳ Fetching item names... (${added.length} new entries)`;
-
   await fetchMissingItems(_lootData.map(e => e.itemID));
   renderLootPage();
   closeLootPasteModal();
-  showToast(`✓ Imported ${added.length} new entries${newEntries.length - added.length > 0 ? ` (${newEntries.length - added.length} duplicates skipped)` : ''}`);
+  const skippedMsg = newEntries.length - candidates.length > 0 ? ` · ${newEntries.length - candidates.length} duplicates skipped` : '';
+  const filteredMsg = filteredOut > 0 ? ` · ${filteredOut} non-epic filtered` : '';
+  showToast(`✓ Imported ${added.length} entries${skippedMsg}${filteredMsg}`);
 }
 
 // Close modal on backdrop click
@@ -236,23 +250,87 @@ async function submitManualLootEntry() {
 function parseLootCSV(text) {
   const lines = text.trim().split('\n');
   const entries = [];
-  for (let i = 0; i < lines.length; i++) {
+
+  // Split a CSV line correctly, handling quoted fields
+  function splitCSVLine(line) {
+    const result = [];
+    let cur = '';
+    let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (inQ) {
+        if (c === '"') {
+          if (line[i+1] === '"') { cur += '"'; i++; } // escaped quote
+          else inQ = false;
+        } else cur += c;
+      } else {
+        if (c === '"') inQ = true;
+        else if (c === ',') { result.push(cur.trim()); cur = ''; }
+        else cur += c;
+      }
+    }
+    result.push(cur.trim());
+    return result;
+  }
+
+  // Detect format from header row
+  // New Gargul format: date,itemId,itemName,winner,method,offspec,uid
+  // Old format:        dateTime,character,itemID,offspec,id
+  let isNewFormat = false;
+  let headerIdx = -1;
+  for (let i = 0; i < Math.min(lines.length, 5); i++) {
+    const l = lines[i].trim().toLowerCase();
+    if (l.startsWith('#') || !l) continue;
+    if (l.includes('itemid') && l.includes('winner') && l.includes('method')) {
+      isNewFormat = true;
+      headerIdx = i;
+    } else if (l.includes('itemid') || l.includes('datetime') || l.includes('character')) {
+      headerIdx = i;
+    }
+    if (headerIdx >= 0) break;
+  }
+
+  for (let i = (headerIdx >= 0 ? headerIdx + 1 : 0); i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line || line.startsWith('#')) continue;
-    const parts = line.split(',');
-    if (parts.length < 5) continue;
-    const [dateTime, character, itemID, offspec, id] = parts;
-    // Skip header row or any row where itemID is not a valid number
-    const parsedItemID = parseInt(itemID?.trim());
-    if (!parsedItemID || isNaN(parsedItemID)) continue;
-    if (!dateTime?.trim() || !character?.trim()) continue;
-    entries.push({
-      dateTime: dateTime.trim(),
-      character: character.trim(),
-      itemID: parsedItemID,
-      offspec: parseInt(offspec?.trim()) === 1,
-      id: id?.trim(),
-    });
+
+    // Split respecting quoted fields
+    const parts = splitCSVLine(line);
+
+    if (isNewFormat) {
+      // date,itemId,itemName,winner,method,offspec,uid
+      if (parts.length < 7) continue;
+      const [date, itemId, , winner, method, offspecVal, uid] = parts;
+      const parsedItemID = parseInt(itemId);
+      if (!parsedItemID || isNaN(parsedItemID)) continue;
+
+      // Skip rows with no winner or method=none (item dropped but not awarded)
+      const winnerClean = winner.trim();
+      const methodClean = method.trim().toLowerCase();
+      if (!winnerClean || methodClean === 'none') continue;
+
+      entries.push({
+        dateTime: date.trim(),
+        character: winnerClean,
+        itemID: parsedItemID,
+        offspec: parseInt(offspecVal) === 1 || methodClean === 'os_roll',
+        id: uid.trim(),
+      });
+    } else {
+      // Old format: dateTime,character,itemID,offspec,id
+      if (parts.length < 5) continue;
+      const [dateTime, character, itemID, offspec, id] = parts;
+      const parsedItemID = parseInt(itemID);
+      if (!parsedItemID || isNaN(parsedItemID)) continue;
+      if (!dateTime || !character) continue;
+      entries.push({
+        dateTime: dateTime.trim(),
+        character: character.trim(),
+        itemID: parsedItemID,
+        offspec: parseInt(offspec) === 1,
+        id: id?.trim(),
+      });
+    }
   }
   return entries;
 }
